@@ -86,59 +86,9 @@ textarea{resize:vertical;line-height:1.55}
 .prev-total-box{background:#111;color:#fff;display:flex;justify-content:space-between;padding:10px 14px;font-weight:700;font-size:14px;margin-top:1rem;border-radius:0 0 3px 3px}
 .prev-note{font-size:12px;color:#555;padding:4px 0 4px 10px;border-left:2px solid #ddd;margin-bottom:3px}
 .prev-footer{margin-top:2rem;padding-top:.75rem;border-top:1px solid #eee;font-size:10px;color:#ccc;letter-spacing:.04em;text-align:center;text-transform:uppercase}
-@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}.line-prod{grid-template-columns:1fr 40px 28px}.line-prod .hm{display:none}}
 
-.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-top:10px}
 
-.prod-card{border:1px solid #e8e8e4;border-radius:5px;overflow:hidden;position:relative;background:#fff;transition:box-shadow .15s}
-.prod-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
-.prod-card.selected{border-color:#111;box-shadow:0 0 0 2px #111}
-.prod-card .prod-img{width:100%;aspect-ratio:1;object-fit:cover;background:#f5f5f0;display:block}
-.prod-card .prod-img-placeholder{width:100%;aspect-ratio:1;background:#f5f5f0;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:28px}
-.prod-card .prod-info{padding:8px 9px 9px}
-.prod-card .prod-name{font-size:12px;font-weight:600;color:#111;line-height:1.35;margin-bottom:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
-.prod-card .prod-brand{font-size:10px;color:#aaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.prod-card .prod-price{font-size:11px;color:#555;margin-top:3px}
-.prod-qty-row{display:flex;align-items:center;gap:5px;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0ec}
-.prod-qty-btn{width:22px;height:22px;border:1px solid #ddd;border-radius:3px;background:#fff;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;color:#555;flex-shrink:0}
-.prod-qty-btn:hover{border-color:#111;color:#111}
-.prod-qty-val{font-size:13px;font-weight:600;min-width:20px;text-align:center;color:#111}
-.prod-qty-total{font-size:11px;color:#888;margin-left:auto}
-.prod-card .prod-remove{position:absolute;top:5px;right:5px;background:#fff;border:1px solid #ddd;border-radius:50%;width:20px;height:20px;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#aaa;opacity:0;transition:opacity .15s}
-.prod-card:hover .prod-remove{opacity:1}
-.prod-card .prod-remove:hover{color:#e24b4a;border-color:#e24b4a}
-.prod-card .prod-check{position:absolute;top:5px;left:5px;background:#111;border-radius:50%;width:18px;height:18px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:11px;display:none}
-.prod-card.selected .prod-check{display:flex}
-.woo-search-wrap{display:flex;gap:8px;margin-bottom:10px}
-.woo-search-wrap input{flex:1}
-.woo-search-btn{padding:8px 14px;background:#111;color:#fff;border:none;border-radius:4px;font-size:13px;cursor:pointer;white-space:nowrap;font-family:inherit}
-.woo-search-btn:hover{background:#333}
-.woo-search-btn:disabled{background:#aaa}
-.woo-results{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:8px;max-height:320px;overflow-y:auto;border:1px solid #eee;border-radius:4px;padding:10px;background:#fafaf8}
-.woo-result-card{border:1px solid #e8e8e4;border-radius:4px;overflow:hidden;cursor:pointer;background:#fff;transition:all .12s}
-.woo-result-card:hover{border-color:#111;transform:translateY(-1px);box-shadow:0 2px 6px rgba(0,0,0,.07)}
-.woo-result-card img{width:100%;aspect-ratio:1;object-fit:cover;background:#f5f5f0;display:block}
-.woo-result-card .wrc-info{padding:6px 7px}
-.woo-result-card .wrc-name{font-size:11px;font-weight:600;line-height:1.3;color:#111;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
-.woo-result-card .wrc-price{font-size:10.5px;color:#666;margin-top:2px}
-.woo-empty{padding:1.5rem;text-align:center;color:#bbb;font-size:13px}
-.prod-tabs{display:flex;gap:0;margin-bottom:12px;border-bottom:1px solid #eee}
-.prod-tab{padding:8px 16px;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#aaa;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s}
-.prod-tab.on{color:#111;border-bottom-color:#111}
-.manual-upload-zone{border:1px dashed #ccc;border-radius:4px;padding:1.5rem;text-align:center;cursor:pointer;transition:all .15s;background:#fafaf8}
-.manual-upload-zone:hover{border-color:#888;background:#f5f5f0}
-.manual-upload-zone p{font-size:13px;color:#aaa;margin:0}
-.manual-form{display:grid;grid-template-columns:1fr 1fr;gap:.7rem;margin-top:.75rem}
-.manual-form input{font-size:13px}
-.add-manual-btn{grid-column:1/-1;padding:8px;background:#111;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
-.add-manual-btn:hover{background:#333}
-.woo-status{font-size:12px;color:#aaa;margin-bottom:8px;min-height:16px}
 
-.disc-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
-.disc-row label{font-size:12px;color:#666;white-space:nowrap;margin:0;text-transform:none;letter-spacing:0;font-weight:500}
-.disc-row input[type=text]{width:80px;font-size:13px;padding:5px 8px}
-.disc-row select{font-size:13px;padding:5px 8px;border:1px solid #ddd;border-radius:4px;background:#fff;font-family:inherit}
-.disc-tag{display:inline-flex;align-items:center;gap:4px;background:#f0f7f0;border:1px solid #b8ddb8;border-radius:14px;padding:3px 10px;font-size:12px;color:#2a7a2a;font-weight:600}
 /* Editable preview */
 .prev-editable{outline:none;border-radius:3px;transition:background .15s;min-height:1em;display:inline-block;width:100%}
 .prev-editable:focus{background:#fffbe6;box-shadow:0 0 0 2px #f0c040}
@@ -146,21 +96,89 @@ textarea{resize:vertical;line-height:1.55}
 .prev-edit-hint{font-size:10px;color:#ccc;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
 .prev-edit-hint::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#f0c040}
 /* Product table in preview */
+
+.e{outline:none;border-radius:2px;cursor:text}
+.e:hover{background:rgba(240,192,64,.12)}
+.e:focus{background:rgba(240,192,64,.18);box-shadow:0 0 0 1.5px #f0c040}
+
+/* ── Product grid ─────────────────────────────────────────── */
+/* Selected products grid */
+/* Product card */
+/* Preview product table */
 .prev-prod-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:.5rem}
 .prev-prod-table th{padding:6px 9px;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#aaa;border-bottom:1px solid #ddd;text-align:left}
 .prev-prod-table th:last-child{text-align:right}
 .prev-prod-table td{padding:10px 9px;border-bottom:1px solid #f2f2f0;vertical-align:middle}
 .prev-prod-table td:last-child{text-align:right;font-weight:500}
 .prev-prod-img{width:44px;height:44px;object-fit:cover;border-radius:3px;background:#f5f5f0;display:block;border:1px solid #eee}
+/* Disc tag in preview */
 
-.prod-disc-row{display:flex;align-items:center;gap:5px;margin-top:5px;padding-top:5px;border-top:1px dashed #eee}
-.prod-disc-row label{font-size:11px;color:#aaa;margin:0;text-transform:none;letter-spacing:0;font-weight:400;white-space:nowrap}
-.prod-disc-inp{width:52px!important;font-size:12px!important;padding:3px 6px!important;border:1px solid #e0e0e0!important;border-radius:3px!important}
-.prod-disc-type{font-size:12px;padding:3px 5px;border:1px solid #e0e0e0;border-radius:3px;background:#fff;font-family:inherit;color:#555}
-.prod-disc-result{font-size:11px;color:#2a7a2a;margin-left:auto;font-weight:600}
-.e{outline:none;border-radius:2px;cursor:text}
-.e:hover{background:rgba(240,192,64,.12)}
-.e:focus{background:rgba(240,192,64,.18);box-shadow:0 0 0 1.5px #f0c040}
+/* ── PRODUCT SEARCH RESULTS ─────────────────────────────── */
+.woo-search-row{display:flex;gap:8px;margin-bottom:8px}
+.woo-search-row input{flex:1}
+.woo-search-btn{padding:8px 16px;background:#111;color:#fff;border:none;border-radius:4px;font-size:13px;font-family:inherit;cursor:pointer;white-space:nowrap}
+.woo-search-btn:hover{background:#333}
+.woo-search-btn:disabled{background:#aaa}
+.woo-status-bar{font-size:12px;color:#aaa;margin-bottom:6px;min-height:16px}
+.woo-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px;max-height:300px;overflow-y:auto;padding:10px;background:#fafaf8;border:1px solid #eee;border-radius:4px}
+.wrc{border:1px solid #e8e8e4;border-radius:4px;overflow:hidden;cursor:pointer;background:#fff;transition:border-color .12s,transform .12s}
+.wrc:hover{border-color:#111;transform:translateY(-1px)}
+.wrc.added{border-color:#2a7a2a;background:#f0faf0}
+.wrc img{width:100%;aspect-ratio:1;object-fit:cover;background:#f5f5f0;display:block}
+.wrc-info{padding:5px 6px}
+.wrc-name{font-size:11px;font-weight:600;color:#111;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.wrc-price{font-size:10.5px;color:#666;margin-top:2px}
+.woo-empty{padding:1.5rem;text-align:center;color:#bbb;font-size:13px}
+
+/* ── TAB SWITCHER ───────────────────────────────────────── */
+.ptabs{display:flex;border-bottom:1px solid #eee;margin-bottom:12px}
+.ptab{padding:8px 16px;font-size:12px;font-weight:600;letter-spacing:.05em;text-transform:uppercase;color:#aaa;cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;transition:all .12s}
+.ptab.on{color:#111;border-bottom-color:#111}
+
+/* ── MANUAL ADD FORM ────────────────────────────────────── */
+.manual-zone{border:1px dashed #ccc;border-radius:4px;padding:1.25rem;text-align:center;cursor:pointer;background:#fafaf8;transition:all .15s}
+.manual-zone:hover{border-color:#888;background:#f5f5f0}
+.manual-zone p{font-size:13px;color:#aaa;margin:0}
+.manual-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-top:.75rem}
+.manual-grid input{font-size:13px}
+.manual-add-btn{grid-column:1/-1;padding:8px;background:#111;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
+.manual-add-btn:hover{background:#333}
+
+/* ── SELECTED PRODUCTS GRID ─────────────────────────────── */
+.sel-header{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin:14px 0 8px}
+
+/* THE GRID — uses CSS custom property so JS can control col count */
+.sel-grid{
+  --cols: 2;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  gap: 10px;
+}
+
+/* ── PRODUCT CARD ───────────────────────────────────────── */
+.pcard{background:#fff;border:1px solid #e8e8e4;border-radius:5px;overflow:hidden;position:relative;display:flex;flex-direction:column}
+.pcard.sel{border-color:#111;outline:2px solid #111;outline-offset:-1px}
+.pcard img{width:100%;aspect-ratio:1;object-fit:cover;background:#f5f5f0;display:block;flex-shrink:0}
+.pcard-ph{width:100%;aspect-ratio:1;background:#f5f5f0;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:24px;flex-shrink:0}
+.pcard-body{padding:8px 9px 4px;flex:1}
+.pcard-name{font-size:12px;font-weight:600;color:#111;line-height:1.35;margin-bottom:2px}
+.pcard-sub{font-size:10px;color:#555;margin-bottom:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcard-brand{font-size:10px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.pcard-price{font-size:11px;color:#555;margin-top:3px}
+.pcard-footer{padding:6px 9px 8px;border-top:1px solid #f0f0ec;display:flex;flex-direction:column;gap:5px}
+.pcard-qty{display:flex;align-items:center;gap:4px}
+.pcard-qty-btn{width:22px;height:22px;border:1px solid #ddd;border-radius:3px;background:#fff;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;color:#555;flex-shrink:0}
+.pcard-qty-btn:hover{border-color:#111;color:#111}
+.pcard-qty-val{font-size:13px;font-weight:600;min-width:18px;text-align:center}
+.pcard-qty-tot{font-size:11px;color:#888;margin-left:auto}
+.pcard-disc{display:flex;align-items:center;gap:4px}
+.pcard-disc label{font-size:11px;color:#aaa;margin:0;text-transform:none;letter-spacing:0;font-weight:400;white-space:nowrap}
+.pcard-disc-inp{width:48px!important;font-size:12px!important;padding:3px 5px!important;border:1px solid #e0e0e0!important;border-radius:3px!important}
+.pcard-disc-sel{font-size:12px;padding:3px 4px;border:1px solid #e0e0e0;border-radius:3px;background:#fff;font-family:inherit;color:#555}
+.pcard-disc-res{font-size:11px;color:#2a7a2a;margin-left:auto;font-weight:600}
+.pcard-remove{position:absolute;top:4px;right:4px;background:rgba(255,255,255,.9);border:1px solid #ddd;border-radius:50%;width:20px;height:20px;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#aaa;opacity:0;transition:opacity .15s}
+.pcard:hover .pcard-remove{opacity:1}
+.pcard-remove:hover{color:#e24b4a;border-color:#e24b4a}
 </style>
 </head>
 <body>
@@ -328,47 +346,46 @@ textarea{resize:vertical;line-height:1.55}
     <div class="card-head open" onclick="tog(this)"><h2>Produkter</h2><span class="arr">&#9660;</span></div>
     <div class="card-body">
 
-      <div class="prod-tabs" onclick="event.stopPropagation()">
-        <div class="prod-tab on" onclick="switchProdTab('woo',this);event.stopPropagation()">S&#248;k i WooCommerce</div>
-        <div class="prod-tab" onclick="switchProdTab('manual',this);event.stopPropagation()">Legg til manuelt</div>
+      <div class="ptabs">
+        <div class="ptab on" onclick="switchProdTab('woo',this)">Søk i WooCommerce</div>
+        <div class="ptab"    onclick="switchProdTab('manual',this)">Legg til manuelt</div>
       </div>
 
       <!-- WooCommerce search -->
       <div id="tabWoo">
-        <div class="woo-search-wrap">
-          <input type="text" id="wooQ" placeholder="S&#248;k produktnavn, merke, SKU..." onkeydown="if(event.key==='Enter')wooSearch()">
-          <button class="woo-search-btn" id="wooBtn" onclick="wooSearch()">S&#248;k</button>
+        <div class="woo-search-row">
+          <input type="text" id="wooQ" placeholder="Søk produktnavn, merke, SKU..." onkeydown="if(event.key==='Enter')wooSearch()">
+          <button class="woo-search-btn" id="wooBtn" onclick="wooSearch()">Søk</button>
         </div>
-        <div class="woo-status" id="wooStatus"></div>
+        <div class="woo-status-bar" id="wooStatus"></div>
         <div id="wooResults"></div>
       </div>
 
       <!-- Manual add -->
       <div id="tabManual" style="display:none">
-        <div class="manual-upload-zone" onclick="document.getElementById('manualImg').click()">
-          <p>&#128247; Klikk for &#229; laste opp produktbilde</p>
+        <div class="manual-zone" onclick="document.getElementById('manualImg').click()">
+          <p>&#128247; Klikk for å laste opp produktbilde</p>
           <input type="file" id="manualImg" accept="image/*" style="display:none" onchange="previewManualImg(event)">
-          <img id="manualImgPrev" style="max-height:100px;margin-top:10px;border-radius:3px;display:none">
+          <img id="manualImgPrev" style="max-height:90px;margin-top:8px;border-radius:3px;display:none">
         </div>
-        <div class="manual-form">
+        <div class="manual-grid">
           <div class="field"><label>Produktnavn</label><input type="text" id="manName" placeholder="Produktnavn"></div>
           <div class="field"><label>Merkevare</label><input type="text" id="manBrand" placeholder="Merkevare"></div>
-          <div class="field"><label>Pris (eks. mva)</label><input type="text" id="manPrice" placeholder="kr 24 900"></div>
-          <div class="field"><label>SKU / Art.nr</label><input type="text" id="manSku" placeholder="SKU / Art.nr"></div>
-          <button class="add-manual-btn" onclick="addManualProduct()">+ Legg til produkt</button>
+          <div class="field"><label>Pris (eks. mva)</label><input type="text" id="manPrice" placeholder="kr 0"></div>
+          <div class="field"><label>SKU / Art.nr</label><input type="text" id="manSku" placeholder="SKU"></div>
+          <button class="manual-add-btn" onclick="addManualProduct()">+ Legg til produkt</button>
         </div>
       </div>
 
       <!-- Selected products -->
-      <div id="selectedProdsWrap" style="display:none;margin-top:14px;width:100%">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:8px">Valgte produkter (<span id="prodCount">0</span>)</div>
-        <div id="selectedProds" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px;width:100%"></div>
+      <div id="selProdsWrap" style="display:none">
+        <div class="sel-header">Valgte produkter (<span id="prodCount">0</span>)</div>
+        <div class="sel-grid" id="selProds"></div>
       </div>
 
     </div>
   </div>
-
-  <div class="card">
+<div class="card">
     <div class="card-head" onclick="tog(this)"><h2>Merknader &nbsp;<span style="font-size:10px;font-weight:400;color:#ccc;letter-spacing:0">— av som standard</span></h2><span class="arr">&#9660;</span></div>
     <div class="card-body hidden">
       <div class="field"><label>Tilleggsmerknader (én per linje — vises som bullet-punkter)</label>
@@ -466,17 +483,15 @@ buildLines();
 let selectedProducts = [];
 let manualImgData = null;
 
+// ── Tab switching ──────────────────────────────────────────────────────────
 function switchProdTab(tab, el) {
-  const tw = document.getElementById('tabWoo');
-  const tm = document.getElementById('tabManual');
-  if (!tw || !tm) { console.error('Tab elements not found'); return; }
-  tw.style.display = tab==='woo' ? '' : 'none';
-  tm.style.display = tab==='manual' ? '' : 'none';
-  document.querySelectorAll('.prod-tab').forEach(t => t.classList.remove('on'));
+  document.getElementById('tabWoo').style.display    = tab === 'woo'    ? '' : 'none';
+  document.getElementById('tabManual').style.display = tab === 'manual' ? '' : 'none';
+  document.querySelectorAll('.ptab').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
-  console.log('Switched to tab:', tab);
 }
 
+// ── Manual image preview ───────────────────────────────────────────────────
 function previewManualImg(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -490,103 +505,86 @@ function previewManualImg(e) {
   reader.readAsDataURL(file);
 }
 
+// ── Add manual product ─────────────────────────────────────────────────────
 function addManualProduct() {
   const nameEl = document.getElementById('manName');
-  const name = nameEl.value.trim();
+  const name   = nameEl.value.trim();
   if (!name) {
     nameEl.style.borderColor = '#e24b4a';
-    nameEl.placeholder = 'Produktnavn er påkrevd';
     nameEl.focus();
     setTimeout(() => { nameEl.style.borderColor = ''; }, 2000);
     return;
   }
   selectedProducts.push({
-    id: 'manual_' + Date.now(),
+    id:     'manual_' + Date.now(),
     name,
-    brand: document.getElementById('manBrand').value.trim(),
-    price: document.getElementById('manPrice').value.trim(),
-    sku: document.getElementById('manSku').value.trim(),
-    image: manualImgData || null,
-    qty: 1,
-    source: 'manual'
+    brand:  document.getElementById('manBrand').value.trim(),
+    price:  document.getElementById('manPrice').value.trim(),
+    sku:    document.getElementById('manSku').value.trim(),
+    image:  manualImgData || null,
+    qty:    1,
+    discVal: 0,
+    discType: 'pct',
+    source: 'manual',
   });
-  // Reset form
-  document.getElementById('manName').value = '';
-  document.getElementById('manBrand').value = '';
-  document.getElementById('manPrice').value = '';
-  document.getElementById('manSku').value = '';
+  // Reset
+  ['manName','manBrand','manPrice','manSku'].forEach(id => document.getElementById(id).value = '');
   document.getElementById('manualImgPrev').style.display = 'none';
   document.getElementById('manualImg').value = '';
   manualImgData = null;
-  // Visual feedback
-  const btn = document.querySelector('.add-manual-btn');
-  const orig = btn.textContent;
-  btn.textContent = '✓ Lagt til!';
-  btn.style.background = '#2a7a2a';
-  setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1500);
+  // Feedback
+  const btn = document.querySelector('.manual-add-btn');
+  btn.textContent = '✓ Lagt til!'; btn.style.background = '#2a7a2a';
+  setTimeout(() => { btn.textContent = '+ Legg til produkt'; btn.style.background = ''; }, 1500);
   renderSelectedProducts();
 }
 
+// ── WooCommerce search ─────────────────────────────────────────────────────
 async function wooSearch() {
-  const q = document.getElementById('wooQ').value.trim();
+  const q      = document.getElementById('wooQ').value.trim();
   if (!q) return;
-  const btn = document.getElementById('wooBtn');
+  const btn    = document.getElementById('wooBtn');
   const status = document.getElementById('wooStatus');
-  const resultsEl = document.getElementById('wooResults');
+  const resEl  = document.getElementById('wooResults');
   btn.disabled = true; btn.textContent = 'Søker…';
-  status.textContent = 'Henter produkter fra novooi.com…';
-  status.style.color = '#aaa';
-  resultsEl.innerHTML = '';
+  status.textContent = 'Henter fra novooi.com…'; status.style.color = '#aaa';
+  resEl.innerHTML = '';
 
   if (!WORKER_URL || WORKER_URL.includes('din-worker')) {
-    status.textContent = '⚠ Worker URL ikke konfigurert i index.html';
-    status.style.color = '#c00';
-    btn.disabled = false; btn.textContent = 'Søk';
-    return;
+    status.textContent = '⚠ Worker URL ikke konfigurert'; status.style.color = '#c00';
+    btn.disabled = false; btn.textContent = 'Søk'; return;
   }
-
   try {
-    const res = await fetch(WORKER_URL + '/woo?q=' + encodeURIComponent(q) + '&per_page=20');
+    const res  = await fetch(WORKER_URL + '/woo?q=' + encodeURIComponent(q) + '&per_page=24');
     const data = await res.json();
-    if (!res.ok) {
-      const msg = data.error || ('HTTP ' + res.status);
-      const detail = data.detail ? (' — ' + data.detail.substring(0,120)) : '';
-      throw new Error(msg + detail);
-    }
+    if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
     if (!Array.isArray(data) || !data.length) {
-      resultsEl.innerHTML = '<div class="woo-empty">Ingen produkter funnet for «' + q + '»</div>';
+      resEl.innerHTML = '<div class="woo-empty">Ingen treff for «' + q + '»</div>';
       status.textContent = 'Ingen treff.';
     } else {
-      status.textContent = data.length + ' produkter funnet — klikk for å legge til';
-      status.style.color = '#3a8a3a';
+      status.textContent = data.length + ' produkter — klikk for å legge til';
+      status.style.color = '#2a7a2a';
       renderWooResults(data);
     }
-  } catch(e) {
-    status.textContent = '✗ ' + e.message;
-    status.style.color = '#c00';
-    resultsEl.innerHTML = `<div class="woo-empty" style="color:#c00;font-size:12px;line-height:1.5">
-      <strong>Kunne ikke hente produkter.</strong><br>
-      Sjekk at Worker er deployet og at <code>WOO_CONSUMER_KEY</code> / <code>WOO_CONSUMER_SECRET</code>
-      er lagt inn som secrets i Cloudflare.<br><br>
-      <span style="color:#aaa">Feilmelding: ${e.message}</span>
-    </div>`;
+  } catch(err) {
+    status.textContent = '✗ ' + err.message; status.style.color = '#c00';
+    resEl.innerHTML = '<div class="woo-empty" style="color:#c00;font-size:12px">Feil: ' + err.message + '<br><small style="color:#aaa">Sjekk at Worker er deployet og WooCommerce-secrets er satt.</small></div>';
   }
   btn.disabled = false; btn.textContent = 'Søk';
 }
 
+// ── Render WooCommerce results ─────────────────────────────────────────────
 function renderWooResults(products) {
   const wrap = document.getElementById('wooResults');
-  wrap.className = 'woo-results';
+  wrap.className = 'woo-grid';
   wrap.innerHTML = products.map((p, i) => {
-    const img = p.images && p.images[0] ? p.images[0].src : null;
-    const price = p.price ? 'kr ' + parseFloat(p.price).toLocaleString('nb-NO') : '';
-    const brand = p.brands && p.brands[0] ? p.brands[0].name : (p._brand || '');
-    const alreadyAdded = selectedProducts.some(s => s.id == p.id);
-    return `<div class="woo-result-card${alreadyAdded?' selected':''}" onclick="addWooProduct(${i})" data-idx="${i}">
+    const img    = p.images && p.images[0] ? p.images[0].src : null;
+    const price  = p.price ? 'kr ' + parseFloat(p.price).toLocaleString('nb-NO') : '';
+    const added  = selectedProducts.some(s => s.id == p.id);
+    return `<div class="wrc${added ? ' added' : ''}" onclick="addWooProduct(${i})" data-idx="${i}">
       ${img ? `<img src="${img}" loading="lazy">` : '<div style="width:100%;aspect-ratio:1;background:#f5f5f0"></div>'}
       <div class="wrc-info">
         <div class="wrc-name">${p.name}</div>
-        ${brand ? `<div style="font-size:10px;color:#aaa">${brand}</div>` : ''}
         ${price ? `<div class="wrc-price">${price}</div>` : ''}
       </div>
     </div>`;
@@ -594,180 +592,176 @@ function renderWooResults(products) {
   wrap._products = products;
 }
 
+// ── Add WooCommerce product (handles variants) ─────────────────────────────
 async function addWooProduct(idx) {
   const wrap = document.getElementById('wooResults');
-  const p = wrap._products[idx];
+  const p    = wrap._products && wrap._products[idx];
   if (!p) return;
   if (selectedProducts.some(s => s.id == p.id && !s.variant)) return;
 
-  const img = p.images && p.images[0] ? p.images[0].src : null;
+  const img   = p.images && p.images[0] ? p.images[0].src : null;
   const brand = p.brands && p.brands[0] ? p.brands[0].name : (p._brand || '');
 
-  // Variable product — fetch variations and show picker
   if (p.type === 'variable' || (p.variations && p.variations.length)) {
     const card = wrap.querySelector(`[data-idx="${idx}"]`);
-    if (card) { card.style.opacity='0.6'; card.style.pointerEvents='none'; }
-
+    if (card) { card.style.opacity = '0.6'; card.style.pointerEvents = 'none'; }
     try {
       const res = await fetch(WORKER_URL + '/woo/variations?id=' + p.id + '&per_page=50');
       if (res.ok) {
-        const variations = await res.json();
-        if (variations && variations.length) {
-          showVariantPicker(p, variations, img, brand);
-          if (card) { card.style.opacity=''; card.style.pointerEvents=''; }
+        const vars = await res.json();
+        if (vars && vars.length) {
+          if (card) { card.style.opacity = ''; card.style.pointerEvents = ''; }
+          showVariantPicker(p, vars, img, brand);
           return;
         }
       }
     } catch(e) {}
-    if (card) { card.style.opacity=''; card.style.pointerEvents=''; }
+    if (card) { card.style.opacity = ''; card.style.pointerEvents = ''; }
   }
 
-  // Simple product — add directly
-  selectedProducts.push({
-    id: p.id,
-    name: p.name,
-    brand,
+  pushProduct({
+    id: p.id, name: p.name, brand,
     price: p.price ? 'kr ' + parseFloat(p.price).toLocaleString('nb-NO') : '',
-    sku: p.sku || '',
-    image: img,
-    variant: '',
-    source: 'woo',
-    permalink: p.permalink || ''
+    sku: p.sku || '', image: img, variant: '', qty: 1,
+    discVal: 0, discType: 'pct', source: 'woo', permalink: p.permalink || ''
   });
   const card = wrap.querySelector(`[data-idx="${idx}"]`);
-  if (card) card.classList.add('selected');
-  renderSelectedProducts();
+  if (card) card.classList.add('added');
 }
 
+// ── Variant picker ─────────────────────────────────────────────────────────
 function showVariantPicker(p, variations, img, brand) {
-  // Remove any existing picker
   document.getElementById('variantPickerOverlay')?.remove();
-
   const overlay = document.createElement('div');
   overlay.id = 'variantPickerOverlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
-
   const modal = document.createElement('div');
-  modal.style.cssText = 'background:#fff;border-radius:6px;padding:1.5rem;max-width:440px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)';
+  modal.style.cssText = 'background:#fff;border-radius:6px;padding:1.5rem;max-width:420px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)';
 
-  const optionsHTML = variations.map((v,i) => {
-    const attrLabel = v.attributes && v.attributes.length
-      ? v.attributes.map(a=>a.option).join(' / ')
-      : 'Variant '+(i+1);
-    const price = v.price ? 'kr '+parseFloat(v.price).toLocaleString('nb-NO') : '';
-    const vImg = v.image && v.image.src ? v.image.src : img;
-    return `<div onclick="pickVariant(${JSON.stringify({
-      id: p.id+'_'+v.id,
-      name: p.name,
-      brand,
-      price: v.price ? 'kr '+parseFloat(v.price).toLocaleString('nb-NO') : (p.price ? 'kr '+parseFloat(p.price).toLocaleString('nb-NO') : ''),
-      variant: v.attributes && v.attributes.length ? v.attributes.map(a=>a.name+': '+a.option).join(', ') : attrLabel,
-      image: vImg,
-      sku: v.sku||p.sku||'',
-      source: 'woo',
-      permalink: p.permalink||''
-    }).replace(/"/g,'&quot;')})"
-      style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #eee;border-radius:4px;margin-bottom:6px;cursor:pointer;transition:border-color .12s"
+  const rows = variations.map((v, i) => {
+    const lbl   = v.attributes && v.attributes.length ? v.attributes.map(a => a.option).join(' / ') : 'Variant ' + (i+1);
+    const full  = v.attributes && v.attributes.length ? v.attributes.map(a => a.name + ': ' + a.option).join(', ') : lbl;
+    const vprice = v.price ? 'kr ' + parseFloat(v.price).toLocaleString('nb-NO') : (p.price ? 'kr ' + parseFloat(p.price).toLocaleString('nb-NO') : '');
+    const vimg  = v.image && v.image.src ? v.image.src : img;
+    const pd    = JSON.stringify({ id: p.id+'_v'+v.id, name: p.name, brand, price: vprice, variant: full, image: vimg, sku: v.sku||p.sku||'', qty:1, discVal:0, discType:'pct', source:'woo', permalink: p.permalink||'' });
+    return `<div onclick='pickVariant(${pd.replace(/'/g,"&#39;").replace(/"/g,"'")})'
+      style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #eee;border-radius:4px;margin-bottom:6px;cursor:pointer"
       onmouseover="this.style.borderColor='#111'" onmouseout="this.style.borderColor='#eee'">
-      <img src="${vImg || ''}" style="width:44px;height:44px;object-fit:cover;border-radius:3px;background:#f5f5f0;flex-shrink:0" onerror="this.style.background='#f5f5f0'">
-      <div style="flex:1;min-width:0">
-        <div style="font-size:13px;font-weight:600;color:#111">${attrLabel}</div>
-        ${price ? `<div style="font-size:12px;color:#666;margin-top:2px">${price}</div>` : ''}
+      <img src="${vimg||''}" style="width:44px;height:44px;object-fit:cover;border-radius:3px;background:#f5f5f0;flex-shrink:0" onerror="this.style.display='none'">
+      <div>
+        <div style="font-size:13px;font-weight:600;color:#111">${lbl}</div>
+        ${vprice ? `<div style="font-size:12px;color:#666;margin-top:2px">${vprice}</div>` : ''}
       </div>
     </div>`;
   }).join('');
 
-  modal.innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-      <div>
-        <div style="font-size:13px;font-weight:700;color:#111">${p.name}</div>
-        <div style="font-size:11px;color:#aaa;margin-top:2px">Velg variant</div>
-      </div>
-      <button onclick="document.getElementById('variantPickerOverlay').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;line-height:1">×</button>
-    </div>
-    ${optionsHTML}`;
+  modal.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+    <div><div style="font-size:13px;font-weight:700">${p.name}</div>
+    <div style="font-size:11px;color:#aaa;margin-top:2px">Velg variant</div></div>
+    <button onclick="document.getElementById('variantPickerOverlay').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#aaa">×</button>
+  </div>${rows}`;
 
   overlay.appendChild(modal);
-  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+  overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   document.body.appendChild(overlay);
 }
 
 function pickVariant(productData) {
   document.getElementById('variantPickerOverlay')?.remove();
   if (selectedProducts.some(s => s.id == productData.id)) return;
-  productData.qty = productData.qty || 1;
-  selectedProducts.push(productData);
+  pushProduct(productData);
+}
+
+// ── Core push / remove / update ────────────────────────────────────────────
+function pushProduct(p) {
+  p.qty     = p.qty     || 1;
+  p.discVal = p.discVal || 0;
+  p.discType= p.discType|| 'pct';
+  selectedProducts.push(p);
   renderSelectedProducts();
 }
 
 function removeProduct(id) {
-  selectedProducts = selectedProducts.filter(p => p.id != id);
+  selectedProducts = selectedProducts.filter(p => String(p.id) !== String(id));
   renderSelectedProducts();
 }
 
 function changeQty(id, delta) {
-  const p = selectedProducts.find(x => x.id == id);
+  const p = selectedProducts.find(x => String(x.id) === String(id));
   if (!p) return;
   p.qty = Math.max(1, (p.qty || 1) + delta);
   renderSelectedProducts();
 }
 
-function updateProdDisc(id, val, type){
-  const p = selectedProducts.find(x=>String(x.id)===String(id));
-  if(!p) return;
-  p.discVal = parseFloat(val)||0;
-  p.discType = type||'pct';
+function updateProdDisc(id, val, type) {
+  const p = selectedProducts.find(x => String(x.id) === String(id));
+  if (!p) return;
+  p.discVal  = parseFloat(val) || 0;
+  p.discType = type || 'pct';
   renderSelectedProducts();
 }
 
+// ── Render selected product cards ──────────────────────────────────────────
 function renderSelectedProducts() {
-  const wrap = document.getElementById('selectedProdsWrap');
-  const grid = document.getElementById('selectedProds');
-  document.getElementById('prodCount').textContent = selectedProducts.length;
-  if (!selectedProducts.length) { wrap.style.display = 'none'; return; }
-  wrap.style.display = '';
-  grid.innerHTML = selectedProducts.map(p => {
-    const qty = p.qty || 1;
-    const unitPrice = parseKr(p.price) || 0;
-    const discVal = p.discVal || 0;
-    const discType = p.discType || 'pct';
-    const afterDisc = discVal
-      ? (discType==='pct' ? unitPrice*(1-discVal/100) : Math.max(0,unitPrice-discVal))
-      : unitPrice;
-    const lineTotal = afterDisc * qty;
-    const discLabel = discVal ? (discType==='pct' ? `-${discVal}%` : `-kr ${discVal.toLocaleString('nb-NO')}`) : '';
-    return `
-    <div class="prod-card selected">
+  const wrapEl  = document.getElementById('selProdsWrap');
+  const gridEl  = document.getElementById('selProds');
+  const countEl = document.getElementById('prodCount');
+
+  if (!wrapEl || !gridEl || !countEl) return;
+
+  countEl.textContent = selectedProducts.length;
+
+  if (!selectedProducts.length) {
+    wrapEl.style.display = 'none';
+    return;
+  }
+  wrapEl.style.display = '';
+
+  gridEl.innerHTML = selectedProducts.map(p => {
+    const id    = String(p.id);
+    const qty   = p.qty   || 1;
+    const unit  = parseKr(p.price) || 0;
+    const dv    = p.discVal  || 0;
+    const dt    = p.discType || 'pct';
+    const after = dv ? (dt === 'pct' ? unit * (1 - dv/100) : Math.max(0, unit - dv)) : unit;
+    const total = after * qty;
+    const dlbl  = dv ? (dt === 'pct' ? `-${dv}%` : `-kr ${dv.toLocaleString('nb-NO')}`) : '';
+
+    return `<div class="pcard sel">
       ${p.image
-        ? `<img class="prod-img" src="${p.image}" loading="lazy" onerror="this.style.display='none'">`
-        : '<div class="prod-img-placeholder">&#128247;</div>'}
-      <div class="prod-info">
-        <div class="prod-name" title="${p.name}">${p.name}</div>
-        ${p.variant ? `<div class="prod-brand" style="color:#555">${p.variant}</div>` : ''}
-        ${p.brand ? `<div class="prod-brand">${p.brand}</div>` : ''}
-        ${p.price ? `<div class="prod-price">${p.price}${discVal?` <span style="color:#2a7a2a;font-size:10px">${discLabel} = ${fmtInt(afterDisc)}</span>`:''}` : ''}
-        <div class="prod-qty-row">
-          <button class="prod-qty-btn" onclick="changeQty('${p.id}',-1)">−</button>
-          <span class="prod-qty-val">${qty}</span>
-          <button class="prod-qty-btn" onclick="changeQty('${p.id}',1)">+</button>
-          <span class="prod-qty-total">= ${fmtInt(lineTotal)}</span>
+        ? `<img src="${p.image}" loading="lazy" onerror="this.style.display='none'">`
+        : '<div class="pcard-ph">&#128247;</div>'}
+      <div class="pcard-body">
+        <div class="pcard-name">${p.name || ''}</div>
+        ${p.variant ? `<div class="pcard-sub">${p.variant}</div>`  : ''}
+        ${p.brand   ? `<div class="pcard-brand">${p.brand}</div>` : ''}
+        ${p.price   ? `<div class="pcard-price">${p.price}</div>` : ''}
+      </div>
+      <div class="pcard-footer">
+        <div class="pcard-qty">
+          <button class="pcard-qty-btn" onclick="changeQty('${id}',-1)">&#8722;</button>
+          <span class="pcard-qty-val">${qty}</span>
+          <button class="pcard-qty-btn" onclick="changeQty('${id}',1)">&#43;</button>
+          <span class="pcard-qty-tot">= ${fmtInt(total)}</span>
         </div>
-        <div class="prod-disc-row">
+        <div class="pcard-disc">
           <label>Rabatt:</label>
-          <input class="prod-disc-inp" type="text" value="${discVal||''}" placeholder="0"
-            oninput="updateProdDisc('${p.id}',this.value,this.nextElementSibling.value)">
-          <select class="prod-disc-type" onchange="updateProdDisc('${p.id}',this.previousElementSibling.value,this.value)">
-            <option value="pct" ${discType==='pct'?'selected':''}>%</option>
-            <option value="kr" ${discType==='kr'?'selected':''}>kr</option>
+          <input class="pcard-disc-inp" type="text" value="${dv || ''}" placeholder="0"
+            oninput="updateProdDisc('${id}',this.value,this.nextElementSibling.value)">
+          <select class="pcard-disc-sel"
+            onchange="updateProdDisc('${id}',this.previousElementSibling.value,this.value)">
+            <option value="pct" ${dt==='pct'?'selected':''}>%</option>
+            <option value="kr"  ${dt==='kr' ?'selected':''}>kr</option>
           </select>
-          ${discVal ? `<span class="prod-disc-result">${discLabel}</span>` : ''}
+          ${dv ? `<span class="pcard-disc-res">${dlbl}</span>` : ''}
         </div>
       </div>
-      <button class="prod-remove" onclick="removeProduct('${p.id}')" title="Fjern">&#215;</button>
+      <button class="pcard-remove" onclick="removeProduct('${id}')" title="Fjern">&#215;</button>
     </div>`;
   }).join('');
 }
 // ── END PRODUCTS ──────────────────────────────────────────────────────────
+
 
 document.querySelectorAll("#rPills .pill").forEach(p=>p.addEventListener("click",()=>p.classList.toggle("on")));
 document.querySelectorAll("#cPills .pill").forEach(p=>p.addEventListener("click",()=>p.classList.toggle("on")));
