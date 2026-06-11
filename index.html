@@ -1692,6 +1692,21 @@ buildLines();
 
 // Live sync: when key form fields change, update genData.fd immediately
 // so the preview always reflects the current form state
+function toggleOps(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('on');
+}
+function isOpsOn(id) {
+  const el = document.getElementById(id);
+  return el ? el.classList.contains('on') : false;
+}
+function getOpsText(id) {
+  const el = document.getElementById(id);
+  if (!el) return '';
+  return el.querySelector('textarea')?.value.trim() || '';
+}
+
 (function(){
   const liveFields = [
     ['fnr','nr'],['fdato','dato'],['fgyldig','gyldig'],['fsaksb','saksb'],
@@ -1732,20 +1747,6 @@ buildLines();
     if(e.target.dataset && e.target.dataset.fdField) e.target._userEdited = true;
     if(e.target.dataset && e.target.dataset.aiField) e.target._userEdited = true;
   });
-function toggleOps(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.classList.toggle('on');
-}
-function isOpsOn(id) {
-  const el = document.getElementById(id);
-  return el ? el.classList.contains('on') : false;
-}
-function getOpsText(id) {
-  const el = document.getElementById(id);
-  if (!el) return '';
-  return el.querySelector('textarea')?.value.trim() || '';
-}
 
 })();
 
