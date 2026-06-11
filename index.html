@@ -88,15 +88,16 @@ textarea{resize:vertical;line-height:1.55}
 .prev-footer{margin-top:2rem;padding-top:.75rem;border-top:1px solid #eee;font-size:10px;color:#ccc;letter-spacing:.04em;text-align:center;text-transform:uppercase}
 @media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}.line-prod{grid-template-columns:1fr 40px 28px}.line-prod .hm{display:none}}
 
-.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(148px,1fr));gap:10px;margin-top:10px}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:10px}
+#selectedProds{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));min-width:0}
 .prod-card{border:1px solid #e8e8e4;border-radius:5px;overflow:hidden;position:relative;background:#fff;transition:box-shadow .15s}
 .prod-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .prod-card.selected{border-color:#111;box-shadow:0 0 0 2px #111}
 .prod-card .prod-img{width:100%;aspect-ratio:1;object-fit:cover;background:#f5f5f0;display:block}
 .prod-card .prod-img-placeholder{width:100%;aspect-ratio:1;background:#f5f5f0;display:flex;align-items:center;justify-content:center;color:#ccc;font-size:28px}
 .prod-card .prod-info{padding:8px 9px 9px}
-.prod-card .prod-name{font-size:12px;font-weight:600;color:#111;line-height:1.35;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.prod-card .prod-brand{font-size:10px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.prod-card .prod-name{font-size:12px;font-weight:600;color:#111;line-height:1.35;margin-bottom:2px;overflow:hidden;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical}
+.prod-card .prod-brand{font-size:10px;color:#aaa;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .prod-card .prod-price{font-size:11px;color:#555;margin-top:3px}
 .prod-qty-row{display:flex;align-items:center;gap:5px;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0ec}
 .prod-qty-btn{width:22px;height:22px;border:1px solid #ddd;border-radius:3px;background:#fff;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;color:#555;flex-shrink:0}
@@ -214,6 +215,11 @@ textarea{resize:vertical;line-height:1.55}
     <div class="card-body">
       <div class="field"><label>Brief (brukes av AI til å skrive tilbudsteksten)</label>
         <textarea id="fbrief" rows="3" placeholder="Beskriv oppdraget – formål, omfang, særlige ønsker, tidsplan..."></textarea>
+      </div>
+      <div class="field">
+        <label>Omfang – forhåndsutfylt (valgfritt, overstyrer AI-generert liste)</label>
+        <textarea id="fomfang" rows="4" placeholder="Skriv ett punkt per linje:&#10;Konseptutvikling og fargepalett&#10;Utvalg av møbler fra norske designmerker&#10;Belysning og tekstiler&#10;Montering og ferdigstilling"></textarea>
+        <div style="font-size:11px;color:#aaa;margin-top:4px">La stå tom for å la AI generere omfangspunktene automatisk</div>
       </div>
       <div class="g3">
         <div class="field"><label>Størrelse</label><input id="fstorrelse" type="text" placeholder="120 m² / 5 rom"></div>
@@ -853,6 +859,7 @@ function getFD(){
     prosjekt:document.getElementById("fprosjekt").value,
     adresse:document.getElementById("fadresse").value,
     brief:document.getElementById("fbrief").value,
+    omfangPre:document.getElementById("fomfang").value,
     storrelse:document.getElementById("fstorrelse").value,
     tid:document.getElementById("ftid").value,
     futlan:document.getElementById("futlan").value,
@@ -922,6 +929,7 @@ ${fd.rom.length?"Rom: "+fd.rom.join(", "):""}${fd.fromnotat?" ("+fd.fromnotat+")
 ${fd.brands.length?"Merkevarer: "+fd.brands.join(", "):""}
 ${fd.cats.length?"Kategorier: "+fd.cats.join(", "):""}
 Brief: ${fd.brief}
+${fd.omfangPre ? 'Forhåndsutfylt omfang (bruk disse punktene eksakt, ikke generer nye):\n'+fd.omfangPre : ''}
 ${fd.cBet?"Betaling: 50% ved oppstart, 50% ved ferdigstillelse.":""}
 ${fd.cFors?"Møbler forsikret av NOVOOI i leieperioden.":""}
 ${fd.cDep?"Depositum kreves.":""}
@@ -964,17 +972,27 @@ function discLabel(disc){
 // Read editable preview fields back into ai object before PDF
 function syncEditableFields(){
   if(!genData) return;
-  // AI text fields
+  // AI text fields (ingress, beskrivelse, betaling, opsjon, markedsforing, avslutning)
   document.querySelectorAll('[data-ai-field]').forEach(el => {
     const key = el.dataset.aiField;
-    genData.ai[key] = el.innerText.trim();
+    if(key.startsWith('omfang_')){
+      const i = parseInt(key.split('_')[1]);
+      if(!genData.ai.omfang) genData.ai.omfang=[];
+      genData.ai.omfang[i] = el.innerText.trim();
+    } else {
+      genData.ai[key] = el.innerText.trim();
+    }
   });
-  // fd fields (nr, dates, kunde, typeLabel)
+  // fd fields (nr, dates, kunde, typeLabel, fra)
   document.querySelectorAll('[data-fd-field]').forEach(el => {
     const key = el.dataset.fdField;
     genData.fd[key] = el.innerText.trim();
   });
-  // Service line prices
+  // Service line descriptions + prices
+  document.querySelectorAll('[data-svc-desc]').forEach(el => {
+    const idx = parseInt(el.dataset.svcDesc);
+    if(genData.fd.lines[idx]) genData.fd.lines[idx].desc = el.innerText.trim();
+  });
   document.querySelectorAll('[data-svc-price]').forEach(el => {
     const idx = parseInt(el.dataset.svcPrice);
     if(genData.fd.lines[idx]) genData.fd.lines[idx].price = el.innerText.trim();
@@ -986,9 +1004,15 @@ function syncEditableFields(){
     if(p) p.price = el.innerText.trim();
   });
   document.querySelectorAll('[data-prod-field]').forEach(el => {
-    const [id, field] = el.dataset.prodField.split('_');
+    const parts = el.dataset.prodField.split('_');
+    const field = parts.pop();
+    const id = parts.join('_');
     const p = genData.fd.products.find(x=>String(x.id)===id);
     if(p) p[field] = el.innerText.trim();
+  });
+  // Section titles stored in ai
+  document.querySelectorAll('[data-sec-title]').forEach(el => {
+    genData.ai['sec_'+el.dataset.secTitle] = el.innerText.trim();
   });
 }
 
@@ -1009,9 +1033,10 @@ function renderPreview(fd,ai){
     let rows='';
     fd.lines.filter(l=>l.desc).forEach((l,i)=>{
       const p=parseKr(l.price); if(p) svcTotal+=p;
-      rows+=`<tr><td style="padding:9px;font-size:13px">${l.desc}</td>
-        <td style="padding:9px;text-align:right;font-size:13px" contenteditable="true" data-svc-price="${i}"
-          class="prev-editable">${l.price||'—'}</td></tr>`;
+      rows+=`<tr>
+        <td style="padding:9px;font-size:13px" contenteditable="true" class="e" data-svc-desc="${i}">${l.desc}</td>
+        <td style="padding:9px;text-align:right;font-size:13px;min-width:80px" contenteditable="true" data-svc-price="${i}" class="e">${l.price||'—'}</td>
+      </tr>`;
     });
     const dSvc = fd.discSvc && fd.discSvc.val;
     const svcAfter = dSvc ? applyDisc(svcTotal, fd.discSvc) : svcTotal;
@@ -1237,7 +1262,7 @@ async function doPDF(){
   if(fd.kind==="service") fd.lines.forEach(l=>{const p=parseKr(l.price);if(p)svcTotal+=p;});
 
   if(hasServiceLines){
-    NP(20); SEC("TJENESTER");
+    NP(20); SEC((ai.sec_tjenester||"TJENESTER").toUpperCase());
     // Table header
     HR(y-1,0.2,[210,210,210]);
     doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150);
@@ -1277,7 +1302,7 @@ async function doPDF(){
   if(fd.products) fd.products.forEach(p=>{const n=parseKr(p.price)||0;const dv=p.discVal||0,dt=p.discType||'pct';const aft=dv?(dt==='pct'?n*(1-dv/100):Math.max(0,n-dv)):n;prodTotal+=aft*(p.qty||1);});
 
   if(hasProducts){
-    NP(20); SEC("PRODUKTER");
+    NP(20); SEC((ai.sec_produkter||"PRODUKTER").toUpperCase());
     HR(y-1,0.2,[210,210,210]);
     doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150);
     doc.text("Produkt",ml,y+3);
@@ -1401,9 +1426,9 @@ async function doPDF(){
   }
 
   // ── MODULE: Opsjon ────────────────────────────────────────────────────────
-  if(!ph.opsjon && ai.opsjon){NP(20);SEC("OPSJON: KJØP AV MØBLER OG INTERIØR");BODY(ai.opsjon);}
-  if(!ph.betaling && ai.betaling){NP(20);SEC("TIDSPLAN OG BETALINGSBETINGELSER");BODY(ai.betaling);}
-  if(!ph.marked && ai.markedsforing){NP(20);SEC("MARKEDSFØRING");BODY(ai.markedsforing);}
+  if(!ph.opsjon && ai.opsjon){NP(20);SEC((ai.sec_opsjon||"OPSJON: KJØP AV MØBLER OG INTERIØR").toUpperCase());BODY(ai.opsjon);}
+  if(!ph.betaling && ai.betaling){NP(20);SEC((ai.sec_betaling||"TIDSPLAN OG BETALINGSBETINGELSER").toUpperCase());BODY(ai.betaling);}
+  if(!ph.marked && ai.markedsforing){NP(20);SEC((ai.sec_marked||"MARKEDSFØRING").toUpperCase());BODY(ai.markedsforing);}
 
   // ── MODULE: Merknader ─────────────────────────────────────────────────────
   const rawM=fd.merknader?fd.merknader.split("\n").map(s=>s.trim()).filter(Boolean):[];
