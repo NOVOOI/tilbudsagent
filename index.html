@@ -362,7 +362,7 @@ textarea{resize:vertical;line-height:1.55}
       <!-- Selected products -->
       <div id="selectedProdsWrap" style="display:none;margin-top:14px;width:100%">
         <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:8px">Valgte produkter (<span id="prodCount">0</span>)</div>
-        <div id="selectedProds" style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-top:10px;width:100%"></div>
+        <div id="selectedProds" style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:10px;width:100%"></div>
       </div>
 
     </div>
@@ -416,32 +416,32 @@ const WORKER_URL = "https://tilbudsagent.marcus-3aa.workers.dev";
 
 const TYPES = {
   styling:{label:"Styling av visningsbolig",kind:"service",lines:[
-    ["Konseptutvikling og prosjektledelse","9900"],
-    ["Styling og montering","10000"],
-    ["Utlån av møbler og dekor (8 uker)","18000"],
-    ["Transport tur/retur","7000"],
-    ["Nedrigg og retur","5000"]]},
+    ["",""],
+    ["",""],
+    ["",""],
+    ["",""],
+    ["",""]]},
   leie:{label:"Leie av designmøbler",kind:"product",lines:[
     ["","","","",""],["","","","",""]]},
   interiorpakke:{label:"Interiørpakke",kind:"service",lines:[
-    ["Konsultasjon og behovskartlegging","4900"],
-    ["Kuratering og produktutvalg","9900"],
-    ["Innkjøp og prosjektledelse","12000"],
-    ["Logistikk og levering","6000"]]},
+    ["",""],
+    ["",""],
+    ["",""],
+    ["",""]]},
   foto:{label:"Foto / PR-styling",kind:"service",lines:[
-    ["Styling og montering","12500"],
-    ["Prosjektledelse og koordinering","5000"],
-    ["Transport tur/retur","4900"]]},
+    ["",""],
+    ["",""],
+    ["",""]]},
   b2b:{label:"B2B / FF&E",kind:"service",lines:[
-    ["Konseptutvikling og kuratering","14900"],
-    ["Innkjøp og sourcing",""],
-    ["Logistikk og leveranse",""],
-    ["Prosjektledelse","9900"]]},
+    ["",""],
+    ["",""],
+    ["",""],
+    ["",""]]},
   hospitality:{label:"Hospitality-interiør",kind:"service",lines:[
-    ["Konseptutvikling","19900"],
-    ["FF&E kuratering og sourcing",""],
-    ["Prosjektledelse og koordinering","14900"],
-    ["Logistikk og installasjon",""]]}
+    ["",""],
+    ["",""],
+    ["",""],
+    ["",""]]}
 };
 
 let curType="styling", genData=null, tags=[];
@@ -1152,7 +1152,7 @@ function renderPreview(fd,ai){
     <div class="prev-ingress prev-editable" contenteditable="true" data-ai-field="ingress">${ai.ingress||""}</div>
     ${!ph.beskrivelse ? `
     <div class="prev-sec">Beskrivelse</div>
-    <p class="prev-txt prev-editable" contenteditable="true" data-ai-field="beskrivelse" style="display:block">${ai.beskrivelse}</p>
+    <p class="prev-txt prev-editable" contenteditable="true" data-ai-field="beskrivelse" style="display:block">${ai.beskrivelse||fd.brief||""}</p>
     <div class="prev-sec">Omfang</div>
     <ul class="prev-list" id="prevOmfang">${(ai.omfang||[]).map((o,i)=>`<li contenteditable="true" class="prev-editable" data-ai-field="omfang_${i}">${o}</li>`).join("")}</ul>
     ` : ''}
@@ -1263,7 +1263,7 @@ async function doPDF(){
 
   // ── MODULE: Beskrivelse + omfang ──────────────────────────────────────────
   if(!ph.beskrivelse){
-    SEC("BESKRIVELSE"); BODY(ai.beskrivelse||"");
+    SEC("BESKRIVELSE"); BODY(ai.beskrivelse||fd.brief||"");
     SEC("OMFANG");
     (ai.omfang||[]).forEach(o=>{doc.setFontSize(FS);doc.setFont("helvetica","normal");const ls=doc.splitTextToSize("• "+o,cw-4);T(ls,ml+2,y,FS,"normal",[60,60,60]);y+=ls.length*5;});
     y+=6;
