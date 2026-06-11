@@ -179,6 +179,22 @@ textarea{resize:vertical;line-height:1.55}
 .pcard-remove{position:absolute;top:4px;right:4px;background:rgba(255,255,255,.9);border:1px solid #ddd;border-radius:50%;width:20px;height:20px;font-size:14px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#aaa;opacity:0;transition:opacity .15s}
 .pcard:hover .pcard-remove{opacity:1}
 .pcard-remove:hover{color:#e24b4a;border-color:#e24b4a}
+
+/* ── OPSJON ITEMS ───────────────────────────────────────── */
+.ops-item{border:1px solid #eee;border-radius:5px;overflow:hidden;margin-bottom:8px;transition:border-color .15s}
+.ops-item.on{border-color:#111}
+.ops-toggle{display:flex;align-items:center;gap:10px;padding:10px 12px;cursor:pointer;user-select:none;background:#fafaf8}
+.ops-item.on .ops-toggle{background:#111;color:#fff}
+.ops-toggle-knob{width:34px;height:20px;border-radius:10px;background:#ddd;position:relative;flex-shrink:0;transition:background .15s}
+.ops-item.on .ops-toggle-knob{background:#fff}
+.ops-toggle-knob::after{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:#aaa;top:3px;left:3px;transition:all .15s}
+.ops-item.on .ops-toggle-knob::after{background:#111;left:17px}
+.ops-toggle-label{font-size:13px;font-weight:500}
+.ops-item.on .ops-toggle-label{color:#fff}
+.ops-body{padding:10px 12px;display:none;border-top:1px solid #eee}
+.ops-item.on .ops-body{display:block}
+.ops-body textarea{font-size:13px;min-height:64px;line-height:1.55;resize:vertical}
+.ops-body label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:5px;display:block}
 </style>
 </head>
 <body>
@@ -282,68 +298,123 @@ textarea{resize:vertical;line-height:1.55}
   <div class="card">
     <div class="card-head open" onclick="tog(this)"><h2>Opsjoner og betingelser</h2><span class="arr">&#9660;</span></div>
     <div class="card-body">
-      <div class="checks">
-        <label class="check"><input type="checkbox" id="cKjop" checked> Opsjon: kjøp av møbler (30% rabatt)</label>
-        <label class="check"><input type="checkbox" id="cMark" checked> Markedsføringsrettigheter</label>
-        <label class="check"><input type="checkbox" id="cBet" checked> Betaling 50/50</label>
-        <label class="check"><input type="checkbox" id="cPilot"> Pilotpris-merknad</label>
-        <label class="check"><input type="checkbox" id="cFors"> Forsikring inkludert</label>
-        <label class="check"><input type="checkbox" id="cDep"> Depositum kreves</label>
+
+      <div style="font-size:11px;color:#aaa;margin-bottom:12px">Slå på de opsjonene som skal med i tilbudet. Teksten kan redigeres.</div>
+
+      <div class="ops-item" id="opsKjop">
+        <div class="ops-toggle" onclick="toggleOps('opsKjop')">
+          <div class="ops-toggle-knob"></div>
+          <span class="ops-toggle-label">Opsjon: kjøp av møbler</span>
+        </div>
+        <div class="ops-body">
+          <label>Tekst i tilbudet</label>
+          <textarea id="txtKjop">Dersom kunden ønsker å beholde hele eller deler av interiøret etter endt periode, kan produktene kjøpes gjennom NOVOOI med inntil 30 % rabatt på veiledende utsalgspris.</textarea>
+        </div>
       </div>
-      <div class="g2" style="margin-bottom:.8rem">
-        <div class="field"><label>Betalingsfrist (dager)</label><input id="fbetfrist" type="text" value="14"></div>
-        <div class="field"><label>Tilbudet gyldig (dager)</label><input id="fgyldigdager" type="text" value="30"></div>
+
+      <div class="ops-item" id="opsMark">
+        <div class="ops-toggle" onclick="toggleOps('opsMark')">
+          <div class="ops-toggle-knob"></div>
+          <span class="ops-toggle-label">Markedsføringsrettigheter</span>
+        </div>
+        <div class="ops-body">
+          <label>Tekst i tilbudet</label>
+          <textarea id="txtMark">NOVOOI gis rett til å benytte ferdige prosjektbilder i egne markedsføringskanaler, inkludert nettside, sosiale medier, nyhetsbrev, presse og presentasjonsmateriell. Kunden krediteres ved publisering.</textarea>
+        </div>
       </div>
-      <div class="field"><label>Rabatt / handelsvilkår (tekst)</label>
-        <input id="frabatt" type="text" placeholder="F.eks. 20% trade-rabatt for arkitekter">
+
+      <div class="ops-item" id="opsBet">
+        <div class="ops-toggle" onclick="toggleOps('opsBet')">
+          <div class="ops-toggle-knob"></div>
+          <span class="ops-toggle-label">Tidsplan og betaling</span>
+        </div>
+        <div class="ops-body">
+          <label>Tekst i tilbudet</label>
+          <textarea id="txtBet">Styling gjennomføres etter nærmere avtale. 50 % av tilbudssummen faktureres ved oppstart. 50 % faktureres når styling og montering er ferdigstilt.</textarea>
+        </div>
       </div>
+
+      <div class="ops-item" id="opsPilot">
+        <div class="ops-toggle" onclick="toggleOps('opsPilot')">
+          <div class="ops-toggle-knob"></div>
+          <span class="ops-toggle-label">Pilotpris-merknad</span>
+        </div>
+        <div class="ops-body">
+          <label>Tekst i tilbudet</label>
+          <textarea id="txtPilot">Dette tilbudet er en introduksjonspris for første pilotprosjekt. Ved videre samarbeid kan NOVOOI tilby faste pakker og volumpriser.</textarea>
+        </div>
+      </div>
+
+      <div class="ops-item" id="opsFors">
+        <div class="ops-toggle" onclick="toggleOps('opsFors')">
+          <div class="ops-toggle-knob"></div>
+          <span class="ops-toggle-label">Forsikring inkludert</span>
+        </div>
+        <div class="ops-body">
+          <label>Tekst i tilbudet</label>
+          <textarea id="txtFors">Alle møbler og interiørprodukter er til enhver tid forsikret gjennom NOVOOI i hele leie- og styringsperioden.</textarea>
+        </div>
+      </div>
+
+      <div class="ops-item" id="opsDep">
+        <div class="ops-toggle" onclick="toggleOps('opsDep')">
+          <div class="ops-toggle-knob"></div>
+          <span class="ops-toggle-label">Depositum kreves</span>
+        </div>
+        <div class="ops-body">
+          <label>Tekst i tilbudet</label>
+          <textarea id="txtDep">Det kreves et depositum tilsvarende 20 % av totalsum ved bestilling. Depositumet refunderes fullt ut dersom oppdraget gjennomføres som avtalt.</textarea>
+        </div>
+      </div>
+
+      <div style="border-top:1px solid #f0f0ec;margin-top:16px;padding-top:16px">
+        <div class="g2" style="margin-bottom:.8rem">
+          <div class="field"><label>Betalingsfrist (dager)</label><input id="fbetfrist" type="text" value="14"></div>
+          <div class="field"><label>Tilbudet gyldig (dager)</label><input id="fgyldigdager" type="text" value="30"></div>
+        </div>
+        <div class="field"><label>Rabatt / handelsvilkår (tekst)</label>
+          <input id="frabatt" type="text" placeholder="F.eks. 20% trade-rabatt for arkitekter">
+        </div>
+      </div>
+
       <div style="border-top:1px solid #f0f0ec;margin-top:14px;padding-top:14px">
         <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:10px">Prisrabatter i PDF</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
-
           <div style="background:#fafaf8;border:1px solid #eee;border-radius:5px;padding:10px 12px">
             <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:8px">Tjenester</div>
             <div style="display:flex;gap:6px;align-items:center">
-              <input type="text" id="discSvc" placeholder="0"
-                style="width:52px;font-size:14px;font-weight:600;padding:6px 8px;border:1.5px solid #ddd;border-radius:4px;text-align:center">
+              <input type="text" id="discSvc" placeholder="0" style="width:52px;font-size:14px;font-weight:600;padding:6px 8px;border:1.5px solid #ddd;border-radius:4px;text-align:center">
               <select id="discSvcType" style="flex:1;font-size:13px;padding:6px 6px;border:1.5px solid #ddd;border-radius:4px;background:#fff;font-family:inherit;color:#555">
-                <option value="pct">%</option>
-                <option value="kr">kr</option>
+                <option value="pct">%</option><option value="kr">kr</option>
               </select>
             </div>
           </div>
-
           <div style="background:#fafaf8;border:1px solid #eee;border-radius:5px;padding:10px 12px">
             <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:8px">Produkter</div>
             <div style="display:flex;gap:6px;align-items:center">
-              <input type="text" id="discProd" placeholder="0"
-                style="width:52px;font-size:14px;font-weight:600;padding:6px 8px;border:1.5px solid #ddd;border-radius:4px;text-align:center">
+              <input type="text" id="discProd" placeholder="0" style="width:52px;font-size:14px;font-weight:600;padding:6px 8px;border:1.5px solid #ddd;border-radius:4px;text-align:center">
               <select id="discProdType" style="flex:1;font-size:13px;padding:6px 6px;border:1.5px solid #ddd;border-radius:4px;background:#fff;font-family:inherit;color:#555">
-                <option value="pct">%</option>
-                <option value="kr">kr</option>
+                <option value="pct">%</option><option value="kr">kr</option>
               </select>
             </div>
           </div>
-
           <div style="background:#fafaf8;border:1px solid #eee;border-radius:5px;padding:10px 12px">
             <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:8px">Totalsum</div>
             <div style="display:flex;gap:6px;align-items:center">
-              <input type="text" id="discTotal" placeholder="0"
-                style="width:52px;font-size:14px;font-weight:600;padding:6px 8px;border:1.5px solid #ddd;border-radius:4px;text-align:center">
+              <input type="text" id="discTotal" placeholder="0" style="width:52px;font-size:14px;font-weight:600;padding:6px 8px;border:1.5px solid #ddd;border-radius:4px;text-align:center">
               <select id="discTotalType" style="flex:1;font-size:13px;padding:6px 6px;border:1.5px solid #ddd;border-radius:4px;background:#fff;font-family:inherit;color:#555">
-                <option value="pct">%</option>
-                <option value="kr">kr</option>
+                <option value="pct">%</option><option value="kr">kr</option>
               </select>
             </div>
           </div>
-
         </div>
         <div style="font-size:11px;color:#bbb;margin-top:8px">Rabatter vises som grønne linjer i forhåndsvisning og PDF</div>
       </div>
+
     </div>
   </div>
 
-  <div class="card">
+<div class="card">
     <div class="card-head open" onclick="tog(this)"><h2>Merkevarer og produktkategorier</h2><span class="arr">&#9660;</span></div>
     <div class="card-body">
       <div class="field"><label>Merkevarer (trykk Enter for å legge til)</label>
@@ -411,7 +482,7 @@ textarea{resize:vertical;line-height:1.55}
     </div>
   </div>
 <div class="card">
-    <div class="card-head" onclick="tog(this)"><h2>Merknader &nbsp;<span style="font-size:10px;font-weight:400;color:#ccc;letter-spacing:0">— av som standard</span></h2><span class="arr">&#9660;</span></div>
+    <div class="card-head" onclick="tog(this)"><h2>Merknader <span style="font-size:10px;font-weight:400;color:#ccc;margin-left:4px">— vises kun hvis du skriver noe</span></h2><span class="arr">&#9660;</span></div>
     <div class="card-body hidden">
       <div class="field"><label>Tilleggsmerknader (én per linje — vises som bullet-punkter)</label>
         <textarea id="fmerk" rows="4" placeholder="Møblene leveres og hentes av NOVOOI&#10;Møblene er forsikret gjennom NOVOOI i leieperioden&#10;Tilbudet er gyldig i 30 dager fra utstedelsesdato"></textarea>
@@ -965,12 +1036,12 @@ function getFD(){
     rom:getSelPills("rPills","r"),
     fromnotat:document.getElementById("fromnotat").value,
     lines:collectLines(),
-    cKjop:document.getElementById("cKjop").checked,
-    cMark:document.getElementById("cMark").checked,
-    cBet:document.getElementById("cBet").checked,
-    cPilot:document.getElementById("cPilot").checked,
-    cFors:document.getElementById("cFors").checked,
-    cDep:document.getElementById("cDep").checked,
+    cKjop:  isOpsOn('opsKjop'),  txtKjop:  getOpsText('txtKjop'),
+    cMark:  isOpsOn('opsMark'),  txtMark:  getOpsText('txtMark'),
+    cBet:   isOpsOn('opsBet'),   txtBet:   getOpsText('txtBet'),
+    cPilot: isOpsOn('opsPilot'), txtPilot: getOpsText('txtPilot'),
+    cFors:  isOpsOn('opsFors'),  txtFors:  getOpsText('txtFors'),
+    cDep:   isOpsOn('opsDep'),   txtDep:   getOpsText('txtDep'),
     betfrist:document.getElementById("fbetfrist").value,
     rabatt:document.getElementById("frabatt").value,
     merknader:document.getElementById("fmerk").value,
@@ -1029,13 +1100,7 @@ ${fd.brands.length?"Merkevarer: "+fd.brands.join(", "):""}
 ${fd.cats.length?"Kategorier: "+fd.cats.join(", "):""}
 Brief: ${fd.brief}
 ${fd.omfangPre ? 'Forhåndsutfylt omfang (bruk disse punktene eksakt, ikke generer nye):\n'+fd.omfangPre : ''}
-${fd.cBet?"Betaling: 50% ved oppstart, 50% ved ferdigstillelse.":""}
-${fd.cFors?"Møbler forsikret av NOVOOI i leieperioden.":""}
-${fd.cDep?"Depositum kreves.":""}
 ${fd.rabatt?"Handelsvilkår: "+fd.rabatt:""}
-${fd.cKjop?"Inkluder opsjon for kjøp med inntil 30% rabatt.":""}
-${fd.cMark?"Inkluder markedsføringsparagraf.":""}
-${fd.cPilot?"Legg til pilotpris-merknad med volumpriser.":""}
 
 Returner JSON:
 {"beskrivelse":"2-3 setninger om oppdraget","omfang":["punkt1","punkt2","punkt3","punkt4"],"opsjon":"tekst eller null","betaling":"tekst eller null","markedsforing":"tekst eller null","merknader":["merknad1"],"avslutning":"Kort avslutning"}`;
@@ -1085,6 +1150,11 @@ function syncEditableFields(){
     merknader: document.getElementById('fmerk')?.value,
   };
   Object.entries(freshMap).forEach(([k,v]) => { if(v!==undefined) genData.fd[k]=v; });
+  // Sync ops text edited in preview back to fd
+  document.querySelectorAll('[data-ops-field]').forEach(el => {
+    const key = el.dataset.opsField;
+    if(genData && genData.fd) genData.fd[key] = el.innerText.trim();
+  });
   // Always let brief override beschrivelse in final PDF
   if(genData.fd.brief) genData.ai._brief_override = genData.fd.brief;
   // AI text fields (ingress, beskrivelse, betaling, opsjon, markedsforing, avslutning)
@@ -1264,9 +1334,12 @@ function renderPreview(fd,ai){
     ${tjenesterHTML}
     ${produkterHTML}
     ${totalHTML}
-    ${!ph.opsjon && ai.opsjon ? `<div class="prev-sec e" contenteditable="true">Opsjon: kjøp av møbler og interiør</div><p class="prev-txt prev-editable" contenteditable="true" data-ai-field="opsjon" style="display:block">${ai.opsjon}</p>` : ''}
-    ${!ph.betaling && ai.betaling ? `<div class="prev-sec e" contenteditable="true">Tidsplan og betalingsbetingelser</div><p class="prev-txt prev-editable" contenteditable="true" data-ai-field="betaling" style="display:block">${ai.betaling}</p>` : ''}
-    ${!ph.marked && ai.markedsforing ? `<div class="prev-sec e" contenteditable="true">Markedsføring</div><p class="prev-txt prev-editable" contenteditable="true" data-ai-field="markedsforing" style="display:block">${ai.markedsforing}</p>` : ''}
+    ${fd.cKjop&&fd.txtKjop?`<div class="prev-sec e" contenteditable="true" data-sec-title="opsjon">Opsjon: kjøp av møbler og interiør</div><p class="prev-txt e" contenteditable="true" data-ops-field="txtKjop" style="display:block">${fd.txtKjop}</p>`:''}
+    ${fd.cBet&&fd.txtBet?`<div class="prev-sec e" contenteditable="true" data-sec-title="betaling">Tidsplan og betalingsbetingelser</div><p class="prev-txt e" contenteditable="true" data-ops-field="txtBet" style="display:block">${fd.txtBet}</p>`:''}
+    ${fd.cMark&&fd.txtMark?`<div class="prev-sec e" contenteditable="true" data-sec-title="marked">Markedsføring</div><p class="prev-txt e" contenteditable="true" data-ops-field="txtMark" style="display:block">${fd.txtMark}</p>`:''}
+    ${fd.cPilot&&fd.txtPilot?`<div class="prev-sec e" contenteditable="true" data-sec-title="pilot">Pilotpris</div><p class="prev-txt e" contenteditable="true" data-ops-field="txtPilot" style="display:block">${fd.txtPilot}</p>`:''}
+    ${fd.cFors&&fd.txtFors?`<div class="prev-sec e" contenteditable="true" data-sec-title="forsikring">Forsikring</div><p class="prev-txt e" contenteditable="true" data-ops-field="txtFors" style="display:block">${fd.txtFors}</p>`:''}
+    ${fd.cDep&&fd.txtDep?`<div class="prev-sec e" contenteditable="true" data-sec-title="depositum">Depositum</div><p class="prev-txt e" contenteditable="true" data-ops-field="txtDep" style="display:block">${fd.txtDep}</p>`:''}
     ${!ph.merknader && allM.length ? `<div class="prev-sec e" contenteditable="true">Merknader</div>${allM.map(m=>`<div class="prev-note prev-editable" contenteditable="true">${m}</div>`).join("")}` : ''}
     ${!ph.avslutning && ai.avslutning ? `<p style="font-size:12px;font-style:italic;color:#999;margin-top:1.25rem" contenteditable="true" class="prev-editable" data-ai-field="avslutning">${ai.avslutning}</p>` : ''}
     <div class="prev-footer">NOVOOI AS &#183; St. Halvards gate 33c, 0192 Oslo &#183; hei@novooi.com &#183; novooi.com &#183; Org.nr. 827 340 162${fd.saksb?" &#183; "+fd.saksb:""}</div>
@@ -1555,9 +1628,18 @@ async function doPDF(){
   }
 
   // ── MODULE: Opsjon ────────────────────────────────────────────────────────
-  if(!ph.opsjon && ai.opsjon){NP(20);SEC((ai.sec_opsjon||"OPSJON: KJØP AV MØBLER OG INTERIØR").toUpperCase());BODY(ai.opsjon);}
-  if(!ph.betaling && ai.betaling){NP(20);SEC((ai.sec_betaling||"TIDSPLAN OG BETALINGSBETINGELSER").toUpperCase());BODY(ai.betaling);}
-  if(!ph.marked && ai.markedsforing){NP(20);SEC((ai.sec_marked||"MARKEDSFØRING").toUpperCase());BODY(ai.markedsforing);}
+  // Opsjoner — use editable text from fd directly
+  const _opsItems = [
+    {on:fd.cKjop,  txt:fd.txtKjop,  sec:ai.sec_opsjon||"OPSJON: KJØP AV MØBLER OG INTERIØR"},
+    {on:fd.cBet,   txt:fd.txtBet,   sec:ai.sec_betaling||"TIDSPLAN OG BETALINGSBETINGELSER"},
+    {on:fd.cMark,  txt:fd.txtMark,  sec:ai.sec_marked||"MARKEDSFØRING"},
+    {on:fd.cPilot, txt:fd.txtPilot, sec:"PILOTPRIS"},
+    {on:fd.cFors,  txt:fd.txtFors,  sec:"FORSIKRING"},
+    {on:fd.cDep,   txt:fd.txtDep,   sec:"DEPOSITUM"},
+  ];
+  _opsItems.forEach(item => {
+    if(item.on && item.txt) { NP(20); SEC(item.sec.toUpperCase()); BODY(item.txt); }
+  });
 
   // ── MODULE: Merknader ─────────────────────────────────────────────────────
   const rawM=fd.merknader?fd.merknader.split("\n").map(s=>s.trim()).filter(Boolean):[];
@@ -1650,6 +1732,21 @@ buildLines();
     if(e.target.dataset && e.target.dataset.fdField) e.target._userEdited = true;
     if(e.target.dataset && e.target.dataset.aiField) e.target._userEdited = true;
   });
+function toggleOps(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('on');
+}
+function isOpsOn(id) {
+  const el = document.getElementById(id);
+  return el ? el.classList.contains('on') : false;
+}
+function getOpsText(id) {
+  const el = document.getElementById(id);
+  if (!el) return '';
+  return el.querySelector('textarea')?.value.trim() || '';
+}
+
 })();
 
 </script>
