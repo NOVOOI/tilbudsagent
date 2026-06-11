@@ -817,21 +817,30 @@ function doPDF(){
   const W=210,ml=20,mr=20,cw=W-ml-mr;
   let y=14;
 
+  // ── Helpers ──────────────────────────────────────────────────────────────
   const T=(txt,x,yy,sz,st,col)=>{
     doc.setFontSize(sz||10);doc.setFont("helvetica",st||"normal");
     doc.setTextColor(...(col||[17,17,17]));
     Array.isArray(txt)?doc.text(txt,x,yy):doc.text(String(txt),x,yy);
   };
   const HR=(yy,w,c)=>{doc.setLineWidth(w||0.25);doc.setDrawColor(...(c||[17,17,17]));doc.line(ml,yy,W-mr,yy);};
-  const SEC=(title)=>{if(y>250){doc.addPage();y=20;}T(title,ml,y,8.5,"bold",[50,50,50]);y+=5;};
-  const BODY=(txt,extra)=>{const ls=doc.splitTextToSize(txt,cw-(extra||0));T(ls,ml,y,10,"normal",[60,60,60]);y+=ls.length*4.8+3;};
+  const newPageIfNeeded=(space)=>{if(y+space>272){doc.addPage();y=20;}};
+  const SEC=(title)=>{newPageIfNeeded(12);T(title,ml,y,8.5,"bold",[50,50,50]);y+=5;};
+  const BODY=(txt)=>{const ls=doc.splitTextToSize(txt,cw);T(ls,ml,y,10,"normal",[60,60,60]);y+=ls.length*4.8+3;};
 
-  // Logo
-  try{doc.addImage(LOGO,"SVG",ml,y,36,8);}catch(e){T("novooi",ml,y+6,22,"bold");}
+  // ── Logo + tilbudsnr ─────────────────────────────────────────────────────
+  // Draw logo: use pre-converted PNG if available, else fallback to styled text
+  if(window._logoPNG){
+    doc.addImage(window._logoPNG,"PNG",ml,y,38,8.4);
+  } else {
+    // Fallback: draw "novooi" in matching style using letter-spacing trick
+    doc.setFontSize(26);doc.setFont("helvetica","bold");doc.setTextColor(17,17,17);
+    doc.text("novooi",ml,y+8);
+  }
   T("Tilbudsnr. "+fd.nr,W-mr,y+3,8.5,"normal",[160,160,160]);
-  y+=14;
+  y+=16;
 
-  // Meta
+  // ── Meta header ──────────────────────────────────────────────────────────
   const mc=[ml,ml+42,ml+86,ml+128];
   ["FRA","TIL","DATO","GYLDIG TIL"].forEach((k,i)=>T(k,mc[i],y,7.5,"normal",[160,160,160]));
   y+=4.5;
@@ -842,18 +851,125 @@ function doPDF(){
     [[fd.gyldig,"normal"]]
   ].forEach((lines,i)=>lines.forEach((l,j)=>{if(l[0])T(l[0],mc[i],y+j*4.2,9,l[1]);}));
   y+=13;
-
   HR(y,0.7);y+=8;
 
+  // ── Tittel + ingress ─────────────────────────────────────────────────────
   T(fd.typeLabel.toUpperCase(),ml,y,19,"bold");y+=7;
   if(ai.ingress){const il=doc.splitTextToSize(ai.ingress,cw);T(il,ml,y,10,"normal",[100,100,100]);y+=il.length*4.5+4;}
 
+  // ── Beskrivelse + omfang ─────────────────────────────────────────────────
   SEC("BESKRIVELSE");BODY(ai.beskrivelse||"");
   SEC("OMFANG");
   (ai.omfang||[]).forEach(o=>{const ls=doc.splitTextToSize("• "+o,cw-3);T(ls,ml+1,y,10,"normal",[60,60,60]);y+=ls.length*4.8;});
-  y+=4;
+  y+=5;
 
-  if(fd.kind==="product"){
+  // ── MODULE: Tjenester (service lines) ────────────────────────────────────
+  const hasServiceLines = fd.kind==="service" && fd.lines && fd.lines.some(l=>l.desc);
+  const hasProducts = fd.products && fd.products.length > 0;
+
+  let svcTotal = 0;
+  if(hasServiceLines){
+    newPageIfNeeded(20);
+    SEC("TJENESTER");
+    HR(y-1,0.2,[200,200,200]);
+    doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150);
+    doc.text("Beskrivelse",ml,y+3);doc.text("Pris eks. mva",W-mr,y+3,{align:"right"});
+    y+=6;HR(y,0.2,[200,200,200]);
+
+    fd.lines.forEach(l=>{
+      newPageIfNeeded(10);
+      const p=parseKr(l.price);if(p)svcTotal+=p;
+      const ls=doc.splitTextToSize(l.desc,cw*0.72);
+      doc.setFontSize(10);doc.setFont("helvetica","normal");doc.setTextColor(50);
+      doc.text(ls,ml,y+5);
+      const priceNum=parseKr(l.price);
+      doc.setFontSize(10);doc.setFont("helvetica","normal");doc.setTextColor(50);
+      if(priceNum) doc.text(fmtR(priceNum),W-mr,y+5,{align:"right"});
+      y+=Math.max(ls.length*4.8,5)+4;
+      HR(y-1,0.12,[230,230,230]);
+    });
+
+    // Service subtotal (only show if products also present)
+    if(hasProducts){
+      y+=2;
+      doc.setFontSize(9.5);doc.setFont("helvetica","bold");doc.setTextColor(17);
+      doc.text("Tjenestepris eks. mva",ml,y);
+      doc.text(fmtR(svcTotal),W-mr,y,{align:"right"});
+      y+=8;
+    }
+  }
+
+  // ── MODULE: Produkter (selected products) ────────────────────────────────
+  let prodTotal = 0;
+  if(hasProducts){
+    newPageIfNeeded(20);
+    SEC("PRODUKTER");
+    HR(y-1,0.2,[200,200,200]);
+    doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150);
+    doc.text("Produkt",ml,y+3);
+    doc.text("Pris",W-mr,y+3,{align:"right"});
+    y+=6;HR(y,0.2,[200,200,220]);
+
+    // Two-column layout: image left, text right
+    fd.products.forEach(p=>{
+      newPageIfNeeded(16);
+      const imgSize=12;
+      const textX=ml+imgSize+4;
+      const textW=cw-imgSize-4;
+
+      // Image
+      doc.setDrawColor(220,220,220);doc.setLineWidth(0.15);
+      doc.rect(ml,y,imgSize,imgSize);
+      if(p.image){
+        try{
+          const fmt=p.image.startsWith('data:image/png')||p.image.includes('.png')?'PNG':'JPEG';
+          doc.addImage(p.image,fmt,ml,y,imgSize,imgSize);
+        }catch(e){
+          doc.setFillColor(245,245,240);doc.rect(ml,y,imgSize,imgSize,'F');
+        }
+      } else {
+        doc.setFillColor(245,245,240);doc.rect(ml,y,imgSize,imgSize,'F');
+      }
+
+      // Product name
+      doc.setFontSize(9.5);doc.setFont("helvetica","bold");doc.setTextColor(17);
+      const nls=doc.splitTextToSize(p.name||'',textW*0.72);
+      doc.text(nls[0]||'',textX,y+4);
+
+      // Brand
+      if(p.brand){
+        doc.setFontSize(8.5);doc.setFont("helvetica","normal");doc.setTextColor(140);
+        doc.text(p.brand,textX,y+8,{maxWidth:textW*0.7});
+      }
+
+      // SKU
+      if(p.sku){
+        doc.setFontSize(8);doc.setFont("helvetica","normal");doc.setTextColor(180);
+        doc.text("SKU: "+p.sku,textX,y+(p.brand?12:8),{maxWidth:textW*0.7});
+      }
+
+      // Price (right aligned)
+      if(p.price){
+        const priceNum=parseKr(p.price);if(priceNum)prodTotal+=priceNum;
+        doc.setFontSize(9.5);doc.setFont("helvetica","bold");doc.setTextColor(17);
+        doc.text(p.price,W-mr,y+4,{align:"right"});
+      }
+
+      y+=imgSize+3;
+      HR(y-1,0.12,[230,230,230]);
+    });
+
+    // Product subtotal
+    y+=2;
+    doc.setFontSize(9.5);doc.setFont("helvetica","bold");doc.setTextColor(17);
+    doc.text("Produktpris eks. mva",ml,y);
+    doc.text(fmtR(prodTotal),W-mr,y,{align:"right"});
+    y+=8;
+  }
+
+  // ── MODULE: Leie-spesifikasjon (product-type lines, e.g. Norfax) ─────────
+  if(fd.kind==="product" && fd.lines && fd.lines.some(l=>l.desc)){
+    newPageIfNeeded(20);
     SEC("SPESIFIKASJON");
     const cw4=[cw*0.42,14,32,30,28];
     const cx=[ml,...[0,1,2,3].map(i=>cw4.slice(0,i+1).reduce((a,b)=>a+b,ml))];
@@ -864,6 +980,7 @@ function doPDF(){
     });
     y+=6;HR(y,0.2,[200,200,200]);
     fd.lines.forEach(l=>{
+      newPageIfNeeded(12);
       const dp=l.desc.split("\n");const rh=Math.max(dp.length*4.3+3,9);
       doc.setFontSize(9.5);doc.setFont("helvetica","bold");doc.setTextColor(17);if(dp[0])doc.text(dp[0],ml,y+5);
       doc.setFontSize(8.5);doc.setFont("helvetica","normal");doc.setTextColor(120);
@@ -876,7 +993,6 @@ function doPDF(){
     });
     y+=3;
     const pt=calcPT(fd.lines);
-    T("TILLEGG OG GEBYRER",ml,y,8.5,"bold",[50,50,50]);y+=5;
     [["Møbler totalt (eks. mva)",fmtR(pt),false],
      ["Tillegg totalt (eks. mva)","—",false],
      ["TOTALT EKS. MVA",fmtR(pt),true],
@@ -890,81 +1006,67 @@ function doPDF(){
     doc.setFontSize(12);doc.setFont("helvetica","bold");doc.setTextColor(255);
     doc.text("TOTALT INKL. MVA",ml+4,y+7.5);doc.text(fmtR(pt*1.25),W-mr-4,y+7.5,{align:"right"});
     doc.setTextColor(17);y+=16;
-  } else {
-    HR(y-1,0.2,[200,200,200]);
-    doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150);
-    doc.text("Beskrivelse",ml,y+3);doc.text("Pris eks. mva",W-mr,y+3,{align:"right"});
-    y+=6;HR(y,0.2,[200,200,200]);
-    let st=0;
-    fd.lines.forEach(l=>{
-      const p=parseKr(l.price);if(p)st+=p;
-      const ls=doc.splitTextToSize(l.desc,cw*0.72);
-      T(ls,ml,y+5,10,"normal",[60,60,60]);T(l.price||"—",W-mr,y+5,10,"normal",[60,60,60]);
-      doc.setTextColor(60);doc.text(l.price||"—",W-mr,y+5,{align:"right"});
-      y+=Math.max(ls.length*4.8,5)+4;HR(y-1,0.12,[230,230,230]);
-    });
-    y+=3;HR(y-1,0.5);
-    doc.setFontSize(11);doc.setFont("helvetica","bold");doc.setTextColor(17);
-    doc.text("TOTALT EKS. MVA",ml,y+1);doc.text(fmtR(st),W-mr,y+1,{align:"right"});y+=8;
   }
 
-  if(ai.opsjon){if(y>245){doc.addPage();y=20;}SEC("OPSJON: KJØP AV MØBLER OG INTERIØR");BODY(ai.opsjon);}
-  if(ai.betaling){if(y>245){doc.addPage();y=20;}SEC("TIDSPLAN OG BETALINGSBETINGELSER");BODY(ai.betaling);}
-  if(ai.markedsforing){if(y>245){doc.addPage();y=20;}SEC("MARKEDSFØRING");BODY(ai.markedsforing);}
+  // ── MODULE: Totalpris (service + products combined) ───────────────────────
+  if(hasServiceLines || hasProducts){
+    newPageIfNeeded(16);
+    const grandTotal = svcTotal + prodTotal;
+    HR(y,0.3,[17,17,17]);y+=1;
+    doc.setFillColor(17,17,17);doc.rect(ml,y,cw,12,"F");
+    doc.setFontSize(12);doc.setFont("helvetica","bold");doc.setTextColor(255);
+    doc.text("TOTALT EKS. MVA",ml+4,y+8);
+    doc.text(fmtR(grandTotal),W-mr-4,y+8,{align:"right"});
+    doc.setTextColor(17);y+=17;
+  }
 
+  // ── MODULE: Opsjon, betaling, markedsføring ───────────────────────────────
+  if(ai.opsjon){newPageIfNeeded(20);SEC("OPSJON: KJØP AV MØBLER OG INTERIØR");BODY(ai.opsjon);}
+  if(ai.betaling){newPageIfNeeded(20);SEC("TIDSPLAN OG BETALINGSBETINGELSER");BODY(ai.betaling);}
+  if(ai.markedsforing){newPageIfNeeded(20);SEC("MARKEDSFØRING");BODY(ai.markedsforing);}
+
+  // ── MODULE: Merknader ─────────────────────────────────────────────────────
   const rawM=fd.merknader?fd.merknader.split("\n").map(s=>s.trim()).filter(Boolean):[];
   const allM=[...rawM,...(ai.merknader||[])];
   if(allM.length){
-    if(y>245){doc.addPage();y=20;}
+    newPageIfNeeded(20);
     HR(y,0.2,[200,200,200]);y+=6;
     T("MERKNADER",ml,y,8.5,"bold",[50,50,50]);y+=5;
     allM.forEach(m=>{const ls=doc.splitTextToSize("• "+m,cw-2);T(ls,ml+1,y,9.5,"normal",[80,80,80]);y+=ls.length*4.5+1;});
   }
 
+  // ── Avslutning ────────────────────────────────────────────────────────────
+  if(ai.avslutning){newPageIfNeeded(12);y+=3;const ls=doc.splitTextToSize(ai.avslutning,cw);doc.setFontSize(10);doc.setFont("helvetica","italic");doc.setTextColor(130);doc.text(ls,ml,y);}
 
-  // Products in PDF
-  if(fd.products && fd.products.length){
-    if(y>230){doc.addPage();y=20;}
-    T("PRODUKTER",ml,y,8.5,"bold",[50,50,50]); y+=5;
-    const pCols=4, pW=(cw-(pCols-1)*4)/pCols, pH=pW+18;
-    let px=ml, py=y;
-    for(let i=0;i<fd.products.length;i++){
-      const p=fd.products[i];
-      if(i>0 && i%pCols===0){px=ml;py+=pH+4;if(py>260){doc.addPage();py=20;}}
-      // Image box
-      doc.setDrawColor(220,220,220);doc.setLineWidth(0.2);
-      doc.rect(px,py,pW,pW);
-      if(p.image){
-        try{
-          const fmt=p.image.startsWith('data:image/png')||p.image.includes('.png')?'PNG':'JPEG';
-          doc.addImage(p.image,fmt,px,py,pW,pW);
-        }catch(e){
-          doc.setFillColor(245,245,240);doc.rect(px,py,pW,pW,'F');
-        }
-      } else {
-        doc.setFillColor(245,245,240);doc.rect(px,py,pW,pW,'F');
-      }
-      // Name
-      doc.setFontSize(8);doc.setFont("helvetica","bold");doc.setTextColor(17);
-      const nls=doc.splitTextToSize(p.name||'',pW);
-      doc.text(nls[0],px,py+pW+5);
-      // Brand + price
-      doc.setFont("helvetica","normal");doc.setTextColor(140);
-      if(p.brand) doc.text(p.brand,px,py+pW+9,{maxWidth:pW});
-      if(p.price){doc.setTextColor(80);doc.text(p.price,px,py+pW+13,{maxWidth:pW});}
-      px+=pW+4;
-    }
-    y=py+pH+6;
-  }
-
-  if(ai.avslutning){if(y>250){doc.addPage();y=20;}y+=3;const ls=doc.splitTextToSize(ai.avslutning,cw);doc.setFontSize(10);doc.setFont("helvetica","italic");doc.setTextColor(130);doc.text(ls,ml,y);}
-
+  // ── Footer ────────────────────────────────────────────────────────────────
   doc.setFontSize(8.5);doc.setFont("helvetica","normal");doc.setTextColor(180);
   doc.text("NOVOOI AS · St. Halvards gate 33c, 0192 Oslo · hei@novooi.com · novooi.com"+(fd.saksb?" · "+fd.saksb:""),W/2,283,{align:"center"});
   doc.text("Org.nr. 827 340 162",W/2,288,{align:"center"});
 
   doc.save("NOVOOI_Tilbud_"+fd.kunde.replace(/[^a-zA-Z0-9]/g,"_")+"_"+fd.nr+".pdf");
 }
+
+
+// Pre-convert SVG logo to PNG for crisp PDF rendering
+function convertLogoToPNG(){
+  return new Promise(resolve=>{
+    const img = new Image();
+    img.onload = ()=>{
+      const scale = 4; // high-res
+      const canvas = document.createElement('canvas');
+      canvas.width = img.naturalWidth * scale;
+      canvas.height = img.naturalHeight * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0);
+      window._logoPNG = canvas.toDataURL('image/png');
+      resolve();
+    };
+    img.onerror = ()=>resolve(); // silent fallback
+    img.src = LOGO;
+  });
+}
+convertLogoToPNG();
 
 buildLines();
 </script>
