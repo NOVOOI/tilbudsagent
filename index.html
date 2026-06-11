@@ -513,13 +513,35 @@ function renderWooResults(products) {
   wrap._products = products;
 }
 
-function addWooProduct(idx) {
+async async function addWooProduct(idx) {
   const wrap = document.getElementById('wooResults');
   const p = wrap._products[idx];
   if (!p) return;
-  if (selectedProducts.some(s => s.id == p.id)) return; // already added
+  if (selectedProducts.some(s => s.id == p.id && !s.variant)) return;
+
   const img = p.images && p.images[0] ? p.images[0].src : null;
   const brand = p.brands && p.brands[0] ? p.brands[0].name : (p._brand || '');
+
+  // Variable product — fetch variations and show picker
+  if (p.type === 'variable' || (p.variations && p.variations.length)) {
+    const card = wrap.querySelector(`[data-idx="${idx}"]`);
+    if (card) { card.style.opacity='0.6'; card.style.pointerEvents='none'; }
+
+    try {
+      const res = await fetch(WORKER_URL + '/woo/variations?id=' + p.id + '&per_page=50');
+      if (res.ok) {
+        const variations = await res.json();
+        if (variations && variations.length) {
+          showVariantPicker(p, variations, img, brand);
+          if (card) { card.style.opacity=''; card.style.pointerEvents=''; }
+          return;
+        }
+      }
+    } catch(e) {}
+    if (card) { card.style.opacity=''; card.style.pointerEvents=''; }
+  }
+
+  // Simple product — add directly
   selectedProducts.push({
     id: p.id,
     name: p.name,
@@ -527,12 +549,72 @@ function addWooProduct(idx) {
     price: p.price ? 'kr ' + parseFloat(p.price).toLocaleString('nb-NO') : '',
     sku: p.sku || '',
     image: img,
+    variant: '',
     source: 'woo',
     permalink: p.permalink || ''
   });
-  // Mark card as selected
   const card = wrap.querySelector(`[data-idx="${idx}"]`);
   if (card) card.classList.add('selected');
+  renderSelectedProducts();
+}
+
+function showVariantPicker(p, variations, img, brand) {
+  // Remove any existing picker
+  document.getElementById('variantPickerOverlay')?.remove();
+
+  const overlay = document.createElement('div');
+  overlay.id = 'variantPickerOverlay';
+  overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+
+  const modal = document.createElement('div');
+  modal.style.cssText = 'background:#fff;border-radius:6px;padding:1.5rem;max-width:440px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)';
+
+  const optionsHTML = variations.map((v,i) => {
+    const attrLabel = v.attributes && v.attributes.length
+      ? v.attributes.map(a=>a.option).join(' / ')
+      : 'Variant '+(i+1);
+    const price = v.price ? 'kr '+parseFloat(v.price).toLocaleString('nb-NO') : '';
+    const vImg = v.image && v.image.src ? v.image.src : img;
+    return `<div onclick="pickVariant(${JSON.stringify({
+      id: p.id+'_'+v.id,
+      name: p.name,
+      brand,
+      price: v.price ? 'kr '+parseFloat(v.price).toLocaleString('nb-NO') : (p.price ? 'kr '+parseFloat(p.price).toLocaleString('nb-NO') : ''),
+      variant: v.attributes && v.attributes.length ? v.attributes.map(a=>a.name+': '+a.option).join(', ') : attrLabel,
+      image: vImg,
+      sku: v.sku||p.sku||'',
+      source: 'woo',
+      permalink: p.permalink||''
+    }).replace(/"/g,'&quot;')})"
+      style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #eee;border-radius:4px;margin-bottom:6px;cursor:pointer;transition:border-color .12s"
+      onmouseover="this.style.borderColor='#111'" onmouseout="this.style.borderColor='#eee'">
+      <img src="${vImg || ''}" style="width:44px;height:44px;object-fit:cover;border-radius:3px;background:#f5f5f0;flex-shrink:0" onerror="this.style.background='#f5f5f0'">
+      <div style="flex:1;min-width:0">
+        <div style="font-size:13px;font-weight:600;color:#111">${attrLabel}</div>
+        ${price ? `<div style="font-size:12px;color:#666;margin-top:2px">${price}</div>` : ''}
+      </div>
+    </div>`;
+  }).join('');
+
+  modal.innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
+      <div>
+        <div style="font-size:13px;font-weight:700;color:#111">${p.name}</div>
+        <div style="font-size:11px;color:#aaa;margin-top:2px">Velg variant</div>
+      </div>
+      <button onclick="document.getElementById('variantPickerOverlay').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#aaa;line-height:1">×</button>
+    </div>
+    ${optionsHTML}`;
+
+  overlay.appendChild(modal);
+  overlay.addEventListener('click', e => { if(e.target===overlay) overlay.remove(); });
+  document.body.appendChild(overlay);
+}
+
+function pickVariant(productData) {
+  document.getElementById('variantPickerOverlay')?.remove();
+  if (selectedProducts.some(s => s.id == productData.id)) return;
+  selectedProducts.push(productData);
   renderSelectedProducts();
 }
 
@@ -550,13 +632,13 @@ function renderSelectedProducts() {
   grid.innerHTML = selectedProducts.map(p => `
     <div class="prod-card selected">
       ${p.image
-        ? `<img class="prod-img" src="${p.image}" loading="lazy">`
+        ? `<img class="prod-img" src="${p.image}" loading="lazy" onerror="this.style.display='none'">`
         : '<div class="prod-img-placeholder">&#128247;</div>'}
       <div class="prod-info">
         <div class="prod-name" title="${p.name}">${p.name}</div>
+        ${p.variant ? `<div class="prod-brand" style="color:#777">${p.variant}</div>` : ''}
         ${p.brand ? `<div class="prod-brand">${p.brand}</div>` : ''}
         ${p.price ? `<div class="prod-price">${p.price}</div>` : ''}
-        ${p.sku ? `<div class="prod-price" style="color:#bbb">SKU: ${p.sku}</div>` : ''}
       </div>
       <button class="prod-remove" onclick="removeProduct('${p.id}')" title="Fjern">&#215;</button>
     </div>`).join('');
@@ -833,8 +915,9 @@ async function doPDF(){
   btn.textContent = origText;
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:"mm",format:"a4"});
-  const W=210,ml=20,mr=20,cw=W-ml-mr;
-  let y=14;
+  const W=210, ml=22, mr=22, cw=W-ml-mr;
+  const FS=10;
+  let y=16;
 
   // ── Helpers ──────────────────────────────────────────────────────────────
   const T=(txt,x,yy,sz,st,col)=>{
@@ -845,7 +928,7 @@ async function doPDF(){
   const HR=(yy,w,c)=>{doc.setLineWidth(w||0.25);doc.setDrawColor(...(c||[17,17,17]));doc.line(ml,yy,W-mr,yy);};
   const newPageIfNeeded=(space)=>{if(y+space>272){doc.addPage();y=20;}};
   const SEC=(title)=>{newPageIfNeeded(12);T(title,ml,y,8.5,"bold",[50,50,50]);y+=5;};
-  const BODY=(txt)=>{const ls=doc.splitTextToSize(txt,cw);T(ls,ml,y,10,"normal",[60,60,60]);y+=ls.length*4.8+3;};
+  const BODY=(txt)=>{const ls=doc.splitTextToSize(txt,cw);T(ls,ml,y,FS,"normal",[60,60,60]);y+=ls.length*5+4;};
 
   // ── Logo + tilbudsnr ─────────────────────────────────────────────────────
   // Draw logo: use pre-converted PNG if available, else fallback to styled text
@@ -856,11 +939,11 @@ async function doPDF(){
     doc.setFontSize(26);doc.setFont("helvetica","bold");doc.setTextColor(17,17,17);
     doc.text("novooi",ml,y+8);
   }
-  T("Tilbudsnr. "+fd.nr,W-mr,y+3,8.5,"normal",[160,160,160]);
-  y+=16;
+  T("Tilbudsnr. "+fd.nr, W-mr, y+4, 8.5,"normal",[160,160,160]);
+  y+=18;
 
   // ── Meta header ──────────────────────────────────────────────────────────
-  const mc=[ml,ml+42,ml+86,ml+128];
+  const colW=cw/4; const mc=[ml, ml+colW, ml+colW*2, ml+colW*3];
   ["FRA","TIL","DATO","GYLDIG TIL"].forEach((k,i)=>T(k,mc[i],y,7.5,"normal",[160,160,160]));
   y+=4.5;
   [
@@ -870,7 +953,7 @@ async function doPDF(){
     [[fd.gyldig,"normal"]]
   ].forEach((lines,i)=>lines.forEach((l,j)=>{if(l[0])T(l[0],mc[i],y+j*4.2,9,l[1]);}));
   y+=13;
-  HR(y,0.7);y+=8;
+  HR(y, 0.6); y+=12;
 
   // ── Tittel + ingress ─────────────────────────────────────────────────────
   T(fd.typeLabel.toUpperCase(),ml,y,19,"bold");y+=7;
@@ -896,26 +979,21 @@ async function doPDF(){
     y+=6;HR(y,0.2,[200,200,200]);
 
     fd.lines.forEach(l=>{
-      newPageIfNeeded(10);
-      const p=parseKr(l.price);if(p)svcTotal+=p;
-      const ls=doc.splitTextToSize(l.desc,cw*0.72);
-      doc.setFontSize(10);doc.setFont("helvetica","normal");doc.setTextColor(50);
-      doc.text(ls,ml,y+5);
+      newPageIfNeeded(12);
+      const p=parseKr(l.price); if(p) svcTotal+=p;
+      const ls=doc.splitTextToSize(l.desc, cw*0.68);
+      T(ls, ml, y+5, FS, "normal", [50,50,50]);
       const priceNum=parseKr(l.price);
-      doc.setFontSize(10);doc.setFont("helvetica","normal");doc.setTextColor(50);
-      if(priceNum) doc.text(fmtR(priceNum),W-mr,y+5,{align:"right"});
-      y+=Math.max(ls.length*4.8,5)+4;
-      HR(y-1,0.12,[230,230,230]);
+      if(priceNum) T(fmtR(priceNum), W-mr, y+5, FS, "normal", [50,50,50]);
+      y+=Math.max(ls.length*5, 6)+5;
+      HR(y-1, 0.12, [230,230,230]);
     });
 
-    // Service subtotal (only show if products also present)
-    if(hasProducts){
-      y+=2;
-      doc.setFontSize(9.5);doc.setFont("helvetica","bold");doc.setTextColor(17);
-      doc.text("Tjenestepris eks. mva",ml,y);
-      doc.text(fmtR(svcTotal),W-mr,y,{align:"right"});
-      y+=8;
-    }
+    // Service subtotal — bold only here, extra padding
+    y+=4;
+    T("Tjenestepris eks. mva", ml, y, FS, "bold", [17,17,17]);
+    T(fmtR(svcTotal), W-mr, y, FS, "bold", [17,17,17]);
+    y+=10;
   }
 
   // ── MODULE: Produkter (selected products) ────────────────────────────────
@@ -931,12 +1009,13 @@ async function doPDF(){
 
     // Two-column layout: image left, text right
     fd.products.forEach(p=>{
-      newPageIfNeeded(16);
-      const imgSize=12;
-      const textX=ml+imgSize+4;
-      const textW=cw-imgSize-4;
+      const imgSize=16;
+      const rowH=imgSize+6;
+      newPageIfNeeded(rowH+4);
+      const textX=ml+imgSize+5;
+      const textW=cw-imgSize-5;
 
-      // Image
+      // Image box
       doc.setDrawColor(220,220,220);doc.setLineWidth(0.15);
       doc.rect(ml,y,imgSize,imgSize);
       if(p.image){
@@ -950,40 +1029,33 @@ async function doPDF(){
         doc.setFillColor(245,245,240);doc.rect(ml,y,imgSize,imgSize,'F');
       }
 
-      // Product name
-      doc.setFontSize(9.5);doc.setFont("helvetica","bold");doc.setTextColor(17);
-      const nls=doc.splitTextToSize(p.name||'',textW*0.72);
-      doc.text(nls[0]||'',textX,y+4);
+      // Name — same base size, normal weight
+      const nameStr = p.variant ? p.name+' — '+p.variant : p.name||'';
+      const nls=doc.splitTextToSize(nameStr, textW*0.68);
+      T(nls[0]||'', textX, y+5, FS, "normal", [17,17,17]);
 
-      // Brand
+      // Brand — muted, same size
+      let textY = y+5;
       if(p.brand){
-        doc.setFontSize(8.5);doc.setFont("helvetica","normal");doc.setTextColor(140);
-        doc.text(p.brand,textX,y+8,{maxWidth:textW*0.7});
+        T(p.brand, textX, textY+5, FS, "normal", [150,150,150]);
+        textY+=5;
       }
 
-      // SKU
-      if(p.sku){
-        doc.setFontSize(8);doc.setFont("helvetica","normal");doc.setTextColor(180);
-        doc.text("SKU: "+p.sku,textX,y+(p.brand?12:8),{maxWidth:textW*0.7});
-      }
-
-      // Price (right aligned)
+      // Price — normal weight (only subtotal is bold)
       if(p.price){
-        const priceNum=parseKr(p.price);if(priceNum)prodTotal+=priceNum;
-        doc.setFontSize(9.5);doc.setFont("helvetica","bold");doc.setTextColor(17);
-        doc.text(p.price,W-mr,y+4,{align:"right"});
+        const priceNum=parseKr(p.price); if(priceNum) prodTotal+=priceNum;
+        T(fmtR(parseKr(p.price)||0), W-mr, y+5, FS, "normal", [50,50,50]);
       }
 
-      y+=imgSize+3;
+      y+=rowH+2;
       HR(y-1,0.12,[230,230,230]);
     });
 
-    // Product subtotal
-    y+=2;
-    doc.setFontSize(9.5);doc.setFont("helvetica","bold");doc.setTextColor(17);
-    doc.text("Produktpris eks. mva",ml,y);
-    doc.text(fmtR(prodTotal),W-mr,y,{align:"right"});
-    y+=8;
+    // Product subtotal — bold, extra padding
+    y+=4;
+    T("Produktpris eks. mva", ml, y, FS, "bold", [17,17,17]);
+    T(fmtR(prodTotal), W-mr, y, FS, "bold", [17,17,17]);
+    y+=10;
   }
 
   // ── MODULE: Leie-spesifikasjon (product-type lines, e.g. Norfax) ─────────
