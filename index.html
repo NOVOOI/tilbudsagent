@@ -4,6 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NOVOOI Tilbudsagent</title>
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23111'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='700' fill='white' text-anchor='middle'%3En%3C/text%3E%3C/svg%3E">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -97,6 +98,11 @@ textarea{resize:vertical;line-height:1.55}
 .prod-card .prod-name{font-size:12px;font-weight:600;color:#111;line-height:1.35;margin-bottom:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .prod-card .prod-brand{font-size:10px;color:#aaa;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .prod-card .prod-price{font-size:11px;color:#555;margin-top:3px}
+.prod-qty-row{display:flex;align-items:center;gap:5px;margin-top:6px;padding-top:6px;border-top:1px solid #f0f0ec}
+.prod-qty-btn{width:22px;height:22px;border:1px solid #ddd;border-radius:3px;background:#fff;cursor:pointer;font-size:14px;line-height:1;display:flex;align-items:center;justify-content:center;color:#555;flex-shrink:0}
+.prod-qty-btn:hover{border-color:#111;color:#111}
+.prod-qty-val{font-size:13px;font-weight:600;min-width:20px;text-align:center;color:#111}
+.prod-qty-total{font-size:11px;color:#888;margin-left:auto}
 .prod-card .prod-remove{position:absolute;top:5px;right:5px;background:#fff;border:1px solid #ddd;border-radius:50%;width:20px;height:20px;font-size:13px;line-height:1;cursor:pointer;display:flex;align-items:center;justify-content:center;color:#aaa;opacity:0;transition:opacity .15s}
 .prod-card:hover .prod-remove{opacity:1}
 .prod-card .prod-remove:hover{color:#e24b4a;border-color:#e24b4a}
@@ -126,13 +132,35 @@ textarea{resize:vertical;line-height:1.55}
 .add-manual-btn{grid-column:1/-1;padding:8px;background:#111;color:#fff;border:none;border-radius:4px;font-size:13px;font-weight:600;cursor:pointer;font-family:inherit}
 .add-manual-btn:hover{background:#333}
 .woo-status{font-size:12px;color:#aaa;margin-bottom:8px;min-height:16px}
+
+.disc-row{display:flex;align-items:center;gap:8px;margin-top:8px;flex-wrap:wrap}
+.disc-row label{font-size:12px;color:#666;white-space:nowrap;margin:0;text-transform:none;letter-spacing:0;font-weight:500}
+.disc-row input[type=text]{width:80px;font-size:13px;padding:5px 8px}
+.disc-row select{font-size:13px;padding:5px 8px;border:1px solid #ddd;border-radius:4px;background:#fff;font-family:inherit}
+.disc-tag{display:inline-flex;align-items:center;gap:4px;background:#f0f7f0;border:1px solid #b8ddb8;border-radius:14px;padding:3px 10px;font-size:12px;color:#2a7a2a;font-weight:600}
+/* Editable preview */
+.prev-editable{outline:none;border-radius:3px;transition:background .15s;min-height:1em;display:inline-block;width:100%}
+.prev-editable:focus{background:#fffbe6;box-shadow:0 0 0 2px #f0c040}
+.prev-editable:hover:not(:focus){background:#f8f8f4}
+.prev-edit-hint{font-size:10px;color:#ccc;letter-spacing:.04em;text-transform:uppercase;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.prev-edit-hint::before{content:"";display:inline-block;width:8px;height:8px;border-radius:50%;background:#f0c040}
+/* Product table in preview */
+.prev-prod-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:.5rem}
+.prev-prod-table th{padding:6px 9px;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#aaa;border-bottom:1px solid #ddd;text-align:left}
+.prev-prod-table th:last-child{text-align:right}
+.prev-prod-table td{padding:10px 9px;border-bottom:1px solid #f2f2f0;vertical-align:middle}
+.prev-prod-table td:last-child{text-align:right;font-weight:500}
+.prev-prod-img{width:44px;height:44px;object-fit:cover;border-radius:3px;background:#f5f5f0;display:block;border:1px solid #eee}
 </style>
 </head>
 <body>
 
 <div class="topbar">
   <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzg3IiBoZWlnaHQ9Ijg2IiB2aWV3Qm94PSIwIDAgMzg3IDg2IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNNjUuMTI0IDgxLjY1MTFDNjYuMzE5OSA4Mi4xOTQ3IDY3LjA4MDkgODIuNTIwOSA2Ny4wODA5IDgzLjM5MDZDNjcuMDgwOSA4NC4yNjA0IDY2LjQyODYgODQuNjk1MyA2NS4wMTUyIDg0LjU4NjZDNjMuMTY3IDg0LjQ3NzkgNTkuNjg3OSA4NC4yNjA0IDU0LjU3OCA4NC4yNjA0QzQ5LjQ2ODEgODQuMjYwNCA0NS45ODkgODQuNDc3OSA0NC4xNDA4IDg0LjU4NjZDNDIuNzI3NCA4NC42OTUzIDQyLjA3NTEgODQuMjYwNCA0Mi4wNzUxIDgzLjM5MDZDNDIuMDc1MSA4Mi41MjA5IDQyLjgzNjEgODIuMTk0NyA0NC4wMzIxIDgxLjY1MTFDNDYuMDk3OCA4MC44OSA0Ni4zMTUyIDc4LjYwNjggNDYuMzE1MiA3NC44MDE1VjQ3LjA3NzFDNDYuMzE1MiAzNi45NjU5IDQzLjU5NzIgMjkuMTM3OCAzNC4yNDcyIDI5LjEzNzhDMjQuNTcxIDI5LjEzNzggMjAuNzY1NyAzOC4yNzA1IDIwLjc2NTcgNDYuNTMzNVY3NC44MDE1QzIwLjc2NTcgNzguNjA2OCAyMS4wOTE5IDgwLjg5IDIzLjE1NzYgODEuNjUxMUMyNC4zNTM1IDgyLjE5NDcgMjUuMDA1OSA4Mi41MjA5IDI1LjAwNTkgODMuMzkwNkMyNS4wMDU5IDg0LjI2MDQgMjQuMzUzNSA4NC42OTUzIDIyLjk0MDIgODQuNTg2NkMyMS4yMDA2IDg0LjQ3NzkgMTcuNzIxNSA4NC4yNjA0IDEyLjYxMTcgODQuMjYwNEM3LjM5MzA0IDg0LjI2MDQgNC4wMjI2OCA4NC40Nzc5IDIuMTc0NDIgODQuNTg2NkMwLjc2MTA0OCA4NC42OTUzIDAuMTA4NzIxIDg0LjI2MDQgMC4xMDg3MjEgODMuMzkwNkMwLjEwODcyMSA4Mi41MjA5IDAuODY5NzY5IDgyLjE5NDcgMS45NTY5OCA4MS42NTExQzQuMDIyNjggODAuODkgNC4zNDg4NSA3OC42MDY4IDQuMzQ4ODUgNzQuODAxNVYzOC41OTY3QzQuMzQ4ODUgMzQuNzkxNCA0LjAyMjY4IDMyLjYxNjkgMS45NTY5OCAzMS43NDcyQzAuODY5NzY5IDMxLjMxMjMgMCAzMC44Nzc0IDAgMjkuODk4OUMwIDI5LjEzNzggMC41NDM2MDYgMjguNTk0MiAxLjUyMjEgMjguMzc2N0M0LjY3NTAxIDI3LjcyNDQgMTAuOTgwOCAyNi4wOTM1IDE3LjcyMTUgMjIuNjE0NEMxOC45MTc1IDIxLjk2MjEgMTkuNjc4NSAyMi4zOTcgMTkuNzg3MiAyMy43MDE2TDIwLjU0ODMgMzIuNTA4MkwyMC42NTcgMzMuNTk1NEMyMy40ODM4IDI3LjUwNjkgMjkuMTM3MyAyMS4yMDEgNDAuNDQ0MyAyMS4yMDFDNTYuMTAwMSAyMS4yMDEgNjIuODQwOCAyOS42ODE0IDYyLjg0MDggNDcuMDc3MVY3NC44MDE1QzYyLjg0MDggNzguNjA2OCA2My4wNTgzIDgwLjg5IDY1LjEyNCA4MS42NTExWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEwOC40IDIxLjIwMUMxMjcuNzUzIDIxLjIwMSAxNDAuMTQ3IDM1Ljc2OTkgMTQwLjE0NyA1My42MDA1QzE0MC4xNDcgNzEuNTM5OCAxMjcuNzUzIDg2IDEwOC40IDg2Qzg5LjA0NzggODYgNzYuNzYyMyA3MS41Mzk4IDc2Ljc2MjMgNTMuNjAwNUM3Ni44NzEgMzUuNzY5OSA4OS4wNDc4IDIxLjIwMSAxMDguNCAyMS4yMDFaTTEwMi45NjQgMjQuODk3NkM5Mi44NTMgMjYuODU0NiA5MS4xMTM1IDQxLjA5NzMgOTMuODMxNSA1Ni4xMDExQzk2LjQ0MDggNzEuMzIyNCAxMDMuODM0IDg0LjA0MyAxMTQuMDU0IDgyLjMwMzRDMTI0LjA1NiA4MC4zNDY0IDEyNS42ODcgNjYuMTAzNyAxMjMuMDc3IDUxLjA5OTlDMTIwLjQ2OCAzNS44Nzg2IDExMy4wNzUgMjMuMTU4IDEwMi45NjQgMjQuODk3NloiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0xOTUuNjkyIDE5Ljg5NjNDMjAzLjg0NiAyMC40Mzk5IDIwMy42MjkgMjkuNDY0IDIwMC4zNjcgMzcuOTQ0NEwxODIuNDI4IDgzLjQ5OTRDMTgyLjEwMiA4NC4zNjkxIDE4MS40NSA4NC45MTI4IDE4MC41OCA4NC45MTI4TDE3OC4yOTcgODQuODA0Vjg0LjkxMjhIMTcwLjc5NUMxNjkuODE3IDg0LjkxMjggMTY5LjI3MyA4NC40Nzc5IDE2OC45NDcgODMuNDk5NEwxNDkuODEyIDMyLjM5OTVDMTQ4LjA3MiAyNy43MjQ0IDE0Ny4yMDMgMjYuNTI4NCAxNDQuOTE5IDI1LjU0OTlDMTQzLjgzMiAyNS4wMDYzIDE0My4wNzEgMjQuNTcxNCAxNDMuMDcxIDIzLjcwMTZDMTQzLjA3MSAyMi45NDA2IDE0My42MTUgMjIuNTA1NyAxNDUuMTM3IDIyLjYxNDRDMTQ3LjMxMSAyMi43MjMxIDE1MC44OTkgMjIuOTQwNiAxNTYuNTUzIDIyLjk0MDZDMTYxLjY2MyAyMi45NDA2IDE2NC45MjQgMjIuNzIzMSAxNjYuODgxIDIyLjYxNDRDMTY4LjI5NCAyMi41MDU3IDE2OC44MzggMjIuOTQwNiAxNjguODM4IDIzLjcwMTZDMTY4LjgzOCAyNC42ODAyIDE2OC4xODYgMjUuMDA2MyAxNjcuMDk5IDI1LjY1ODdDMTY1LjY4NSAyNi42MzcyIDE2Ni4yMjkgMjguMzc2NyAxNjcuNDI1IDMyLjM5OTVMMTgxLjAxNSA3NC44MDE1TDE5Mi45NzQgNDEuODU4NEMxOTUuODAxIDM0LjEzOTEgMTkwLjAzOSAzMi45NDMxIDE4OS4xNjkgMjcuMzk4MkMxODguNTE3IDIzLjU5MjkgMTkxLjAxNyAxOS41NzAyIDE5NS42OTIgMTkuODk2M1oiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0yNDIuODcgMjEuMjAxQzI2Mi4yMjIgMjEuMjAxIDI3NC42MTYgMzUuNzY5OSAyNzQuNjE2IDUzLjYwMDVDMjc0LjYxNiA3MS41Mzk4IDI2Mi4yMjIgODYgMjQyLjg3IDg2QzIyMy41MTcgODYgMjExLjIzMiA3MS41Mzk4IDIxMS4yMzIgNTMuNjAwNUMyMTEuMzQgMzUuNzY5OSAyMjMuNTE3IDIxLjIwMSAyNDIuODcgMjEuMjAxWk0yMzcuNDM0IDI0Ljg5NzZDMjI3LjMyMyAyNi44NTQ2IDIyNS41ODMgNDEuMDk3MyAyMjguMzAxIDU2LjEwMTFDMjMwLjkxIDcxLjMyMjQgMjM4LjMwMyA4NC4wNDMgMjQ4LjUyMyA4Mi4zMDM0QzI1OC41MjUgODAuMzQ2NCAyNjAuMTU2IDY2LjEwMzcgMjU3LjU0NyA1MS4wOTk5QzI1NC45MzggMzUuODc4NiAyNDcuNTQ1IDIzLjE1OCAyMzcuNDM0IDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzE4LjA2NyAyMS4yMDFDMzM3LjQyIDIxLjIwMSAzNDkuODE0IDM1Ljc2OTkgMzQ5LjgxNCA1My42MDA1QzM0OS44MTQgNzEuNTM5OCAzMzcuNDIgODYgMzE4LjA2NyA4NkMyOTguNzE1IDg2IDI4Ni40MjkgNzEuNTM5OCAyODYuNDI5IDUzLjYwMDVDMjg2LjUzOCAzNS43Njk5IDI5OC43MTUgMjEuMjAxIDMxOC4wNjcgMjEuMjAxWk0zMTIuNjMxIDI0Ljg5NzZDMzAyLjUyIDI2Ljg1NDYgMzAwLjc4MSA0MS4wOTczIDMwMy40OTkgNTYuMTAxMUMzMDYuMTA4IDcxLjMyMjQgMzEzLjUwMSA4NC4wNDMgMzIzLjcyMSA4Mi4zMDM0QzMzMy43MjMgODAuMzQ2NCAzMzUuMzU0IDY2LjEwMzcgMzMyLjc0NSA1MS4wOTk5QzMzMC4xMzUgMzUuODc4NiAzMjIuNzQyIDIzLjE1OCAzMTIuNjMxIDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzczLjczNiAxNy43MjE5QzM2Ny43NTYgMTcuNzIxOSAzNjIuOTczIDEzLjgwNzggMzYyLjk3MyA4LjkxNTNDMzYyLjk3MyAzLjkxNDAzIDM2Ny43NTYgMCAzNzMuNzM2IDBDMzc5LjYwNyAwIDM4NC40OTkgMy45MTQwMyAzODQuNDk5IDguOTE1M0MzODQuNDk5IDEzLjgwNzggMzc5LjYwNyAxNy43MjE5IDM3My43MzYgMTcuNzIxOVpNMzg1LjA0MyA4MS42NTExQzM4Ni4yMzkgODIuMTk0NyAzODcgODIuNTIwOSAzODcgODMuMzkwNkMzODcgODQuMjYwNCAzODYuMzQ4IDg0LjY5NTMgMzg0LjkzNCA4NC41ODY2QzM4Mi45NzcgODQuNDc3OSAzNzkuNzE2IDg0LjI2MDQgMzc0LjQ5NyA4NC4yNjA0QzM2OS4zODcgODQuMjYwNCAzNjUuOTA4IDg0LjQ3NzkgMzY0LjA2IDg0LjU4NjZDMzYyLjY0NiA4NC42OTUzIDM2MS45OTQgODQuMjYwNCAzNjEuOTk0IDgzLjM5MDZDMzYxLjk5NCA4Mi41MjA5IDM2Mi43NTUgODIuMTk0NyAzNjMuOTUxIDgxLjY1MTFDMzY2LjAxNyA4MC44OSAzNjYuMjM0IDc4LjYwNjggMzY2LjIzNCA3NC44MDE1VjM4LjcwNTRDMzY2LjIzNCAzNC45MDAxIDM2Ni4wMTcgMzIuNzI1NyAzNjMuOTUxIDMxLjg1NTlDMzYyLjg2NCAzMS40MjEgMzYxLjk5NCAzMC45ODYxIDM2MS45OTQgMzAuMDA3NkMzNjEuOTk0IDI5LjEzNzggMzYyLjY0NiAyOC41OTQyIDM2My45NTEgMjguMTU5M0MzNjYuODg3IDI3LjYxNTcgMzc0LjI4IDI1Ljg3NjEgMzgwLjY5NCAyMi42MTQ0QzM4MS44OSAyMi4wNzA4IDM4Mi43NiAyMi41MDU3IDM4Mi43NiAyMy43MDE2Vjc0LjgwMTVDMzgyLjc2IDc4LjYwNjggMzgyLjk3NyA4MC44OSAzODUuMDQzIDgxLjY1MTFaIiBmaWxsPSJibGFjayIvPgo8L3N2Zz4K" alt="novooi" style="height:22px;display:block">
-  <div class="topbar-badge">Tilbudsagent</div>
+  <div style="display:flex;align-items:center;gap:10px">
+    <a href="https://novooi-agent-hub.github.io" target="_blank" style="display:flex;align-items:center;gap:5px;font-size:11px;color:#888;text-decoration:none;border:1px solid #e5e5e0;border-radius:20px;padding:4px 12px;background:#f5f5f0;letter-spacing:.04em;text-transform:uppercase;transition:all .15s" onmouseover="this.style.background='#111';this.style.color='#fff';this.style.borderColor='#111'" onmouseout="this.style.background='#f5f5f0';this.style.color='#888';this.style.borderColor='#e5e5e0'">&#8592; Agent Hub</a>
+    <div class="topbar-badge">Tilbudsagent</div>
+  </div>
 </div>
 
 <div class="main">
@@ -233,8 +261,26 @@ textarea{resize:vertical;line-height:1.55}
         <div class="field"><label>Betalingsfrist (dager)</label><input id="fbetfrist" type="text" value="14"></div>
         <div class="field"><label>Tilbudet gyldig (dager)</label><input id="fgyldigdager" type="text" value="30"></div>
       </div>
-      <div class="field"><label>Rabatt / handelsvilkår</label>
+      <div class="field"><label>Rabatt / handelsvilkår (tekst)</label>
         <input id="frabatt" type="text" placeholder="f.eks. 20% trade-rabatt for interiørarkitekter og profesjonelle">
+      </div>
+      <div style="border-top:1px solid #f0f0ec;margin-top:12px;padding-top:12px">
+        <label style="margin-bottom:8px;display:block">Prisrabatter i PDF</label>
+        <div class="disc-row">
+          <label>Rabatt på tjenester:</label>
+          <input type="text" id="discSvc" placeholder="0" style="width:64px">
+          <select id="discSvcType"><option value="pct">%</option><option value="kr">kr</option></select>
+        </div>
+        <div class="disc-row">
+          <label>Rabatt på produkter:</label>
+          <input type="text" id="discProd" placeholder="0" style="width:64px">
+          <select id="discProdType"><option value="pct">%</option><option value="kr">kr</option></select>
+        </div>
+        <div class="disc-row">
+          <label>Rabatt på totalsum:</label>
+          <input type="text" id="discTotal" placeholder="0" style="width:64px">
+          <select id="discTotalType"><option value="pct">%</option><option value="kr">kr</option></select>
+        </div>
       </div>
     </div>
   </div>
@@ -446,6 +492,7 @@ function addManualProduct() {
     price: document.getElementById('manPrice').value.trim(),
     sku: document.getElementById('manSku').value.trim(),
     image: manualImgData || null,
+    qty: 1,
     source: 'manual'
   });
   // Reset form
@@ -633,6 +680,7 @@ function showVariantPicker(p, variations, img, brand) {
 function pickVariant(productData) {
   document.getElementById('variantPickerOverlay')?.remove();
   if (selectedProducts.some(s => s.id == productData.id)) return;
+  productData.qty = productData.qty || 1;
   selectedProducts.push(productData);
   renderSelectedProducts();
 }
@@ -642,25 +690,43 @@ function removeProduct(id) {
   renderSelectedProducts();
 }
 
+function changeQty(id, delta) {
+  const p = selectedProducts.find(x => x.id == id);
+  if (!p) return;
+  p.qty = Math.max(1, (p.qty || 1) + delta);
+  renderSelectedProducts();
+}
+
 function renderSelectedProducts() {
   const wrap = document.getElementById('selectedProdsWrap');
   const grid = document.getElementById('selectedProds');
   document.getElementById('prodCount').textContent = selectedProducts.length;
   if (!selectedProducts.length) { wrap.style.display = 'none'; return; }
   wrap.style.display = '';
-  grid.innerHTML = selectedProducts.map(p => `
+  grid.innerHTML = selectedProducts.map(p => {
+    const qty = p.qty || 1;
+    const unitPrice = parseKr(p.price);
+    const totalPrice = unitPrice ? fmtInt(unitPrice * qty) : null;
+    return `
     <div class="prod-card selected">
       ${p.image
         ? `<img class="prod-img" src="${p.image}" loading="lazy" onerror="this.style.display='none'">`
         : '<div class="prod-img-placeholder">&#128247;</div>'}
       <div class="prod-info">
         <div class="prod-name" title="${p.name}">${p.name}</div>
-        ${p.variant ? `<div class="prod-brand" style="color:#777">${p.variant}</div>` : ''}
+        ${p.variant ? `<div class="prod-brand" style="color:#555">${p.variant}</div>` : ''}
         ${p.brand ? `<div class="prod-brand">${p.brand}</div>` : ''}
         ${p.price ? `<div class="prod-price">${p.price}</div>` : ''}
+        <div class="prod-qty-row">
+          <button class="prod-qty-btn" onclick="changeQty('${p.id}',-1)">−</button>
+          <span class="prod-qty-val">${qty}</span>
+          <button class="prod-qty-btn" onclick="changeQty('${p.id}',1)">+</button>
+          ${totalPrice && qty > 1 ? `<span class="prod-qty-total">= ${totalPrice}</span>` : ''}
+        </div>
       </div>
       <button class="prod-remove" onclick="removeProduct('${p.id}')" title="Fjern">&#215;</button>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 }
 // ── END PRODUCTS ──────────────────────────────────────────────────────────
 
@@ -686,6 +752,7 @@ function renderTags(){
   r.appendChild(inp);
 }
 
+function fmtInt(n){if(!n&&n!==0)return"—";return"kr "+Math.round(parseFloat(n)).toLocaleString("nb-NO");}
 function fmt(n){if(!n&&n!==0)return"—";return"kr "+parseFloat(n).toLocaleString("nb-NO",{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtR(n){if(!n&&n!==0)return"—";return"kr "+Math.round(parseFloat(n)).toLocaleString("nb-NO");}
 function parseKr(s){if(!s)return null;const n=parseFloat(s.replace(/[^0-9.,]/g,"").replace(",","."));return isNaN(n)?null:n;}
@@ -781,6 +848,9 @@ function getFD(){
     phMerknader:   document.getElementById('phMerknader').checked,
     phAvslutning:  document.getElementById('phAvslutning').checked,
     phTotal:       document.getElementById('phTotal').checked,
+    discSvc:   {val: parseFloat(document.getElementById('discSvc').value)||0, type: document.getElementById('discSvcType').value},
+    discProd:  {val: parseFloat(document.getElementById('discProd').value)||0, type: document.getElementById('discProdType').value},
+    discTotal: {val: parseFloat(document.getElementById('discTotal').value)||0, type: document.getElementById('discTotalType').value},
   };
 }
 
@@ -846,37 +916,138 @@ Returner JSON:
 function calcST(lines){let t=0;lines.forEach(l=>{const p=parseKr(l.price);if(p)t+=p;});return t;}
 function calcPT(lines){let t=0;lines.forEach(l=>{const p=parseKr(l.total);if(p)t+=p;});return t;}
 
+// Helper: apply discount to a value
+function applyDisc(val, disc){
+  if(!disc || !disc.val) return val;
+  if(disc.type==='pct') return val * (1 - disc.val/100);
+  return Math.max(0, val - disc.val);
+}
+// Helper: format discount label
+function discLabel(disc){
+  if(!disc || !disc.val) return '';
+  return disc.type==='pct' ? `-${disc.val}%` : `-kr ${disc.val.toLocaleString('nb-NO')}`;
+}
+
+// Read editable preview fields back into ai object before PDF
+function syncEditableFields(){
+  const fields = document.querySelectorAll('[data-ai-field]');
+  fields.forEach(el => {
+    const key = el.dataset.aiField;
+    if(genData && genData.ai) genData.ai[key] = el.innerText.trim();
+  });
+  // Sync service line prices
+  document.querySelectorAll('[data-svc-price]').forEach(el => {
+    const idx = parseInt(el.dataset.svcPrice);
+    if(genData && genData.fd.lines[idx]) genData.fd.lines[idx].price = el.innerText.trim();
+  });
+  // Sync product prices
+  document.querySelectorAll('[data-prod-price]').forEach(el => {
+    const id = el.dataset.prodPrice;
+    const p = genData && genData.fd.products.find(x=>String(x.id)===id);
+    if(p) p.price = el.innerText.trim();
+  });
+}
+
 function renderPreview(fd,ai){
+  const ph = {
+    beskrivelse: fd.phBeskrivelse, tjenester: fd.phTjenester,
+    produkter: fd.phProdukter, opsjon: fd.phOpsjon,
+    betaling: fd.phBetaling, marked: fd.phMarked,
+    merknader: fd.phMerknader, avslutning: fd.phAvslutning,
+    total: fd.phTotal,
+  };
   const kind=fd.kind;
-  let tableHTML="";
-  if(kind==="product"){
-    let rows="";
-    fd.lines.forEach(l=>{
-      const dp=l.desc.split("\n");
-      rows+=`<tr><td><strong>${dp[0]||""}</strong>${dp.slice(1).map(s=>`<br><span style="color:#888;font-size:11px">${s}</span>`).join("")}</td><td style="text-align:center">${l.qty}</td><td>${l.utsalg||"—"}</td><td>${l.leiepris||"—"}</td><td><strong>${l.total||"—"}</strong></td></tr>`;
+
+  // ── Tjenester table ──
+  let svcTotal=0;
+  let tjenesterHTML='';
+  if(!ph.tjenester && kind==="service" && fd.lines.some(l=>l.desc)){
+    let rows='';
+    fd.lines.filter(l=>l.desc).forEach((l,i)=>{
+      const p=parseKr(l.price); if(p) svcTotal+=p;
+      rows+=`<tr><td style="padding:9px;font-size:13px">${l.desc}</td>
+        <td style="padding:9px;text-align:right;font-size:13px" contenteditable="true" data-svc-price="${i}"
+          class="prev-editable">${l.price||'—'}</td></tr>`;
     });
-    const pt=calcPT(fd.lines);
-    tableHTML=`<div class="prev-sec">Spesifikasjon</div>
-<table class="prev-table"><thead><tr><th>Produkt</th><th style="text-align:center">Ant.</th><th>Utsalgspris</th><th>Leiepris (10%)</th><th>Total leie</th></tr></thead><tbody>${rows}</tbody></table>
-${pt?`<div style="margin-top:.6rem;font-size:13px;display:flex;justify-content:space-between;padding:7px 9px;border-top:1px solid #eee"><span>Møbler totalt (eks. mva)</span><strong>${fmtR(pt)}</strong></div>`:""}
-<div class="prev-total-box"><span>TOTALT INKL. MVA</span><span>${pt?fmtR(pt*1.25):"—"}</span></div>`;
-  } else {
-    let rows="",tot=0;
-    fd.lines.forEach(l=>{const p=parseKr(l.price);if(p)tot+=p;rows+=`<tr><td>${l.desc}</td><td>${l.price||"—"}</td></tr>`;});
-    tableHTML=`<table class="prev-table" style="margin-top:.6rem">
-<thead><tr><th>Beskrivelse</th><th style="text-align:right">Pris eks. mva</th></tr></thead>
-<tbody>${rows}</tbody>
-${tot?`<tfoot><tr class="bld"><td>TOTALT EKS. MVA</td><td>${fmtR(tot)}</td></tr></tfoot>`:""}
-</table>`;
+    const dSvc = fd.discSvc && fd.discSvc.val;
+    const svcAfter = dSvc ? applyDisc(svcTotal, fd.discSvc) : svcTotal;
+    tjenesterHTML=`
+    <div class="prev-sec">Tjenester</div>
+    <table class="prev-table" style="margin-top:.4rem">
+      <thead><tr><th>Beskrivelse</th><th style="text-align:right">Pris eks. mva</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${dSvc?`<div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#2a7a2a"><span>Rabatt <span class="disc-tag">${discLabel(fd.discSvc)}</span></span><span>-${fmtR(svcTotal-svcAfter)}</span></div>`:''}
+    <div style="display:flex;justify-content:space-between;padding:8px 9px;border-top:1.5px solid #111;font-weight:700;font-size:13px">
+      <span>Tjenestepris eks. mva</span><span>${fmtR(svcAfter)}</span>
+    </div>`;
   }
 
+  // ── Produkter table ──
+  let prodTotal=0;
+  let produkterHTML='';
+  const hasProds = !ph.produkter && fd.products && fd.products.length;
+  if(hasProds){
+    let rows='';
+    fd.products.forEach(p=>{
+      const qty=p.qty||1, unit=parseKr(p.price)||0, tot=unit*qty;
+      prodTotal+=tot;
+      rows+=`<tr>
+        <td style="padding:9px;width:52px">
+          ${p.image?`<img src="${p.image}" class="prev-prod-img" onerror="this.style.display='none'">`:'<div class="prev-prod-img" style="background:#f5f5f0"></div>'}
+        </td>
+        <td style="padding:9px">
+          <div style="font-size:13px;font-weight:500;color:#111">${p.name}</div>
+          ${p.variant?`<div style="font-size:11px;color:#666;margin-top:1px">${p.variant}</div>`:''}
+          ${p.brand?`<div style="font-size:11px;color:#aaa;margin-top:1px">${p.brand}</div>`:''}
+          ${p.sku?`<div style="font-size:10px;color:#ccc;margin-top:1px">SKU: ${p.sku}</div>`:''}
+          <div style="font-size:11px;color:#888;margin-top:3px">Antall: ${qty}</div>
+        </td>
+        <td style="padding:9px;text-align:right;vertical-align:top">
+          <div style="font-size:12px;color:#999">${fmtR(unit)} × ${qty}</div>
+          <div style="font-size:13px;font-weight:600;color:#111;margin-top:2px" contenteditable="true"
+            data-prod-price="${p.id}" class="prev-editable">${fmtR(tot)}</div>
+        </td>
+      </tr>`;
+    });
+    const dProd = fd.discProd && fd.discProd.val;
+    const prodAfter = dProd ? applyDisc(prodTotal, fd.discProd) : prodTotal;
+    produkterHTML=`
+    <div class="prev-sec">Produkter</div>
+    <table class="prev-prod-table">
+      <thead><tr><th style="width:52px"></th><th>Produkt</th><th>Pris</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${dProd?`<div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#2a7a2a"><span>Rabatt <span class="disc-tag">${discLabel(fd.discProd)}</span></span><span>-${fmtR(prodTotal-prodAfter)}</span></div>`:''}
+    <div style="display:flex;justify-content:space-between;padding:8px 9px;border-top:1.5px solid #111;font-weight:700;font-size:13px">
+      <span>Produktpris eks. mva</span><span>${fmtR(prodAfter)}</span>
+    </div>`;
+  }
+
+  // ── Grand total ──
+  let totalHTML='';
+  if(!ph.total){
+    const dSvcA = fd.discSvc&&fd.discSvc.val ? applyDisc(svcTotal,fd.discSvc) : svcTotal;
+    const dProdA = fd.discProd&&fd.discProd.val ? applyDisc(prodTotal,fd.discProd) : prodTotal;
+    const gt0 = dSvcA+dProdA;
+    const gt = fd.discTotal&&fd.discTotal.val ? applyDisc(gt0,fd.discTotal) : gt0;
+    const dTot = fd.discTotal&&fd.discTotal.val;
+    if(gt>0) totalHTML=`
+    ${dTot?`<div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#2a7a2a"><span>Totalrabatt <span class="disc-tag">${discLabel(fd.discTotal)}</span></span><span>-${fmtR(gt0-gt)}</span></div>`:''}
+    <div class="prev-total-box" style="margin-top:4px"><span>TOTALT EKS. MVA</span><span>${fmtR(gt)}</span></div>`;
+  }
+
+  // ── Merknader ──
   const rawM=fd.merknader?fd.merknader.split("\n").map(s=>s.trim()).filter(Boolean):[];
   const allM=[...rawM,...(ai.merknader||[])];
   const kontStr=fd.kontakt?`<br><span style="font-weight:400;color:#888;font-size:10px">${fd.kontakt}</span>`:"";
 
   document.getElementById("output").innerHTML=`
 <div class="preview-wrap">
-  <div class="preview-bar"><span>Forhåndsvisning</span></div>
+  <div class="preview-bar">
+    <span>Forhåndsvisning</span>
+    <span class="prev-edit-hint">Klikk på tekst for å redigere</span>
+  </div>
   <div class="preview-body" id="prevBody">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem">
       <img src="${LOGO}" style="height:22px;display:block">
@@ -890,31 +1061,21 @@ ${tot?`<tfoot><tr class="bld"><td>TOTALT EKS. MVA</td><td>${fmtR(tot)}</td></tr>
     </div>
     <hr class="prev-rule">
     <div class="prev-h1">${fd.typeLabel.toUpperCase()}</div>
-    <div class="prev-ingress">${ai.ingress||""}</div>
+    <div class="prev-ingress prev-editable" contenteditable="true" data-ai-field="ingress">${ai.ingress||""}</div>
+    ${!ph.beskrivelse ? `
     <div class="prev-sec">Beskrivelse</div>
-    <p class="prev-txt">${ai.beskrivelse}</p>
+    <p class="prev-txt prev-editable" contenteditable="true" data-ai-field="beskrivelse" style="display:block">${ai.beskrivelse}</p>
     <div class="prev-sec">Omfang</div>
-    <ul class="prev-list">${(ai.omfang||[]).map(o=>`<li>${o}</li>`).join("")}</ul>
-    ${tableHTML}
-    ${ai.opsjon?`<div class="prev-sec">Opsjon: kjøp av møbler og interiør</div><p class="prev-txt">${ai.opsjon}</p>`:""}
-    ${ai.betaling?`<div class="prev-sec">Tidsplan og betalingsbetingelser</div><p class="prev-txt">${ai.betaling}</p>`:""}
-    ${ai.markedsforing?`<div class="prev-sec">Markedsføring</div><p class="prev-txt">${ai.markedsforing}</p>`:""}
-    
-    ${fd.products && fd.products.length ? `
-    <div class="prev-sec">Produkter (${fd.products.length})</div>
-    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(110px,1fr));gap:8px;margin-top:4px">
-      ${fd.products.map(p => `
-        <div style="border:1px solid #eee;border-radius:4px;overflow:hidden">
-          ${p.image ? `<img src="${p.image}" style="width:100%;aspect-ratio:1;object-fit:cover;display:block;background:#f5f5f0">` : '<div style="width:100%;aspect-ratio:1;background:#f5f5f0"></div>'}
-          <div style="padding:6px 7px">
-            <div style="font-size:11px;font-weight:600;color:#111;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${p.name}</div>
-            ${p.brand ? `<div style="font-size:10px;color:#aaa">${p.brand}</div>` : ''}
-            ${p.price ? `<div style="font-size:10.5px;color:#555">${p.price}</div>` : ''}
-          </div>
-        </div>`).join('')}
-    </div>` : ''}
-    ${allM.length?`<div class="prev-sec">Merknader</div>${allM.map(m=>`<div class="prev-note">${m}</div>`).join("")}`:""}
-    ${ai.avslutning?`<p style="font-size:12px;font-style:italic;color:#999;margin-top:1.25rem">${ai.avslutning}</p>`:""}
+    <ul class="prev-list" id="prevOmfang">${(ai.omfang||[]).map((o,i)=>`<li contenteditable="true" class="prev-editable" data-ai-field="omfang_${i}">${o}</li>`).join("")}</ul>
+    ` : ''}
+    ${tjenesterHTML}
+    ${produkterHTML}
+    ${totalHTML}
+    ${!ph.opsjon && ai.opsjon ? `<div class="prev-sec">Opsjon: kjøp av møbler og interiør</div><p class="prev-txt prev-editable" contenteditable="true" data-ai-field="opsjon" style="display:block">${ai.opsjon}</p>` : ''}
+    ${!ph.betaling && ai.betaling ? `<div class="prev-sec">Tidsplan og betalingsbetingelser</div><p class="prev-txt prev-editable" contenteditable="true" data-ai-field="betaling" style="display:block">${ai.betaling}</p>` : ''}
+    ${!ph.marked && ai.markedsforing ? `<div class="prev-sec">Markedsføring</div><p class="prev-txt prev-editable" contenteditable="true" data-ai-field="markedsforing" style="display:block">${ai.markedsforing}</p>` : ''}
+    ${!ph.merknader && allM.length ? `<div class="prev-sec">Merknader</div>${allM.map(m=>`<div class="prev-note prev-editable" contenteditable="true">${m}</div>`).join("")}` : ''}
+    ${!ph.avslutning && ai.avslutning ? `<p style="font-size:12px;font-style:italic;color:#999;margin-top:1.25rem" contenteditable="true" class="prev-editable" data-ai-field="avslutning">${ai.avslutning}</p>` : ''}
     <div class="prev-footer">NOVOOI AS &#183; St. Halvards gate 33c, 0192 Oslo &#183; hei@novooi.com &#183; novooi.com &#183; Org.nr. 827 340 162${fd.saksb?" &#183; "+fd.saksb:""}</div>
   </div>
 </div>`;
@@ -922,6 +1083,7 @@ ${tot?`<tfoot><tr class="bld"><td>TOTALT EKS. MVA</td><td>${fmtR(tot)}</td></tr>
 
 async function doPDF(){
   if(!genData) return;
+  syncEditableFields();
   const {fd,ai}=genData;
 
   // Pre-fetch product images as base64 via Worker (bypasses CORS)
@@ -1045,8 +1207,17 @@ async function doPDF(){
       HR(y-1,0.1,[230,230,230]);
     });
     y+=5;
+    // Apply service discount
+    const dSvc=fd.discSvc&&fd.discSvc.val;
+    const svcAfterDisc=dSvc?applyDisc(svcTotal,fd.discSvc):svcTotal;
+    if(dSvc){
+      T("Rabatt ("+discLabel(fd.discSvc)+")",ml,y,FS,"normal",[80,160,80]);
+      TR("-"+fmtR(svcTotal-svcAfterDisc),priceX,y,FS,"normal",[80,160,80]);
+      y+=6;
+    }
     T("Tjenestepris eks. mva",ml,y,FS,"bold",[17,17,17]);
-    TR(fmtR(svcTotal),priceX,y,FS,"bold",[17,17,17]);
+    TR(fmtR(svcAfterDisc),priceX,y,FS,"bold",[17,17,17]);
+    svcTotal=svcAfterDisc;
     y+=12;
   }
 
@@ -1054,7 +1225,7 @@ async function doPDF(){
   const hasProducts = !ph.produkter && fd.products && fd.products.length > 0;
   let prodTotal = 0;
   // Always calc for grand total
-  if(fd.products) fd.products.forEach(p=>{const n=parseKr(p.price);if(n)prodTotal+=n;});
+  if(fd.products) fd.products.forEach(p=>{const n=parseKr(p.price);if(n)prodTotal+=n*(p.qty||1);});
 
   if(hasProducts){
     NP(20); SEC("PRODUKTER");
@@ -1065,35 +1236,51 @@ async function doPDF(){
     y+=6; HR(y,0.2,[210,210,210]);
 
     fd.products.forEach(p=>{
-      const imgSz=16, rowH=imgSz+8;
+      const imgSz=22;
+      const pQty=p.qty||1, pUnit=parseKr(p.price)||0, pTotal=pUnit*pQty;
+      const rowH=Math.max(imgSz+8, 32);
       NP(rowH+4);
-      // Square image — clipped to square using rect clip
       doc.setDrawColor(225,225,225);doc.setLineWidth(0.12);
       doc.rect(ml,y,imgSz,imgSz);
       if(p.image){
         try{
           const fmt=p.image.startsWith('data:image/png')||p.image.includes('.png')?'PNG':'JPEG';
-          // addImage with x,y,w,h — jsPDF will fit inside the box (square)
           doc.addImage(p.image,fmt,ml,y,imgSz,imgSz,'','FAST');
         }catch(e){doc.setFillColor(245,245,242);doc.rect(ml,y,imgSz,imgSz,'F');}
       } else {
         doc.setFillColor(245,245,242);doc.rect(ml,y,imgSz,imgSz,'F');
       }
       const tx=ml+imgSz+5;
-      // Name
-      const nm=p.variant ? p.name+' — '+p.variant : (p.name||'');
-      const nls=doc.splitTextToSize(nm, cw-imgSz-5-2);
-      T(nls[0]||'',tx,y+5,FS,"normal",[17,17,17]);
-      // Brand
-      if(p.brand) T(p.brand,tx,y+10,FS,"normal",[160,160,160]);
-      // Price right-aligned
-      if(p.price) TR(fmtR(parseKr(p.price)||0),priceX,y+5,FS,"normal",[40,40,40]);
+      let lineY=y+5;
+      doc.setFontSize(FS);doc.setFont("helvetica","normal");
+      const nls=doc.splitTextToSize(p.name||'', cw-imgSz-50);
+      T(nls[0]||'',tx,lineY,FS,"normal",[17,17,17]); lineY+=5;
+      if(p.variant){ T(p.variant,tx,lineY,9,"normal",[80,80,80]); lineY+=4.5; }
+      if(p.brand){ T(p.brand,tx,lineY,9,"normal",[160,160,160]); lineY+=4.5; }
+      if(p.sku){ T("SKU: "+p.sku,tx,lineY,8.5,"normal",[190,190,190]); lineY+=4; }
+      if(pQty>1){ T("Antall: "+pQty,tx,lineY,9,"normal",[100,100,100]); }
+      if(pUnit){
+        if(pQty>1){
+          TR(pQty+" x "+fmtR(pUnit),priceX,y+5,9,"normal",[140,140,140]);
+          TR(fmtR(pTotal),priceX,y+11,FS,"normal",[17,17,17]);
+        } else {
+          TR(fmtR(pUnit),priceX,y+5,FS,"normal",[40,40,40]);
+        }
+      }
       y+=rowH;
       HR(y-1,0.1,[230,230,230]);
-    });
+    })
     y+=5;
+    const dProd=fd.discProd&&fd.discProd.val;
+    const prodAfterDisc=dProd?applyDisc(prodTotal,fd.discProd):prodTotal;
+    if(dProd){
+      T("Rabatt ("+discLabel(fd.discProd)+")",ml,y,FS,"normal",[80,160,80]);
+      TR("-"+fmtR(prodTotal-prodAfterDisc),priceX,y,FS,"normal",[80,160,80]);
+      y+=6;
+    }
     T("Produktpris eks. mva",ml,y,FS,"bold",[17,17,17]);
-    TR(fmtR(prodTotal),priceX,y,FS,"bold",[17,17,17]);
+    TR(fmtR(prodAfterDisc),priceX,y,FS,"bold",[17,17,17]);
+    prodTotal=prodAfterDisc;
     y+=12;
   }
 
@@ -1140,13 +1327,20 @@ async function doPDF(){
   // ── MODULE: Totalpris ─────────────────────────────────────────────────────
   if(!ph.total && (hasServiceLines||hasProducts||(fd.kind==="service"&&svcTotal>0)||(fd.products&&fd.products.length&&prodTotal>0))){
     NP(20);
-    const gt=svcTotal+prodTotal;
+    const gt0=svcTotal+prodTotal;
+    const dTot=fd.discTotal&&fd.discTotal.val;
+    const gt=dTot?applyDisc(gt0,fd.discTotal):gt0;
     y+=2; HR(y,0.3); y+=2;
+    if(dTot){
+      T("Totalrabatt ("+discLabel(fd.discTotal)+")",ml,y,FS,"normal",[80,160,80]);
+      TR("-"+fmtR(gt0-gt),priceX,y,FS,"normal",[80,160,80]);
+      y+=7;
+    }
     doc.setFillColor(17,17,17);doc.rect(ml,y,cw,14,"F");
     doc.setFontSize(13);doc.setFont("helvetica","bold");doc.setTextColor(255);
     doc.text("TOTALT EKS. MVA",ml+5,y+9.5);
     doc.text(fmtR(gt),priceX-3,y+9.5,{align:"right"});
-    doc.setTextColor(17); y+=22;  // extra breathing room after total
+    doc.setTextColor(17); y+=22;
   }
 
   // ── MODULE: Opsjon ────────────────────────────────────────────────────────
