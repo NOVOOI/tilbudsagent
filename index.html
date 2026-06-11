@@ -965,7 +965,7 @@ async function doPDF(){
   const HR=(yy,w,c)=>{doc.setLineWidth(w||0.2);doc.setDrawColor(...(c||[17,17,17]));doc.line(ml,yy,W-mr,yy);};
   const NP=(sp)=>{if(y+(sp||0)>272){doc.addPage();y=20;}};
   const SEC=(title)=>{NP(14);y+=2;T(title,ml,y,8.5,"bold",[50,50,50]);y+=6;};
-  const BODY=(txt)=>{const ls=doc.splitTextToSize(txt,cw);T(ls,ml,y,FS,"normal",[60,60,60]);y+=ls.length*5+4;};
+  const BODY=(txt)=>{doc.setFontSize(FS);doc.setFont("helvetica","normal");const ls=doc.splitTextToSize(txt,cw);T(ls,ml,y,FS,"normal",[60,60,60]);y+=ls.length*5+4;};
   const priceX = W-mr;  // right edge for all prices
 
   // ── Logo + tilbudsnr ─────────────────────────────────────────────────────
@@ -996,7 +996,7 @@ async function doPDF(){
 
   // ── Tittel + ingress ──────────────────────────────────────────────────────
   T(fd.typeLabel.toUpperCase(),ml,y,19,"bold"); y+=8;
-  if(ai.ingress){const il=doc.splitTextToSize(ai.ingress,cw);T(il,ml,y,FS,"normal",[110,110,110]);y+=il.length*5+5;}
+  if(ai.ingress){doc.setFontSize(FS);doc.setFont("helvetica","normal");const il=doc.splitTextToSize(ai.ingress,cw);T(il,ml,y,FS,"normal",[110,110,110]);y+=il.length*5+5;}
 
   // ── Visibility flags ──────────────────────────────────────────────────────
   const ph = {
@@ -1015,7 +1015,7 @@ async function doPDF(){
   if(!ph.beskrivelse){
     SEC("BESKRIVELSE"); BODY(ai.beskrivelse||"");
     SEC("OMFANG");
-    (ai.omfang||[]).forEach(o=>{const ls=doc.splitTextToSize("• "+o,cw-4);T(ls,ml+2,y,FS,"normal",[60,60,60]);y+=ls.length*5;});
+    (ai.omfang||[]).forEach(o=>{doc.setFontSize(FS);doc.setFont("helvetica","normal");const ls=doc.splitTextToSize("• "+o,cw-4);T(ls,ml+2,y,FS,"normal",[60,60,60]);y+=ls.length*5;});
     y+=6;
   }
 
