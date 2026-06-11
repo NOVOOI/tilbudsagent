@@ -1038,7 +1038,7 @@ ${fd.cMark?"Inkluder markedsføringsparagraf.":""}
 ${fd.cPilot?"Legg til pilotpris-merknad med volumpriser.":""}
 
 Returner JSON:
-{"ingress":"En-setning ingressbeskrivelse","beskrivelse":"2-3 setninger","omfang":["punkt1","punkt2","punkt3","punkt4"],"opsjon":"tekst eller null","betaling":"tekst eller null","markedsforing":"tekst eller null","merknader":["merknad1"],"avslutning":"Kort avslutning"}`;
+{"beskrivelse":"2-3 setninger om oppdraget","omfang":["punkt1","punkt2","punkt3","punkt4"],"opsjon":"tekst eller null","betaling":"tekst eller null","markedsforing":"tekst eller null","merknader":["merknad1"],"avslutning":"Kort avslutning"}`;
 
   try{
     const d=await callAPI({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]});
@@ -1250,12 +1250,16 @@ function renderPreview(fd,ai){
     </div>
     <hr class="prev-rule">
     <div class="prev-h1 e" contenteditable="true" data-fd-field="typeLabel">${(fd.prosjekt||fd.typeLabel).toUpperCase()}</div>
-    ${ai.ingress ? `<div class="prev-ingress prev-editable" contenteditable="true" data-ai-field="ingress">${ai.ingress}</div>` : `<div class="prev-ingress prev-editable" contenteditable="true" data-ai-field="ingress" style="min-height:8px"></div>`}
+    <!-- ingress removed -->
     ${!ph.beskrivelse ? `
-    <div class="prev-sec">Beskrivelse</div>
-    <p class="prev-txt prev-editable" contenteditable="true" data-ai-field="beskrivelse" style="display:block">${fd.brief||ai.beskrivelse||""}</p>
-    <div class="prev-sec">Omfang</div>
-    <ul class="prev-list" id="prevOmfang">${(ai.omfang||[]).map((o,i)=>`<li contenteditable="true" class="prev-editable" data-ai-field="omfang_${i}">${o}</li>`).join("")}</ul>
+    ${(fd.brief||ai.beskrivelse) ? `<div class="prev-sec">Beskrivelse</div>
+    <p class="prev-txt prev-editable" contenteditable="true" data-ai-field="beskrivelse" style="display:block">${(fd.brief||"").trim()}</p>` : ""}
+    ${(()=>{
+      const manual=(fd.omfangPre||"").trim().split("\n").map(s=>s.trim()).filter(Boolean);
+      const items=manual.length?manual:(ai.omfang||[]).filter(o=>o&&o.trim());
+      return items.length?`<div class="prev-sec e" contenteditable="true">Omfang</div>
+    <ul class="prev-list" id="prevOmfang">${items.map((o,i)=>`<li contenteditable="true" class="e" data-ai-field="omfang_${i}">${o}</li>`).join("")}</ul>`:"";
+    })()}
     ` : ''}
     ${tjenesterHTML}
     ${produkterHTML}
@@ -1347,7 +1351,7 @@ async function doPDF(){
 
   // ── Tittel + ingress ──────────────────────────────────────────────────────
   T((fd.prosjekt ? fd.prosjekt : fd.typeLabel).toUpperCase(),ml,y,19,"bold"); y+=8;
-  if(ai.ingress){doc.setFontSize(FS);doc.setFont("helvetica","normal");const il=doc.splitTextToSize(ai.ingress,cw);T(il,ml,y,FS,"normal",[110,110,110]);y+=il.length*5+5;}
+  // ingress removed
 
   // ── Visibility flags ──────────────────────────────────────────────────────
   const ph = {
@@ -1364,10 +1368,20 @@ async function doPDF(){
 
   // ── MODULE: Beskrivelse + omfang ──────────────────────────────────────────
   if(!ph.beskrivelse){
-    SEC("BESKRIVELSE"); BODY(fd.brief||ai.beskrivelse||"");
-    SEC("OMFANG");
-    (ai.omfang||[]).forEach(o=>{doc.setFontSize(FS);doc.setFont("helvetica","normal");const ls=doc.splitTextToSize("• "+o,cw-4);T(ls,ml+2,y,FS,"normal",[60,60,60]);y+=ls.length*5;});
-    y+=6;
+    // Only show content the user has actually written — no AI placeholders
+    const _besk = (fd.brief||"").trim();
+    const _omfangPre = (fd.omfangPre||"").trim();
+    // Omfang: prefer manually entered, then AI-generated only if user edited in preview
+    const _omfangAI = ai.omfang&&ai.omfang.length ? ai.omfang.filter(o=>o&&o.trim()) : [];
+    const _omfang = _omfangPre
+      ? _omfangPre.split("\n").map(s=>s.trim()).filter(Boolean)
+      : _omfangAI;
+    if(_besk){ SEC("BESKRIVELSE"); BODY(_besk); }
+    if(_omfang.length){
+      SEC("OMFANG");
+      _omfang.forEach(o=>{doc.setFontSize(FS);doc.setFont("helvetica","normal");const ls=doc.splitTextToSize("• "+o,cw-4);T(ls,ml+2,y,FS,"normal",[60,60,60]);y+=ls.length*5;});
+      y+=6;
+    }
   }
 
   // ── MODULE: Tjenester ─────────────────────────────────────────────────────
