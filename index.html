@@ -319,6 +319,25 @@ textarea{resize:vertical;line-height:1.55}
     </div>
   </div>
 
+
+  <div class="card">
+    <div class="card-head open" onclick="tog(this)"><h2>PDF — skjul seksjoner</h2><span class="arr">&#9660;</span></div>
+    <div class="card-body">
+      <div style="font-size:12px;color:#aaa;margin-bottom:10px">Huk av seksjoner du <strong>ikke</strong> vil ha med i PDF-eksporten</div>
+      <div class="checks" style="flex-direction:column;gap:8px">
+        <label class="check"><input type="checkbox" id="phBeskrivelse"> Skjul Beskrivelse og Omfang</label>
+        <label class="check"><input type="checkbox" id="phTjenester"> Skjul Tjenester</label>
+        <label class="check"><input type="checkbox" id="phProdukter"> Skjul Produkter</label>
+        <label class="check"><input type="checkbox" id="phOpsjon"> Skjul Opsjon (kjøp av møbler)</label>
+        <label class="check"><input type="checkbox" id="phBetaling"> Skjul Betalingsbetingelser</label>
+        <label class="check"><input type="checkbox" id="phMarked"> Skjul Markedsføring</label>
+        <label class="check"><input type="checkbox" id="phMerknader"> Skjul Merknader</label>
+        <label class="check"><input type="checkbox" id="phAvslutning"> Skjul Avslutning</label>
+        <label class="check"><input type="checkbox" id="phTotal"> Skjul Totalpris-boks</label>
+      </div>
+    </div>
+  </div>
+
   <div class="btn-row">
     <button class="btn-gen" id="genBtn" onclick="doGen()">Generer tilbud</button>
     <button class="btn-pdf" id="pdfBtn" onclick="doPDF().catch(e=>console.error(e))">&#11015; Last ned PDF</button>
@@ -752,6 +771,16 @@ function getFD(){
     brands:tags,
     cats:getSelPills("cPills","c"),
     products:selectedProducts,
+    // PDF visibility (true = hidden in PDF)
+    phBeskrivelse: document.getElementById('phBeskrivelse').checked,
+    phTjenester:   document.getElementById('phTjenester').checked,
+    phProdukter:   document.getElementById('phProdukter').checked,
+    phOpsjon:      document.getElementById('phOpsjon').checked,
+    phBetaling:    document.getElementById('phBetaling').checked,
+    phMarked:      document.getElementById('phMarked').checked,
+    phMerknader:   document.getElementById('phMerknader').checked,
+    phAvslutning:  document.getElementById('phAvslutning').checked,
+    phTotal:       document.getElementById('phTotal').checked,
   };
 }
 
@@ -914,220 +943,233 @@ async function doPDF(){
   }
   btn.textContent = origText;
   const {jsPDF}=window.jspdf;
+  const W=210, ml=20, mr=20, cw=W-ml-mr;  // symmetric 20mm margins
   const doc=new jsPDF({unit:"mm",format:"a4"});
-  const W=210, ml=22, mr=22, cw=W-ml-mr;
   const FS=10;
   let y=16;
 
   // ── Helpers ──────────────────────────────────────────────────────────────
+  // T: draw text. x is LEFT edge always — price cols computed from W-mr
   const T=(txt,x,yy,sz,st,col)=>{
-    doc.setFontSize(sz||10);doc.setFont("helvetica",st||"normal");
+    doc.setFontSize(sz||FS);doc.setFont("helvetica",st||"normal");
     doc.setTextColor(...(col||[17,17,17]));
-    Array.isArray(txt)?doc.text(txt,x,yy):doc.text(String(txt),x,yy);
+    if(Array.isArray(txt)) doc.text(txt,x,yy);
+    else doc.text(String(txt),x,yy);
   };
-  const HR=(yy,w,c)=>{doc.setLineWidth(w||0.25);doc.setDrawColor(...(c||[17,17,17]));doc.line(ml,yy,W-mr,yy);};
-  const newPageIfNeeded=(space)=>{if(y+space>272){doc.addPage();y=20;}};
-  const SEC=(title)=>{newPageIfNeeded(12);T(title,ml,y,8.5,"bold",[50,50,50]);y+=5;};
+  // TR: right-aligned text, x is the RIGHT edge
+  const TR=(txt,x,yy,sz,st,col)=>{
+    doc.setFontSize(sz||FS);doc.setFont("helvetica",st||"normal");
+    doc.setTextColor(...(col||[17,17,17]));
+    doc.text(String(txt),x,yy,{align:"right"});
+  };
+  const HR=(yy,w,c)=>{doc.setLineWidth(w||0.2);doc.setDrawColor(...(c||[17,17,17]));doc.line(ml,yy,W-mr,yy);};
+  const NP=(sp)=>{if(y+(sp||0)>272){doc.addPage();y=20;}};
+  const SEC=(title)=>{NP(14);y+=2;T(title,ml,y,8.5,"bold",[50,50,50]);y+=6;};
   const BODY=(txt)=>{const ls=doc.splitTextToSize(txt,cw);T(ls,ml,y,FS,"normal",[60,60,60]);y+=ls.length*5+4;};
+  const priceX = W-mr;  // right edge for all prices
 
   // ── Logo + tilbudsnr ─────────────────────────────────────────────────────
-  // Draw logo: use pre-converted PNG if available, else fallback to styled text
   if(window._logoPNG){
-    doc.addImage(window._logoPNG,"PNG",ml,y,38,8.4);
+    doc.addImage(window._logoPNG,"PNG",ml,y,40,9);
   } else {
-    // Fallback: draw "novooi" in matching style using letter-spacing trick
     doc.setFontSize(26);doc.setFont("helvetica","bold");doc.setTextColor(17,17,17);
     doc.text("novooi",ml,y+8);
   }
-  T("Tilbudsnr. "+fd.nr, W-mr, y+4, 8.5,"normal",[160,160,160]);
+  // Tilbudsnr — placed at W-mr (right margin), safely inside page
+  TR("Tilbudsnr. "+fd.nr, priceX, y+5, 8.5,"normal",[160,160,160]);
   y+=18;
 
-  // ── Meta header ──────────────────────────────────────────────────────────
-  const colW=cw/4; const mc=[ml, ml+colW, ml+colW*2, ml+colW*3];
+  // ── Meta header — 4 equal cols ────────────────────────────────────────────
+  const colW=cw/4;
+  const mc=[ml, ml+colW, ml+colW*2, ml+colW*3];
   ["FRA","TIL","DATO","GYLDIG TIL"].forEach((k,i)=>T(k,mc[i],y,7.5,"normal",[160,160,160]));
-  y+=4.5;
+  y+=5;
   [
     [["NOVOOI AS","bold"],["St. Halvards gate 33c","normal"],["0192 Oslo","normal"],["hei@novooi.com","normal"]],
     [[fd.kunde,"bold"],[fd.kontakt||"","normal"]],
     [[fd.dato,"normal"]],
     [[fd.gyldig,"normal"]]
-  ].forEach((lines,i)=>lines.forEach((l,j)=>{if(l[0])T(l[0],mc[i],y+j*4.2,9,l[1]);}));
-  y+=13;
-  HR(y, 0.6); y+=12;
+  ].forEach((lines,i)=>lines.forEach((l,j)=>{if(l[0])T(l[0],mc[i],y+j*4.5,9,l[1]);}));
+  y+=16;
+  // Rule with breathing room top and bottom
+  HR(y,0.6); y+=14;
 
-  // ── Tittel + ingress ─────────────────────────────────────────────────────
-  T(fd.typeLabel.toUpperCase(),ml,y,19,"bold");y+=7;
-  if(ai.ingress){const il=doc.splitTextToSize(ai.ingress,cw);T(il,ml,y,10,"normal",[100,100,100]);y+=il.length*4.5+4;}
+  // ── Tittel + ingress ──────────────────────────────────────────────────────
+  T(fd.typeLabel.toUpperCase(),ml,y,19,"bold"); y+=8;
+  if(ai.ingress){const il=doc.splitTextToSize(ai.ingress,cw);T(il,ml,y,FS,"normal",[110,110,110]);y+=il.length*5+5;}
 
-  // ── Beskrivelse + omfang ─────────────────────────────────────────────────
-  SEC("BESKRIVELSE");BODY(ai.beskrivelse||"");
-  SEC("OMFANG");
-  (ai.omfang||[]).forEach(o=>{const ls=doc.splitTextToSize("• "+o,cw-3);T(ls,ml+1,y,10,"normal",[60,60,60]);y+=ls.length*4.8;});
-  y+=5;
+  // ── Visibility flags ──────────────────────────────────────────────────────
+  const ph = {
+    beskrivelse: fd.phBeskrivelse,
+    tjenester:   fd.phTjenester,
+    produkter:   fd.phProdukter,
+    opsjon:      fd.phOpsjon,
+    betaling:    fd.phBetaling,
+    marked:      fd.phMarked,
+    merknader:   fd.phMerknader,
+    avslutning:  fd.phAvslutning,
+    total:       fd.phTotal,
+  };
 
-  // ── MODULE: Tjenester (service lines) ────────────────────────────────────
-  const hasServiceLines = fd.kind==="service" && fd.lines && fd.lines.some(l=>l.desc);
-  const hasProducts = fd.products && fd.products.length > 0;
-
-  let svcTotal = 0;
-  if(hasServiceLines){
-    newPageIfNeeded(20);
-    SEC("TJENESTER");
-    HR(y-1,0.2,[200,200,200]);
-    doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150);
-    doc.text("Beskrivelse",ml,y+3);doc.text("Pris eks. mva",W-mr,y+3,{align:"right"});
-    y+=6;HR(y,0.2,[200,200,200]);
-
-    fd.lines.forEach(l=>{
-      newPageIfNeeded(12);
-      const p=parseKr(l.price); if(p) svcTotal+=p;
-      const ls=doc.splitTextToSize(l.desc, cw*0.68);
-      T(ls, ml, y+5, FS, "normal", [50,50,50]);
-      const priceNum=parseKr(l.price);
-      if(priceNum) T(fmtR(priceNum), W-mr, y+5, FS, "normal", [50,50,50]);
-      y+=Math.max(ls.length*5, 6)+5;
-      HR(y-1, 0.12, [230,230,230]);
-    });
-
-    // Service subtotal — bold only here, extra padding
-    y+=4;
-    T("Tjenestepris eks. mva", ml, y, FS, "bold", [17,17,17]);
-    T(fmtR(svcTotal), W-mr, y, FS, "bold", [17,17,17]);
-    y+=10;
+  // ── MODULE: Beskrivelse + omfang ──────────────────────────────────────────
+  if(!ph.beskrivelse){
+    SEC("BESKRIVELSE"); BODY(ai.beskrivelse||"");
+    SEC("OMFANG");
+    (ai.omfang||[]).forEach(o=>{const ls=doc.splitTextToSize("• "+o,cw-4);T(ls,ml+2,y,FS,"normal",[60,60,60]);y+=ls.length*5;});
+    y+=6;
   }
 
-  // ── MODULE: Produkter (selected products) ────────────────────────────────
+  // ── MODULE: Tjenester ─────────────────────────────────────────────────────
+  const hasServiceLines = !ph.tjenester && fd.kind==="service" && fd.lines && fd.lines.some(l=>l.desc);
+  let svcTotal = 0;
+  // Always calc total even if hidden, for grand total
+  if(fd.kind==="service") fd.lines.forEach(l=>{const p=parseKr(l.price);if(p)svcTotal+=p;});
+
+  if(hasServiceLines){
+    NP(20); SEC("TJENESTER");
+    // Table header
+    HR(y-1,0.2,[210,210,210]);
+    doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150);
+    doc.text("Beskrivelse",ml,y+3);
+    doc.text("Pris eks. mva",priceX,y+3,{align:"right"});
+    y+=6; HR(y,0.2,[210,210,210]);
+    // Rows
+    fd.lines.filter(l=>l.desc).forEach(l=>{
+      NP(12);
+      const priceNum=parseKr(l.price);
+      const descW = cw*0.70;  // description takes 70% of width
+      const ls=doc.splitTextToSize(l.desc,descW);
+      T(ls,ml,y+5,FS,"normal",[40,40,40]);
+      if(priceNum) TR(fmtR(priceNum),priceX,y+5,FS,"normal",[40,40,40]);
+      y+=Math.max(ls.length*5,6)+5;
+      HR(y-1,0.1,[230,230,230]);
+    });
+    y+=5;
+    T("Tjenestepris eks. mva",ml,y,FS,"bold",[17,17,17]);
+    TR(fmtR(svcTotal),priceX,y,FS,"bold",[17,17,17]);
+    y+=12;
+  }
+
+  // ── MODULE: Produkter ─────────────────────────────────────────────────────
+  const hasProducts = !ph.produkter && fd.products && fd.products.length > 0;
   let prodTotal = 0;
+  // Always calc for grand total
+  if(fd.products) fd.products.forEach(p=>{const n=parseKr(p.price);if(n)prodTotal+=n;});
+
   if(hasProducts){
-    newPageIfNeeded(20);
-    SEC("PRODUKTER");
-    HR(y-1,0.2,[200,200,200]);
+    NP(20); SEC("PRODUKTER");
+    HR(y-1,0.2,[210,210,210]);
     doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150);
     doc.text("Produkt",ml,y+3);
-    doc.text("Pris",W-mr,y+3,{align:"right"});
-    y+=6;HR(y,0.2,[200,200,220]);
+    doc.text("Pris",priceX,y+3,{align:"right"});
+    y+=6; HR(y,0.2,[210,210,210]);
 
-    // Two-column layout: image left, text right
     fd.products.forEach(p=>{
-      const imgSize=16;
-      const rowH=imgSize+6;
-      newPageIfNeeded(rowH+4);
-      const textX=ml+imgSize+5;
-      const textW=cw-imgSize-5;
-
-      // Image box
-      doc.setDrawColor(220,220,220);doc.setLineWidth(0.15);
-      doc.rect(ml,y,imgSize,imgSize);
+      const imgSz=16, rowH=imgSz+8;
+      NP(rowH+4);
+      // Square image — clipped to square using rect clip
+      doc.setDrawColor(225,225,225);doc.setLineWidth(0.12);
+      doc.rect(ml,y,imgSz,imgSz);
       if(p.image){
         try{
           const fmt=p.image.startsWith('data:image/png')||p.image.includes('.png')?'PNG':'JPEG';
-          doc.addImage(p.image,fmt,ml,y,imgSize,imgSize);
-        }catch(e){
-          doc.setFillColor(245,245,240);doc.rect(ml,y,imgSize,imgSize,'F');
-        }
+          // addImage with x,y,w,h — jsPDF will fit inside the box (square)
+          doc.addImage(p.image,fmt,ml,y,imgSz,imgSz,'','FAST');
+        }catch(e){doc.setFillColor(245,245,242);doc.rect(ml,y,imgSz,imgSz,'F');}
       } else {
-        doc.setFillColor(245,245,240);doc.rect(ml,y,imgSize,imgSize,'F');
+        doc.setFillColor(245,245,242);doc.rect(ml,y,imgSz,imgSz,'F');
       }
-
-      // Name — same base size, normal weight
-      const nameStr = p.variant ? p.name+' — '+p.variant : p.name||'';
-      const nls=doc.splitTextToSize(nameStr, textW*0.68);
-      T(nls[0]||'', textX, y+5, FS, "normal", [17,17,17]);
-
-      // Brand — muted, same size
-      let textY = y+5;
-      if(p.brand){
-        T(p.brand, textX, textY+5, FS, "normal", [150,150,150]);
-        textY+=5;
-      }
-
-      // Price — normal weight (only subtotal is bold)
-      if(p.price){
-        const priceNum=parseKr(p.price); if(priceNum) prodTotal+=priceNum;
-        T(fmtR(parseKr(p.price)||0), W-mr, y+5, FS, "normal", [50,50,50]);
-      }
-
-      y+=rowH+2;
-      HR(y-1,0.12,[230,230,230]);
+      const tx=ml+imgSz+5;
+      // Name
+      const nm=p.variant ? p.name+' — '+p.variant : (p.name||'');
+      const nls=doc.splitTextToSize(nm, cw-imgSz-5-2);
+      T(nls[0]||'',tx,y+5,FS,"normal",[17,17,17]);
+      // Brand
+      if(p.brand) T(p.brand,tx,y+10,FS,"normal",[160,160,160]);
+      // Price right-aligned
+      if(p.price) TR(fmtR(parseKr(p.price)||0),priceX,y+5,FS,"normal",[40,40,40]);
+      y+=rowH;
+      HR(y-1,0.1,[230,230,230]);
     });
-
-    // Product subtotal — bold, extra padding
-    y+=4;
-    T("Produktpris eks. mva", ml, y, FS, "bold", [17,17,17]);
-    T(fmtR(prodTotal), W-mr, y, FS, "bold", [17,17,17]);
-    y+=10;
+    y+=5;
+    T("Produktpris eks. mva",ml,y,FS,"bold",[17,17,17]);
+    TR(fmtR(prodTotal),priceX,y,FS,"bold",[17,17,17]);
+    y+=12;
   }
 
-  // ── MODULE: Leie-spesifikasjon (product-type lines, e.g. Norfax) ─────────
+  // ── MODULE: Leie-spesifikasjon ────────────────────────────────────────────
   if(fd.kind==="product" && fd.lines && fd.lines.some(l=>l.desc)){
-    newPageIfNeeded(20);
-    SEC("SPESIFIKASJON");
+    NP(20); SEC("SPESIFIKASJON");
     const cw4=[cw*0.42,14,32,30,28];
     const cx=[ml,...[0,1,2,3].map(i=>cw4.slice(0,i+1).reduce((a,b)=>a+b,ml))];
-    HR(y-1,0.2,[200,200,200]);
+    HR(y-1,0.2,[210,210,210]);
     ["Produkt","Ant.","Utsalgspris","Leiepris (10%)","Total leie"].forEach((h,i)=>{
-      doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150,150,150);
-      doc.text(h,i>0?cx[i]+cw4[i]:cx[i],y+3,{align:i>0?"right":"left"});
+      doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150);
+      i===0 ? doc.text(h,cx[i],y+3) : doc.text(h,cx[i]+cw4[i],y+3,{align:"right"});
     });
-    y+=6;HR(y,0.2,[200,200,200]);
+    y+=6; HR(y,0.2,[210,210,210]);
     fd.lines.forEach(l=>{
-      newPageIfNeeded(12);
-      const dp=l.desc.split("\n");const rh=Math.max(dp.length*4.3+3,9);
-      doc.setFontSize(9.5);doc.setFont("helvetica","bold");doc.setTextColor(17);if(dp[0])doc.text(dp[0],ml,y+5);
+      NP(12);
+      const dp=l.desc.split("\n"), rh=Math.max(dp.length*4.3+3,9);
+      T(dp[0]||'',ml,y+5,9.5,"bold",[17,17,17]);
       doc.setFontSize(8.5);doc.setFont("helvetica","normal");doc.setTextColor(120);
-      dp.slice(1).forEach((p,pi)=>{if(p)doc.text(p,ml,y+5+(pi+1)*4.2);});
+      dp.slice(1).forEach((s,pi)=>{if(s)doc.text(s,ml,y+5+(pi+1)*4.2);});
       [[l.qty||""],[l.utsalg||""],[l.leiepris||""],[l.total||""]].forEach((v,i)=>{
         doc.setFontSize(i===3?10:9.5);doc.setFont("helvetica",i===3?"bold":"normal");doc.setTextColor(17);
         doc.text(v[0],cx[i+1]+cw4[i+1],y+5,{align:"right"});
       });
-      y+=rh+3;HR(y-1,0.15,[220,220,220]);
+      y+=rh+3; HR(y-1,0.12,[220,220,220]);
     });
     y+=3;
     const pt=calcPT(fd.lines);
-    [["Møbler totalt (eks. mva)",fmtR(pt),false],
-     ["Tillegg totalt (eks. mva)","—",false],
-     ["TOTALT EKS. MVA",fmtR(pt),true],
-     ["MVA (25%)",fmtR(pt*0.25),false]
+    [["Møbler totalt (eks. mva)",fmtR(pt),false],["Tillegg totalt (eks. mva)","—",false],
+     ["TOTALT EKS. MVA",fmtR(pt),true],["MVA (25%)",fmtR(pt*0.25),false]
     ].forEach(([k,v,b])=>{
-      doc.setFontSize(b?10.5:10);doc.setFont("helvetica",b?"bold":"normal");doc.setTextColor(b?17:70);
-      doc.text(k,ml,y);doc.text(v,W-mr,y,{align:"right"});y+=5.5;
+      doc.setFontSize(b?10.5:FS);doc.setFont("helvetica",b?"bold":"normal");doc.setTextColor(b?17:70);
+      doc.text(k,ml,y); TR(v,priceX,y,b?10.5:FS,b?"bold":"normal",b?[17,17,17]:[70,70,70]);
+      y+=5.5;
     });
-    y+=1;
-    doc.setFillColor(17,17,17);doc.rect(ml,y,cw,11,"F");
-    doc.setFontSize(12);doc.setFont("helvetica","bold");doc.setTextColor(255);
-    doc.text("TOTALT INKL. MVA",ml+4,y+7.5);doc.text(fmtR(pt*1.25),W-mr-4,y+7.5,{align:"right"});
-    doc.setTextColor(17);y+=16;
-  }
-
-  // ── MODULE: Totalpris (service + products combined) ───────────────────────
-  if(hasServiceLines || hasProducts){
-    newPageIfNeeded(16);
-    const grandTotal = svcTotal + prodTotal;
-    HR(y,0.3,[17,17,17]);y+=1;
+    y+=2;
     doc.setFillColor(17,17,17);doc.rect(ml,y,cw,12,"F");
     doc.setFontSize(12);doc.setFont("helvetica","bold");doc.setTextColor(255);
-    doc.text("TOTALT EKS. MVA",ml+4,y+8);
-    doc.text(fmtR(grandTotal),W-mr-4,y+8,{align:"right"});
-    doc.setTextColor(17);y+=17;
+    doc.text("TOTALT INKL. MVA",ml+5,y+8);
+    doc.text(fmtR(pt*1.25),priceX-2,y+8,{align:"right"});
+    doc.setTextColor(17); y+=17;
   }
 
-  // ── MODULE: Opsjon, betaling, markedsføring ───────────────────────────────
-  if(ai.opsjon){newPageIfNeeded(20);SEC("OPSJON: KJØP AV MØBLER OG INTERIØR");BODY(ai.opsjon);}
-  if(ai.betaling){newPageIfNeeded(20);SEC("TIDSPLAN OG BETALINGSBETINGELSER");BODY(ai.betaling);}
-  if(ai.markedsforing){newPageIfNeeded(20);SEC("MARKEDSFØRING");BODY(ai.markedsforing);}
+  // ── MODULE: Totalpris ─────────────────────────────────────────────────────
+  if(!ph.total && (hasServiceLines||hasProducts||(fd.kind==="service"&&svcTotal>0)||(fd.products&&fd.products.length&&prodTotal>0))){
+    NP(20);
+    const gt=svcTotal+prodTotal;
+    y+=2; HR(y,0.3); y+=2;
+    doc.setFillColor(17,17,17);doc.rect(ml,y,cw,14,"F");
+    doc.setFontSize(13);doc.setFont("helvetica","bold");doc.setTextColor(255);
+    doc.text("TOTALT EKS. MVA",ml+5,y+9.5);
+    doc.text(fmtR(gt),priceX-3,y+9.5,{align:"right"});
+    doc.setTextColor(17); y+=22;  // extra breathing room after total
+  }
+
+  // ── MODULE: Opsjon ────────────────────────────────────────────────────────
+  if(!ph.opsjon && ai.opsjon){NP(20);SEC("OPSJON: KJØP AV MØBLER OG INTERIØR");BODY(ai.opsjon);}
+  if(!ph.betaling && ai.betaling){NP(20);SEC("TIDSPLAN OG BETALINGSBETINGELSER");BODY(ai.betaling);}
+  if(!ph.marked && ai.markedsforing){NP(20);SEC("MARKEDSFØRING");BODY(ai.markedsforing);}
 
   // ── MODULE: Merknader ─────────────────────────────────────────────────────
   const rawM=fd.merknader?fd.merknader.split("\n").map(s=>s.trim()).filter(Boolean):[];
   const allM=[...rawM,...(ai.merknader||[])];
-  if(allM.length){
-    newPageIfNeeded(20);
-    HR(y,0.2,[200,200,200]);y+=6;
-    T("MERKNADER",ml,y,8.5,"bold",[50,50,50]);y+=5;
-    allM.forEach(m=>{const ls=doc.splitTextToSize("• "+m,cw-2);T(ls,ml+1,y,9.5,"normal",[80,80,80]);y+=ls.length*4.5+1;});
+  if(!ph.merknader && allM.length){
+    NP(20); HR(y,0.15,[210,210,210]); y+=7;
+    T("MERKNADER",ml,y,8.5,"bold",[50,50,50]); y+=6;
+    allM.forEach(m=>{const ls=doc.splitTextToSize("• "+m,cw-4);T(ls,ml+2,y,FS,"normal",[80,80,80]);y+=ls.length*5+1;});
   }
 
   // ── Avslutning ────────────────────────────────────────────────────────────
-  if(ai.avslutning){newPageIfNeeded(12);y+=3;const ls=doc.splitTextToSize(ai.avslutning,cw);doc.setFontSize(10);doc.setFont("helvetica","italic");doc.setTextColor(130);doc.text(ls,ml,y);}
+  if(!ph.avslutning && ai.avslutning){
+    NP(14); y+=4;
+    const ls=doc.splitTextToSize(ai.avslutning,cw);
+    doc.setFontSize(FS);doc.setFont("helvetica","italic");doc.setTextColor(130);
+    doc.text(ls,ml,y); y+=ls.length*5;
+  }
 
   // ── Footer ────────────────────────────────────────────────────────────────
   doc.setFontSize(8.5);doc.setFont("helvetica","normal");doc.setTextColor(180);
