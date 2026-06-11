@@ -35,11 +35,8 @@ textarea{resize:vertical;line-height:1.55}
 .pill.on{background:#111;color:#fff;border-color:#111}
 .pill:hover:not(.on){border-color:#888;color:#111}
 .lines-wrap{display:flex;flex-direction:column;gap:5px}
-.line-svc{display:grid;grid-template-columns:1fr 130px 28px;gap:7px;align-items:center}
-.line-prod{display:grid;grid-template-columns:2fr 44px 96px 96px 96px 28px;gap:6px;align-items:start}
 .line-svc input,.line-prod input{margin:0;font-size:13px;padding:7px 9px}
 .line-prod textarea{margin:0;font-size:13px;padding:7px 9px;min-height:62px;resize:vertical}
-.col-lbl{font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.05em;padding-bottom:2px}
 .add-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed #ccc;border-radius:4px;padding:7px 12px;font-size:13px;color:#aaa;cursor:pointer;width:100%;margin-top:6px;font-family:inherit}
 .add-btn:hover{border-color:#888;color:#555}
 .del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:20px;line-height:1;padding:0;font-family:inherit;align-self:center}
@@ -73,7 +70,6 @@ textarea{resize:vertical;line-height:1.55}
 .prev-meta .mv{font-weight:600;font-size:11px;line-height:1.55}
 .prev-rule{border:none;border-top:2px solid #111;margin:0 0 1.25rem}
 .prev-h1{font-size:1.4rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;margin-bottom:.2rem}
-.prev-ingress{font-size:14px;color:#666;margin-bottom:1.25rem}
 .prev-sec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#444;margin:1.1rem 0 .4rem}
 .prev-txt{font-size:13px;line-height:1.65;color:#333;margin-bottom:.6rem}
 .prev-list{padding-left:1rem;font-size:13px;line-height:1.7;color:#333}
@@ -86,8 +82,6 @@ textarea{resize:vertical;line-height:1.55}
 .prev-total-box{background:#111;color:#fff;display:flex;justify-content:space-between;padding:10px 14px;font-weight:700;font-size:14px;margin-top:1rem;border-radius:0 0 3px 3px}
 .prev-note{font-size:12px;color:#555;padding:4px 0 4px 10px;border-left:2px solid #ddd;margin-bottom:3px}
 .prev-footer{margin-top:2rem;padding-top:.75rem;border-top:1px solid #eee;font-size:10px;color:#ccc;letter-spacing:.04em;text-align:center;text-transform:uppercase}
-
-
 
 /* Editable preview */
 .prev-editable{outline:none;border-radius:3px;transition:background .15s;min-height:1em;display:inline-block;width:100%}
@@ -369,9 +363,7 @@ textarea{resize:vertical;line-height:1.55}
 
       <div style="border-top:1px solid #f0f0ec;margin-top:16px;padding-top:16px">
         <div class="g2" style="margin-bottom:.8rem">
-          <div class="field"><label>Betalingsfrist (dager)</label><input id="fbetfrist" type="text" value="14"></div>
-          <div class="field"><label>Tilbudet gyldig (dager)</label><input id="fgyldigdager" type="text" value="30"></div>
-        </div>
+          <div class="field"><label>Betalingsfrist (dager)</label><input id="fbetfrist" type="text" value="14"></div>        </div>
         <div class="field"><label>Rabatt / handelsvilkår (tekst)</label>
           <input id="frabatt" type="text" placeholder="F.eks. 20% trade-rabatt for arkitekter">
         </div>
@@ -486,11 +478,7 @@ textarea{resize:vertical;line-height:1.55}
     <div class="card-body hidden">
       <div class="field"><label>Tilleggsmerknader (én per linje — vises som bullet-punkter)</label>
         <textarea id="fmerk" rows="4" placeholder="Møblene leveres og hentes av NOVOOI&#10;Møblene er forsikret gjennom NOVOOI i leieperioden&#10;Tilbudet er gyldig i 30 dager fra utstedelsesdato"></textarea>
-      </div>
-      <div class="field"><label>Interne notater (vises IKKE i PDF)</label>
-        <textarea id="fint" rows="2" placeholder="Kun synlig internt — ikke med i tilbud eller PDF..."></textarea>
-      </div>
-    </div>
+      </div>    </div>
   </div>
 
 
@@ -505,9 +493,7 @@ textarea{resize:vertical;line-height:1.55}
         <label class="check"><input type="checkbox" id="phOpsjon"> Skjul Opsjon (kjøp av møbler)</label>
         <label class="check"><input type="checkbox" id="phBetaling"> Skjul Betalingsbetingelser</label>
         <label class="check"><input type="checkbox" id="phMarked"> Skjul Markedsføring</label>
-        <label class="check"><input type="checkbox" id="phMerknader"> Skjul Merknader</label>
-        <label class="check"><input type="checkbox" id="phAvslutning"> Skjul Avslutning</label>
-        <label class="check"><input type="checkbox" id="phTotal"> Skjul Totalpris-boks</label>
+        <label class="check"><input type="checkbox" id="phMerknader"> Skjul Merknader</label>        <label class="check"><input type="checkbox" id="phTotal"> Skjul Totalpris-boks</label>
       </div>
     </div>
   </div>
@@ -600,7 +586,6 @@ textarea{resize:vertical;line-height:1.55}
 .prev-total-box{background:#111;color:#fff;display:flex;justify-content:space-between;padding:10px 14px;font-weight:700;font-size:14px;margin-top:1rem;border-radius:0 0 3px 3px}
 .prev-note{font-size:12px;color:#555;padding:4px 0 4px 10px;border-left:2px solid #ddd;margin-bottom:3px}
 .prev-footer{margin-top:2rem;padding-top:.75rem;border-top:1px solid #eee;font-size:10px;color:#ccc;letter-spacing:.04em;text-align:center;text-transform:uppercase}
-
 
 
 /* Editable preview */
@@ -883,9 +868,7 @@ textarea{resize:vertical;line-height:1.55}
 
       <div style="border-top:1px solid #f0f0ec;margin-top:16px;padding-top:16px">
         <div class="g2" style="margin-bottom:.8rem">
-          <div class="field"><label>Betalingsfrist (dager)</label><input id="fbetfrist" type="text" value="14"></div>
-          <div class="field"><label>Tilbudet gyldig (dager)</label><input id="fgyldigdager" type="text" value="30"></div>
-        </div>
+          <div class="field"><label>Betalingsfrist (dager)</label><input id="fbetfrist" type="text" value="14"></div>        </div>
         <div class="field"><label>Rabatt / handelsvilkår (tekst)</label>
           <input id="frabatt" type="text" placeholder="F.eks. 20% trade-rabatt for arkitekter">
         </div>
@@ -1000,11 +983,7 @@ textarea{resize:vertical;line-height:1.55}
     <div class="card-body hidden">
       <div class="field"><label>Tilleggsmerknader (én per linje — vises som bullet-punkter)</label>
         <textarea id="fmerk" rows="4" placeholder="Møblene leveres og hentes av NOVOOI&#10;Møblene er forsikret gjennom NOVOOI i leieperioden&#10;Tilbudet er gyldig i 30 dager fra utstedelsesdato"></textarea>
-      </div>
-      <div class="field"><label>Interne notater (vises IKKE i PDF)</label>
-        <textarea id="fint" rows="2" placeholder="Kun synlig internt — ikke med i tilbud eller PDF..."></textarea>
-      </div>
-    </div>
+      </div>    </div>
   </div>
 
 
@@ -1019,9 +998,7 @@ textarea{resize:vertical;line-height:1.55}
         <label class="check"><input type="checkbox" id="phOpsjon"> Skjul Opsjon (kjøp av møbler)</label>
         <label class="check"><input type="checkbox" id="phBetaling"> Skjul Betalingsbetingelser</label>
         <label class="check"><input type="checkbox" id="phMarked"> Skjul Markedsføring</label>
-        <label class="check"><input type="checkbox" id="phMerknader"> Skjul Merknader</label>
-        <label class="check"><input type="checkbox" id="phAvslutning"> Skjul Avslutning</label>
-        <label class="check"><input type="checkbox" id="phTotal"> Skjul Totalpris-boks</label>
+        <label class="check"><input type="checkbox" id="phMerknader"> Skjul Merknader</label>        <label class="check"><input type="checkbox" id="phTotal"> Skjul Totalpris-boks</label>
       </div>
     </div>
   </div>
@@ -1036,7 +1013,7 @@ textarea{resize:vertical;line-height:1.55}
 <script>
 const LOGO = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzg3IiBoZWlnaHQ9Ijg2IiB2aWV3Qm94PSIwIDAgMzg3IDg2IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNNjUuMTI0IDgxLjY1MTFDNjYuMzE5OSA4Mi4xOTQ3IDY3LjA4MDkgODIuNTIwOSA2Ny4wODA5IDgzLjM5MDZDNjcuMDgwOSA4NC4yNjA0IDY2LjQyODYgODQuNjk1MyA2NS4wMTUyIDg0LjU4NjZDNjMuMTY3IDg0LjQ3NzkgNTkuNjg3OSA4NC4yNjA0IDU0LjU3OCA4NC4yNjA0QzQ5LjQ2ODEgODQuMjYwNCA0NS45ODkgODQuNDc3OSA0NC4xNDA4IDg0LjU4NjZDNDIuNzI3NCA4NC42OTUzIDQyLjA3NTEgODQuMjYwNCA0Mi4wNzUxIDgzLjM5MDZDNDIuMDc1MSA4Mi41MjA5IDQyLjgzNjEgODIuMTk0NyA0NC4wMzIxIDgxLjY1MTFDNDYuMDk3OCA4MC44OSA0Ni4zMTUyIDc4LjYwNjggNDYuMzE1MiA3NC44MDE1VjQ3LjA3NzFDNDYuMzE1MiAzNi45NjU5IDQzLjU5NzIgMjkuMTM3OCAzNC4yNDcyIDI5LjEzNzhDMjQuNTcxIDI5LjEzNzggMjAuNzY1NyAzOC4yNzA1IDIwLjc2NTcgNDYuNTMzNVY3NC44MDE1QzIwLjc2NTcgNzguNjA2OCAyMS4wOTE5IDgwLjg5IDIzLjE1NzYgODEuNjUxMUMyNC4zNTM1IDgyLjE5NDcgMjUuMDA1OSA4Mi41MjA5IDI1LjAwNTkgODMuMzkwNkMyNS4wMDU5IDg0LjI2MDQgMjQuMzUzNSA4NC42OTUzIDIyLjk0MDIgODQuNTg2NkMyMS4yMDA2IDg0LjQ3NzkgMTcuNzIxNSA4NC4yNjA0IDEyLjYxMTcgODQuMjYwNEM3LjM5MzA0IDg0LjI2MDQgNC4wMjI2OCA4NC40Nzc5IDIuMTc0NDIgODQuNTg2NkMwLjc2MTA0OCA4NC42OTUzIDAuMTA4NzIxIDg0LjI2MDQgMC4xMDg3MjEgODMuMzkwNkMwLjEwODcyMSA4Mi41MjA5IDAuODY5NzY5IDgyLjE5NDcgMS45NTY5OCA4MS42NTExQzQuMDIyNjggODAuODkgNC4zNDg4NSA3OC42MDY4IDQuMzQ4ODUgNzQuODAxNVYzOC41OTY3QzQuMzQ4ODUgMzQuNzkxNCA0LjAyMjY4IDMyLjYxNjkgMS45NTY5OCAzMS43NDcyQzAuODY5NzY5IDMxLjMxMjMgMCAzMC44Nzc0IDAgMjkuODk4OUMwIDI5LjEzNzggMC41NDM2MDYgMjguNTk0MiAxLjUyMjEgMjguMzc2N0M0LjY3NTAxIDI3LjcyNDQgMTAuOTgwOCAyNi4wOTM1IDE3LjcyMTUgMjIuNjE0NEMxOC45MTc1IDIxLjk2MjEgMTkuNjc4NSAyMi4zOTcgMTkuNzg3MiAyMy43MDE2TDIwLjU0ODMgMzIuNTA4MkwyMC42NTcgMzMuNTk1NEMyMy40ODM4IDI3LjUwNjkgMjkuMTM3MyAyMS4yMDEgNDAuNDQ0MyAyMS4yMDFDNTYuMTAwMSAyMS4yMDEgNjIuODQwOCAyOS42ODE0IDYyLjg0MDggNDcuMDc3MVY3NC44MDE1QzYyLjg0MDggNzguNjA2OCA2My4wNTgzIDgwLjg5IDY1LjEyNCA4MS42NTExWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEwOC40IDIxLjIwMUMxMjcuNzUzIDIxLjIwMSAxNDAuMTQ3IDM1Ljc2OTkgMTQwLjE0NyA1My42MDA1QzE0MC4xNDcgNzEuNTM5OCAxMjcuNzUzIDg2IDEwOC40IDg2Qzg5LjA0NzggODYgNzYuNzYyMyA3MS41Mzk4IDc2Ljc2MjMgNTMuNjAwNUM3Ni44NzEgMzUuNzY5OSA4OS4wNDc4IDIxLjIwMSAxMDguNCAyMS4yMDFaTTEwMi45NjQgMjQuODk3NkM5Mi44NTMgMjYuODU0NiA5MS4xMTM1IDQxLjA5NzMgOTMuODMxNSA1Ni4xMDExQzk2LjQ0MDggNzEuMzIyNCAxMDMuODM0IDg0LjA0MyAxMTQuMDU0IDgyLjMwMzRDMTI0LjA1NiA4MC4zNDY0IDEyNS42ODcgNjYuMTAzNyAxMjMuMDc3IDUxLjA5OTlDMTIwLjQ2OCAzNS44Nzg2IDExMy4wNzUgMjMuMTU4IDEwMi45NjQgMjQuODk3NloiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0xOTUuNjkyIDE5Ljg5NjNDMjAzLjg0NiAyMC40Mzk5IDIwMy42MjkgMjkuNDY0IDIwMC4zNjcgMzcuOTQ0NEwxODIuNDI4IDgzLjQ5OTRDMTgyLjEwMiA4NC4zNjkxIDE4MS40NSA4NC45MTI4IDE4MC41OCA4NC45MTI4TDE3OC4yOTcgODQuODA0Vjg0LjkxMjhIMTcwLjc5NUMxNjkuODE3IDg0LjkxMjggMTY5LjI3MyA4NC40Nzc5IDE2OC45NDcgODMuNDk5NEwxNDkuODEyIDMyLjM5OTVDMTQ4LjA3MiAyNy43MjQ0IDE0Ny4yMDMgMjYuNTI4NCAxNDQuOTE5IDI1LjU0OTlDMTQzLjgzMiAyNS4wMDYzIDE0My4wNzEgMjQuNTcxNCAxNDMuMDcxIDIzLjcwMTZDMTQzLjA3MSAyMi45NDA2IDE0My42MTUgMjIuNTA1NyAxNDUuMTM3IDIyLjYxNDRDMTQ3LjMxMSAyMi43MjMxIDE1MC44OTkgMjIuOTQwNiAxNTYuNTUzIDIyLjk0MDZDMTYxLjY2MyAyMi45NDA2IDE2NC45MjQgMjIuNzIzMSAxNjYuODgxIDIyLjYxNDRDMTY4LjI5NCAyMi41MDU3IDE2OC44MzggMjIuOTQwNiAxNjguODM4IDIzLjcwMTZDMTY4LjgzOCAyNC42ODAyIDE2OC4xODYgMjUuMDA2MyAxNjcuMDk5IDI1LjY1ODdDMTY1LjY4NSAyNi42MzcyIDE2Ni4yMjkgMjguMzc2NyAxNjcuNDI1IDMyLjM5OTVMMTgxLjAxNSA3NC44MDE1TDE5Mi45NzQgNDEuODU4NEMxOTUuODAxIDM0LjEzOTEgMTkwLjAzOSAzMi45NDMxIDE4OS4xNjkgMjcuMzk4MkMxODguNTE3IDIzLjU5MjkgMTkxLjAxNyAxOS41NzAyIDE5NS42OTIgMTkuODk2M1oiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0yNDIuODcgMjEuMjAxQzI2Mi4yMjIgMjEuMjAxIDI3NC42MTYgMzUuNzY5OSAyNzQuNjE2IDUzLjYwMDVDMjc0LjYxNiA3MS41Mzk4IDI2Mi4yMjIgODYgMjQyLjg3IDg2QzIyMy41MTcgODYgMjExLjIzMiA3MS41Mzk4IDIxMS4yMzIgNTMuNjAwNUMyMTEuMzQgMzUuNzY5OSAyMjMuNTE3IDIxLjIwMSAyNDIuODcgMjEuMjAxWk0yMzcuNDM0IDI0Ljg5NzZDMjI3LjMyMyAyNi44NTQ2IDIyNS41ODMgNDEuMDk3MyAyMjguMzAxIDU2LjEwMTFDMjMwLjkxIDcxLjMyMjQgMjM4LjMwMyA4NC4wNDMgMjQ4LjUyMyA4Mi4zMDM0QzI1OC41MjUgODAuMzQ2NCAyNjAuMTU2IDY2LjEwMzcgMjU3LjU0NyA1MS4wOTk5QzI1NC45MzggMzUuODc4NiAyNDcuNTQ1IDIzLjE1OCAyMzcuNDM0IDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzE4LjA2NyAyMS4yMDFDMzM3LjQyIDIxLjIwMSAzNDkuODE0IDM1Ljc2OTkgMzQ5LjgxNCA1My42MDA1QzM0OS44MTQgNzEuNTM5OCAzMzcuNDIgODYgMzE4LjA2NyA4NkMyOTguNzE1IDg2IDI4Ni40MjkgNzEuNTM5OCAyODYuNDI5IDUzLjYwMDVDMjg2LjUzOCAzNS43Njk5IDI5OC43MTUgMjEuMjAxIDMxOC4wNjcgMjEuMjAxWk0zMTIuNjMxIDI0Ljg5NzZDMzAyLjUyIDI2Ljg1NDYgMzAwLjc4MSA0MS4wOTczIDMwMy40OTkgNTYuMTAxMUMzMDYuMTA4IDcxLjMyMjQgMzEzLjUwMSA4NC4wNDMgMzIzLjcyMSA4Mi4zMDM0QzMzMy43MjMgODAuMzQ2NCAzMzUuMzU0IDY2LjEwMzcgMzMyLjc0NSA1MS4wOTk5QzMzMC4xMzUgMzUuODc4NiAzMjIuNzQyIDIzLjE1OCAzMTIuNjMxIDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzczLjczNiAxNy43MjE5QzM2Ny43NTYgMTcuNzIxOSAzNjIuOTczIDEzLjgwNzggMzYyLjk3MyA4LjkxNTNDMzYyLjk3MyAzLjkxNDAzIDM2Ny43NTYgMCAzNzMuNzM2IDBDMzc5LjYwNyAwIDM4NC40OTkgMy45MTQwMyAzODQuNDk5IDguOTE1M0MzODQuNDk5IDEzLjgwNzggMzc5LjYwNyAxNy43MjE5IDM3My43MzYgMTcuNzIxOVpNMzg1LjA0MyA4MS42NTExQzM4Ni4yMzkgODIuMTk0NyAzODcgODIuNTIwOSAzODcgODMuMzkwNkMzODcgODQuMjYwNCAzODYuMzQ4IDg0LjY5NTMgMzg0LjkzNCA4NC41ODY2QzM4Mi45NzcgODQuNDc3OSAzNzkuNzE2IDg0LjI2MDQgMzc0LjQ5NyA4NC4yNjA0QzM2OS4zODcgODQuMjYwNCAzNjUuOTA4IDg0LjQ3NzkgMzY0LjA2IDg0LjU4NjZDMzYyLjY0NiA4NC42OTUzIDM2MS45OTQgODQuMjYwNCAzNjEuOTk0IDgzLjM5MDZDMzYxLjk5NCA4Mi41MjA5IDM2Mi43NTUgODIuMTk0NyAzNjMuOTUxIDgxLjY1MTFDMzY2LjAxNyA4MC44OSAzNjYuMjM0IDc4LjYwNjggMzY2LjIzNCA3NC44MDE1VjM4LjcwNTRDMzY2LjIzNCAzNC45MDAxIDM2Ni4wMTcgMzIuNzI1NyAzNjMuOTUxIDMxLjg1NTlDMzYyLjg2NCAzMS40MjEgMzYxLjk5NCAzMC45ODYxIDM2MS45OTQgMzAuMDA3NkMzNjEuOTk0IDI5LjEzNzggMzYyLjY0NiAyOC41OTQyIDM2My45NTEgMjguMTU5M0MzNjYuODg3IDI3LjYxNTcgMzc0LjI4IDI1Ljg3NjEgMzgwLjY5NCAyMi42MTQ0QzM4MS44OSAyMi4wNzA4IDM4Mi43NiAyMi41MDU3IDM4Mi43NiAyMy43MDE2Vjc0LjgwMTVDMzgyLjc2IDc4LjYwNjggMzgyLjk3NyA4MC44OSAzODUuMDQzIDgxLjY1MTFaIiBmaWxsPSJibGFjayIvPgo8L3N2Zz4K";
 
-// ── CONFIG ─────────────────────────────────────────────────────────────────
+// ── CONFIG
 // Sett inn din Cloudflare Worker URL her:
 const WORKER_URL = "https://tilbudsagent.marcus-3aa.workers.dev";
 // ──────────────────────────────────────────────────────────────────────────
@@ -1089,11 +1066,11 @@ document.querySelectorAll("#tPills .pill").forEach(p=>p.addEventListener("click"
 buildLines();
 }));
 
-// ── PRODUCTS ──────────────────────────────────────────────────────────────
+// ── PRODUCTS
 let selectedProducts = [];
 let manualImgData = null;
 
-// ── Tab switching ──────────────────────────────────────────────────────────
+// ── Tab switching
 function switchProdTab(tab, el) {
   document.getElementById('tabWoo').style.display    = tab === 'woo'    ? '' : 'none';
   document.getElementById('tabManual').style.display = tab === 'manual' ? '' : 'none';
@@ -1101,7 +1078,7 @@ function switchProdTab(tab, el) {
   el.classList.add('on');
 }
 
-// ── Manual image preview ───────────────────────────────────────────────────
+// ── Manual image preview
 function previewManualImg(e) {
   const file = e.target.files[0];
   if (!file) return;
@@ -1115,7 +1092,7 @@ function previewManualImg(e) {
   reader.readAsDataURL(file);
 }
 
-// ── Add manual product ─────────────────────────────────────────────────────
+// ── Add manual product
 function addManualProduct() {
   const nameEl = document.getElementById('manName');
   const name   = nameEl.value.trim();
@@ -1149,7 +1126,7 @@ function addManualProduct() {
   renderSelectedProducts();
 }
 
-// ── WooCommerce search ─────────────────────────────────────────────────────
+// ── WooCommerce search
 async function wooSearch() {
   const q      = document.getElementById('wooQ').value.trim();
   if (!q) return;
@@ -1183,7 +1160,7 @@ async function wooSearch() {
   btn.disabled = false; btn.textContent = 'Søk';
 }
 
-// ── Render WooCommerce results ─────────────────────────────────────────────
+// ── Render WooCommerce results
 function renderWooResults(products) {
   const wrap = document.getElementById('wooResults');
   wrap.className = 'woo-grid';
@@ -1202,7 +1179,7 @@ function renderWooResults(products) {
   wrap._products = products;
 }
 
-// ── Add WooCommerce product (handles variants) ─────────────────────────────
+// ── Add WooCommerce product (handles variants)
 async function addWooProduct(idx) {
   const wrap = document.getElementById('wooResults');
   const p    = wrap._products && wrap._products[idx];
@@ -1239,7 +1216,7 @@ async function addWooProduct(idx) {
   if (card) card.classList.add('added');
 }
 
-// ── Variant picker ─────────────────────────────────────────────────────────
+// ── Variant picker
 // Store pending variants so onclick can reference by index safely
 let _pendingVariants = [];
 
@@ -1336,7 +1313,7 @@ function pickVariant(idx) {
   pushProduct(clean);
 }
 
-// ── Core push / remove / update ────────────────────────────────────────────
+// ── Core push / remove / update
 function pushProduct(p) {
   p.qty     = p.qty     || 1;
   p.discVal = p.discVal || 0;
@@ -1365,7 +1342,7 @@ function changeQty(id, delta) {
   const valEl = card.querySelector('.pcard-qty-val');
   const totEl = card.querySelector('.pcard-qty-tot');
   if (valEl) valEl.textContent = p.qty;
-  if (totEl) totEl.textContent = '= ' + fmtInt(total);
+  if (totEl) totEl.textContent = '= ' + fmtR(total);
 }
 
 function updateProdDisc(id, val, type) {
@@ -1387,11 +1364,11 @@ function updateProdDisc(id, val, type) {
   if (!card) return;
   const totEl  = card.querySelector('.pcard-qty-tot');
   const resEl  = card.querySelector('.pcard-disc-res');
-  if (totEl) totEl.textContent = '= ' + fmtInt(total);
+  if (totEl) totEl.textContent = '= ' + fmtR(total);
   if (resEl) { resEl.textContent = dlbl; resEl.style.display = dv ? '' : 'none'; }
 }
 
-// ── Render selected product cards ──────────────────────────────────────────
+// ── Render selected product cards
 function renderSelectedProducts() {
   const wrapEl  = document.getElementById('selProdsWrap');
   const gridEl  = document.getElementById('selProds');
@@ -1432,7 +1409,7 @@ function renderSelectedProducts() {
           <button class="pcard-qty-btn" onclick="changeQty('${id}',-1)">&#8722;</button>
           <span class="pcard-qty-val">${qty}</span>
           <button class="pcard-qty-btn" onclick="changeQty('${id}',1)">&#43;</button>
-          <span class="pcard-qty-tot">= ${fmtInt(total)}</span>
+          <span class="pcard-qty-tot">= ${fmtR(total)}</span>
         </div>
         <div class="pcard-disc">
           <label>Rabatt:</label>
@@ -1450,7 +1427,7 @@ function renderSelectedProducts() {
     </div>`;
   }).join('');
 }
-// ── END PRODUCTS ──────────────────────────────────────────────────────────
+// ── END PRODUCTS
 
 
 document.querySelectorAll("#rPills .pill").forEach(p=>p.addEventListener("click",()=>p.classList.toggle("on")));
@@ -1475,7 +1452,7 @@ function renderTags(){
   r.appendChild(inp);
 }
 
-function fmtInt(n){if(!n&&n!==0)return"—";return"kr "+Math.round(parseFloat(n)).toLocaleString("nb-NO");}
+function fmtR(n){if(!n&&n!==0)return"—";return"kr "+Math.round(parseFloat(n)).toLocaleString("nb-NO");}
 function fmt(n){if(!n&&n!==0)return"—";return"kr "+parseFloat(n).toLocaleString("nb-NO",{minimumFractionDigits:2,maximumFractionDigits:2});}
 function fmtR(n){if(!n&&n!==0)return"—";return"kr "+Math.round(parseFloat(n)).toLocaleString("nb-NO");}
 function parseKr(s){if(!s)return null;const n=parseFloat(s.replace(/[^0-9.,]/g,"").replace(",","."));return isNaN(n)?null:n;}
@@ -1487,13 +1464,13 @@ function buildLines(){
   if(kind==="product"){
     h.className="line-prod";
     ["Produkt","Ant.","Utsalgspris","Leiepris (10%)","Total leie",""].forEach(t=>{
-      const d=document.createElement("div");d.className="col-lbl";d.textContent=t;h.appendChild(d);
+      const d=document.createElement("div");d.style.cssText="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.05em;padding-bottom:2px";d.textContent=t;h.appendChild(d);
     });
     TYPES[curType].lines.forEach(l=>addProd(...l));
   } else {
     h.className="line-svc";
     ["Beskrivelse","Pris eks. mva",""].forEach(t=>{
-      const d=document.createElement("div");d.className="col-lbl";d.textContent=t;h.appendChild(d);
+      const d=document.createElement("div");d.style.cssText="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.05em;padding-bottom:2px";d.textContent=t;h.appendChild(d);
     });
     TYPES[curType].lines.forEach(l=>addSvc(l[0],l[1]));
   }
@@ -1570,7 +1547,6 @@ function getFD(){
     phBetaling:    document.getElementById('phBetaling').checked,
     phMarked:      document.getElementById('phMarked').checked,
     phMerknader:   document.getElementById('phMerknader').checked,
-    phAvslutning:  document.getElementById('phAvslutning').checked,
     phTotal:       document.getElementById('phTotal').checked,
     discSvc:   {val: parseFloat(document.getElementById('discSvc').value)||0, type: document.getElementById('discSvcType').value},
     discProd:  {val: parseFloat(document.getElementById('discProd').value)||0, type: document.getElementById('discProdType').value},
@@ -1621,7 +1597,7 @@ Returner JSON:
 
   try{
     const d=await callAPI({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]});
-    let txt=(d.content||[{text:""}]).map(x=>x.text||"").join("").replace(/```json|```/g,"").trim();
+    let txt=(d.content||[{text:""}]).map(x=>x.text).join("").replace(/```json|```/g,"").trim();
     const ai=JSON.parse(txt);
     genData={fd,ai};
     renderPreview(fd,ai);
@@ -1632,7 +1608,6 @@ Returner JSON:
   btn.disabled=false;btn.textContent="Generer tilbud";
 }
 
-function calcST(lines){let t=0;lines.forEach(l=>{const p=parseKr(l.price);if(p)t+=p;});return t;}
 function calcPT(lines){let t=0;lines.forEach(l=>{const p=parseKr(l.total);if(p)t+=p;});return t;}
 
 // Helper: apply discount to a value
@@ -1668,10 +1643,7 @@ function syncEditableFields(){
   document.querySelectorAll('[data-ops-field]').forEach(el => {
     const key = el.dataset.opsField;
     if(genData && genData.fd) genData.fd[key] = el.innerText.trim();
-  });
-  // Always let brief override beschrivelse in final PDF
-  if(genData.fd.brief) genData.ai._brief_override = genData.fd.brief;
-  // AI text fields (ingress, beskrivelse, betaling, opsjon, markedsforing, avslutning)
+  });  // AI text fields (ingress, beskrivelse, betaling, opsjon, markedsforing, avslutning)
   document.querySelectorAll('[data-ai-field]').forEach(el => {
     const key = el.dataset.aiField;
     if(key.startsWith('omfang_')){
@@ -1720,7 +1692,7 @@ function renderPreview(fd,ai){
     beskrivelse: fd.phBeskrivelse, tjenester: fd.phTjenester,
     produkter: fd.phProdukter, opsjon: fd.phOpsjon,
     betaling: fd.phBetaling, marked: fd.phMarked,
-    merknader: fd.phMerknader, avslutning: fd.phAvslutning,
+    merknader: fd.phMerknader,
     total: fd.phTotal,
   };
   const kind=fd.kind;
@@ -1838,9 +1810,9 @@ function renderPreview(fd,ai){
     <!-- ingress removed -->
     ${!ph.beskrivelse ? `
     ${(fd.brief||ai.beskrivelse) ? `<div class="prev-sec">Beskrivelse</div>
-    <p class="prev-txt prev-editable" contenteditable="true" data-ai-field="beskrivelse" style="display:block">${(fd.brief||"").trim()}</p>` : ""}
+    <p class="prev-txt prev-editable" contenteditable="true" data-ai-field="beskrivelse" style="display:block">${(fd.brief).trim()}</p>` : ""}
     ${(()=>{
-      const manual=(fd.omfangPre||"").trim().split("\n").map(s=>s.trim()).filter(Boolean);
+      const manual=(fd.omfangPre).trim().split("\n").map(s=>s.trim()).filter(Boolean);
       return manual.length?`<div class="prev-sec e" contenteditable="true">Omfang</div>
     <ul class="prev-list" id="prevOmfang">${manual.map((o,i)=>`<li contenteditable="true" class="e" data-ai-field="omfang_${i}">${o}</li>`).join("")}</ul>`:"";
     })()}
@@ -1855,7 +1827,7 @@ function renderPreview(fd,ai){
     ${fd.cFors&&fd.txtFors?`<div class="prev-sec e" contenteditable="true" data-sec-title="forsikring">Forsikring</div><p class="prev-txt e" contenteditable="true" data-ops-field="txtFors" style="display:block">${fd.txtFors}</p>`:''}
     ${fd.cDep&&fd.txtDep?`<div class="prev-sec e" contenteditable="true" data-sec-title="depositum">Depositum</div><p class="prev-txt e" contenteditable="true" data-ops-field="txtDep" style="display:block">${fd.txtDep}</p>`:''}
     ${!ph.merknader && allM.length ? `<div class="prev-sec e" contenteditable="true">Merknader</div>${allM.map(m=>`<div class="prev-note prev-editable" contenteditable="true">${m}</div>`).join("")}` : ''}
-    
+
     <div class="prev-footer">NOVOOI AS &#183; St. Halvards gate 33c, 0192 Oslo &#183; hei@novooi.com &#183; novooi.com &#183; Org.nr. 827 340 162${fd.saksb?" &#183; "+fd.saksb:""}</div>
   </div>
 </div>`;
@@ -1890,7 +1862,7 @@ async function doPDF(){
   const FS=10;
   let y=16;
 
-  // ── Helpers ──────────────────────────────────────────────────────────────
+  // ── Helpers
   // T: draw text. x is LEFT edge always — price cols computed from W-mr
   const T=(txt,x,yy,sz,st,col)=>{
     doc.setFontSize(sz||FS);doc.setFont("helvetica",st||"normal");
@@ -1910,7 +1882,7 @@ async function doPDF(){
   const BODY=(txt)=>{doc.setFontSize(FS);doc.setFont("helvetica","normal");const ls=doc.splitTextToSize(txt,cw);T(ls,ml,y,FS,"normal",[60,60,60]);y+=ls.length*5+4;};
   const priceX = W-mr;  // right edge for all prices
 
-  // ── Logo + tilbudsnr ─────────────────────────────────────────────────────
+  // ── Logo + tilbudsnr
   if(window._logoPNG){
     doc.addImage(window._logoPNG,"PNG",ml,y,40,9);
   } else {
@@ -1921,7 +1893,7 @@ async function doPDF(){
   TR("Tilbudsnr. "+fd.nr, priceX, y+5, 8.5,"normal",[160,160,160]);
   y+=18;
 
-  // ── Meta header — 4 equal cols ────────────────────────────────────────────
+  // ── Meta header — 4 equal cols
   const colW=cw/4;
   const mc=[ml, ml+colW, ml+colW*2, ml+colW*3];
   ["FRA","TIL","DATO","GYLDIG TIL"].forEach((k,i)=>T(k,mc[i],y,7.5,"normal",[160,160,160]));
@@ -1936,11 +1908,11 @@ async function doPDF(){
   // Rule with breathing room top and bottom
   HR(y,0.6); y+=14;
 
-  // ── Tittel + ingress ──────────────────────────────────────────────────────
+  // ── Tittel + ingress
   T((fd.prosjekt ? fd.prosjekt : fd.typeLabel).toUpperCase(),ml,y,19,"bold"); y+=8;
   // ingress removed
 
-  // ── Visibility flags ──────────────────────────────────────────────────────
+  // ── Visibility flags
   const ph = {
     beskrivelse: fd.phBeskrivelse,
     tjenester:   fd.phTjenester,
@@ -1949,15 +1921,14 @@ async function doPDF(){
     betaling:    fd.phBetaling,
     marked:      fd.phMarked,
     merknader:   fd.phMerknader,
-    avslutning:  fd.phAvslutning,
     total:       fd.phTotal,
   };
 
-  // ── MODULE: Beskrivelse + omfang ──────────────────────────────────────────
+  // ── MODULE: Beskrivelse + omfang
   if(!ph.beskrivelse){
     // Only show content the user has actually written — no AI placeholders
-    const _besk = (fd.brief||"").trim();
-    const _omfangPre = (fd.omfangPre||"").trim();
+    const _besk = (fd.brief).trim();
+    const _omfangPre = (fd.omfangPre).trim();
     // Omfang: ONLY show if user has manually filled in the omfang field
     const _omfang = _omfangPre
       ? _omfangPre.split("\n").map(s=>s.trim()).filter(Boolean)
@@ -1970,7 +1941,7 @@ async function doPDF(){
     }
   }
 
-  // ── MODULE: Tjenester ─────────────────────────────────────────────────────
+  // ── MODULE: Tjenester
   const hasServiceLines = !ph.tjenester && fd.kind==="service" && fd.lines && fd.lines.some(l=>l.desc);
   let svcTotal = 0;
   // Always calc total even if hidden, for grand total
@@ -2010,7 +1981,7 @@ async function doPDF(){
     y+=12;
   }
 
-  // ── MODULE: Produkter ─────────────────────────────────────────────────────
+  // ── MODULE: Produkter
   const hasProducts = !ph.produkter && fd.products && fd.products.length > 0;
   let prodTotal = 0;
   // Always calc for grand total
@@ -2081,7 +2052,7 @@ async function doPDF(){
     y+=12;
   }
 
-  // ── MODULE: Leie-spesifikasjon ────────────────────────────────────────────
+  // ── MODULE: Leie-spesifikasjon
   if(fd.kind==="product" && fd.lines && fd.lines.some(l=>l.desc)){
     NP(20); SEC("SPESIFIKASJON");
     const cw4=[cw*0.42,14,32,30,28];
@@ -2121,7 +2092,7 @@ async function doPDF(){
     doc.setTextColor(17); y+=17;
   }
 
-  // ── MODULE: Totalpris ─────────────────────────────────────────────────────
+  // ── MODULE: Totalpris
   if(!ph.total && (hasServiceLines||hasProducts||(fd.kind==="service"&&svcTotal>0)||(fd.products&&fd.products.length&&prodTotal>0))){
     NP(20);
     const gt0=svcTotal+prodTotal;
@@ -2140,7 +2111,7 @@ async function doPDF(){
     doc.setTextColor(17); y+=22;
   }
 
-  // ── MODULE: Opsjon ────────────────────────────────────────────────────────
+  // ── MODULE: Opsjon
   // Opsjoner — use editable text from fd directly
   const _opsItems = [
     {on:fd.cKjop,  txt:fd.txtKjop,  sec:ai.sec_opsjon||"OPSJON: KJØP AV MØBLER OG INTERIØR"},
@@ -2154,7 +2125,7 @@ async function doPDF(){
     if(item.on && item.txt) { NP(20); SEC(item.sec.toUpperCase()); BODY(item.txt); }
   });
 
-  // ── MODULE: Merknader ─────────────────────────────────────────────────────
+  // ── MODULE: Merknader
   // Only show user-entered merknader — never AI-generated ones
   const rawM=fd.merknader?fd.merknader.split("\n").map(s=>s.trim()).filter(Boolean):[];
   const allM=[...rawM];
@@ -2164,10 +2135,10 @@ async function doPDF(){
     allM.forEach(m=>{const ls=doc.splitTextToSize("• "+m,cw-4);T(ls,ml+2,y,FS,"normal",[80,80,80]);y+=ls.length*5+1;});
   }
 
-  // ── Avslutning ────────────────────────────────────────────────────────────
+  // ── Avslutning
   // avslutning removed
 
-  // ── Footer ────────────────────────────────────────────────────────────────
+  // ── Footer
   doc.setFontSize(8.5);doc.setFont("helvetica","normal");doc.setTextColor(180);
   doc.text("NOVOOI AS · St. Halvards gate 33c, 0192 Oslo · hei@novooi.com · novooi.com"+(fd.saksb?" · "+fd.saksb:""),W/2,283,{align:"center"});
   doc.text("Org.nr. 827 340 162",W/2,288,{align:"center"});
