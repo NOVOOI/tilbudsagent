@@ -1,0 +1,652 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOVOOI Tilbudsagent</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fafaf8;color:#111;min-height:100vh}
+.topbar{background:#fff;border-bottom:1px solid #e8e8e4;padding:0 2rem;display:flex;align-items:center;justify-content:space-between;height:56px;position:sticky;top:0;z-index:100;box-shadow:0 1px 0 #f0f0ec}
+.topbar-badge{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:#999;background:#f5f5f0;border:1px solid #e5e5e0;padding:4px 12px;border-radius:20px}
+.main{max-width:860px;margin:0 auto;padding:2rem 1.5rem 6rem}
+.page-title{font-size:13px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#888;margin-bottom:1.5rem}
+.card{background:#fff;border:1px solid #e8e8e4;border-radius:6px;margin-bottom:1.1rem;overflow:hidden}
+.card-head{padding:13px 20px;border-bottom:1px solid transparent;display:flex;align-items:center;justify-content:space-between;cursor:pointer;user-select:none;transition:background .1s}
+.card-head:hover{background:#fafaf8}
+.card-head.open{border-bottom-color:#f0f0ec}
+.card-head h2{font-size:11.5px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;color:#555}
+.card-head .arr{font-size:12px;color:#ccc;transition:transform .18s}
+.card-head.open .arr{transform:rotate(180deg)}
+.card-body{padding:16px 20px}
+.card-body.hidden{display:none}
+label{display:block;font-size:11px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#777;margin-bottom:5px}
+input[type=text],textarea,select{width:100%;border:1px solid #ddd;border-radius:4px;padding:8px 11px;font-size:14px;color:#111;background:#fff;font-family:inherit;transition:border .15s}
+input:focus,textarea:focus{outline:none;border-color:#111}
+textarea{resize:vertical;line-height:1.55}
+.field{margin-bottom:.8rem}.field:last-child{margin-bottom:0}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:.9rem}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.8rem}
+.g4{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:.8rem}
+.pills{display:flex;flex-wrap:wrap;gap:6px}
+.pill{padding:6px 14px;border:1px solid #ddd;border-radius:20px;font-size:13px;cursor:pointer;background:#fff;color:#555;transition:all .12s;user-select:none}
+.pill.on{background:#111;color:#fff;border-color:#111}
+.pill:hover:not(.on){border-color:#888;color:#111}
+.lines-wrap{display:flex;flex-direction:column;gap:5px}
+.line-svc{display:grid;grid-template-columns:1fr 130px 28px;gap:7px;align-items:center}
+.line-prod{display:grid;grid-template-columns:2fr 44px 96px 96px 96px 28px;gap:6px;align-items:start}
+.line-svc input,.line-prod input{margin:0;font-size:13px;padding:7px 9px}
+.line-prod textarea{margin:0;font-size:13px;padding:7px 9px;min-height:62px;resize:vertical}
+.col-lbl{font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.05em;padding-bottom:2px}
+.add-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed #ccc;border-radius:4px;padding:7px 12px;font-size:13px;color:#aaa;cursor:pointer;width:100%;margin-top:6px;font-family:inherit}
+.add-btn:hover{border-color:#888;color:#555}
+.del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:20px;line-height:1;padding:0;font-family:inherit;align-self:center}
+.del-btn:hover{color:#e24b4a}
+.checks{display:flex;flex-wrap:wrap;gap:.8rem;margin-bottom:.75rem}
+.check{display:flex;align-items:center;gap:7px;font-size:13px;color:#555;cursor:pointer}
+.check input{width:15px;height:15px;margin:0;cursor:pointer;accent-color:#111}
+.tag-row{display:flex;align-items:center;gap:7px;flex-wrap:wrap;border:1px solid #ddd;border-radius:4px;padding:6px 9px;min-height:38px;background:#fff;cursor:text}
+.tag-row:focus-within{border-color:#111}
+.tag{display:inline-flex;align-items:center;gap:4px;background:#f5f5f0;border:1px solid #e5e5e0;border-radius:14px;padding:3px 10px;font-size:12px;color:#444}
+.tag button{background:none;border:none;cursor:pointer;color:#bbb;font-size:14px;line-height:1;padding:0}
+.tag button:hover{color:#e24b4a}
+.tag-inp{border:none!important;background:none!important;padding:2px 4px!important;font-size:13px;width:140px;flex:1}
+.tag-inp:focus{outline:none!important}
+.btn-row{display:flex;gap:10px;margin-top:1.5rem;position:sticky;bottom:1.5rem;z-index:50}
+.btn-gen{flex:1;padding:13px 20px;background:#111;color:#fff;border:none;font-size:13px;font-weight:700;letter-spacing:.09em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-family:inherit;transition:background .15s}
+.btn-gen:hover{background:#333}.btn-gen:disabled{background:#aaa;cursor:default}
+.btn-pdf{padding:13px 20px;background:#fff;color:#111;border:1.5px solid #111;font-size:13px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;cursor:pointer;border-radius:4px;font-family:inherit;display:none;transition:all .15s}
+.btn-pdf:hover{background:#f5f5f0}
+.preview-wrap{margin-top:1.5rem;background:#fff;border:1px solid #e8e8e4;border-radius:6px;overflow:hidden}
+.preview-bar{display:flex;align-items:center;justify-content:space-between;padding:11px 18px;background:#f8f8f5;border-bottom:1px solid #eee}
+.preview-bar span{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888}
+.preview-body{padding:2.5rem 2rem}
+.dot-loader{display:flex;align-items:center;gap:8px;padding:2rem;font-size:13px;color:#999}
+.dot{width:5px;height:5px;border-radius:50%;background:#ccc;animation:blink 1.2s infinite}
+.dot:nth-child(2){animation-delay:.2s}.dot:nth-child(3){animation-delay:.4s}
+@keyframes blink{0%,80%,100%{opacity:.2}40%{opacity:1}}
+.err{padding:12px 16px;background:#fff5f5;border:1px solid #fdd;border-radius:4px;color:#c00;font-size:13px;margin-top:1rem}
+.prev-meta{display:grid;grid-template-columns:repeat(4,1fr);font-size:11px;padding-bottom:1rem;margin-bottom:1rem;border-bottom:1px solid #eee}
+.prev-meta .mk{color:#bbb;text-transform:uppercase;letter-spacing:.06em;font-size:10px;margin-bottom:3px}
+.prev-meta .mv{font-weight:600;font-size:11px;line-height:1.55}
+.prev-rule{border:none;border-top:2px solid #111;margin:0 0 1.25rem}
+.prev-h1{font-size:1.4rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;margin-bottom:.2rem}
+.prev-ingress{font-size:14px;color:#666;margin-bottom:1.25rem}
+.prev-sec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#444;margin:1.1rem 0 .4rem}
+.prev-txt{font-size:13px;line-height:1.65;color:#333;margin-bottom:.6rem}
+.prev-list{padding-left:1rem;font-size:13px;line-height:1.7;color:#333}
+.prev-table{width:100%;border-collapse:collapse;font-size:12.5px;margin-top:.5rem}
+.prev-table th{text-align:left;padding:6px 9px;font-size:9.5px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#aaa;border-bottom:1px solid #ddd}
+.prev-table th:not(:first-child){text-align:right}
+.prev-table td{padding:8px 9px;border-bottom:1px solid #f2f2f0;vertical-align:top;font-size:13px}
+.prev-table td:not(:first-child){text-align:right}
+.prev-table tr.bld td{font-weight:700}
+.prev-total-box{background:#111;color:#fff;display:flex;justify-content:space-between;padding:10px 14px;font-weight:700;font-size:14px;margin-top:1rem;border-radius:0 0 3px 3px}
+.prev-note{font-size:12px;color:#555;padding:4px 0 4px 10px;border-left:2px solid #ddd;margin-bottom:3px}
+.prev-footer{margin-top:2rem;padding-top:.75rem;border-top:1px solid #eee;font-size:10px;color:#ccc;letter-spacing:.04em;text-align:center;text-transform:uppercase}
+@media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}.line-prod{grid-template-columns:1fr 40px 28px}.line-prod .hm{display:none}}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzg3IiBoZWlnaHQ9Ijg2IiB2aWV3Qm94PSIwIDAgMzg3IDg2IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNNjUuMTI0IDgxLjY1MTFDNjYuMzE5OSA4Mi4xOTQ3IDY3LjA4MDkgODIuNTIwOSA2Ny4wODA5IDgzLjM5MDZDNjcuMDgwOSA4NC4yNjA0IDY2LjQyODYgODQuNjk1MyA2NS4wMTUyIDg0LjU4NjZDNjMuMTY3IDg0LjQ3NzkgNTkuNjg3OSA4NC4yNjA0IDU0LjU3OCA4NC4yNjA0QzQ5LjQ2ODEgODQuMjYwNCA0NS45ODkgODQuNDc3OSA0NC4xNDA4IDg0LjU4NjZDNDIuNzI3NCA4NC42OTUzIDQyLjA3NTEgODQuMjYwNCA0Mi4wNzUxIDgzLjM5MDZDNDIuMDc1MSA4Mi41MjA5IDQyLjgzNjEgODIuMTk0NyA0NC4wMzIxIDgxLjY1MTFDNDYuMDk3OCA4MC44OSA0Ni4zMTUyIDc4LjYwNjggNDYuMzE1MiA3NC44MDE1VjQ3LjA3NzFDNDYuMzE1MiAzNi45NjU5IDQzLjU5NzIgMjkuMTM3OCAzNC4yNDcyIDI5LjEzNzhDMjQuNTcxIDI5LjEzNzggMjAuNzY1NyAzOC4yNzA1IDIwLjc2NTcgNDYuNTMzNVY3NC44MDE1QzIwLjc2NTcgNzguNjA2OCAyMS4wOTE5IDgwLjg5IDIzLjE1NzYgODEuNjUxMUMyNC4zNTM1IDgyLjE5NDcgMjUuMDA1OSA4Mi41MjA5IDI1LjAwNTkgODMuMzkwNkMyNS4wMDU5IDg0LjI2MDQgMjQuMzUzNSA4NC42OTUzIDIyLjk0MDIgODQuNTg2NkMyMS4yMDA2IDg0LjQ3NzkgMTcuNzIxNSA4NC4yNjA0IDEyLjYxMTcgODQuMjYwNEM3LjM5MzA0IDg0LjI2MDQgNC4wMjI2OCA4NC40Nzc5IDIuMTc0NDIgODQuNTg2NkMwLjc2MTA0OCA4NC42OTUzIDAuMTA4NzIxIDg0LjI2MDQgMC4xMDg3MjEgODMuMzkwNkMwLjEwODcyMSA4Mi41MjA5IDAuODY5NzY5IDgyLjE5NDcgMS45NTY5OCA4MS42NTExQzQuMDIyNjggODAuODkgNC4zNDg4NSA3OC42MDY4IDQuMzQ4ODUgNzQuODAxNVYzOC41OTY3QzQuMzQ4ODUgMzQuNzkxNCA0LjAyMjY4IDMyLjYxNjkgMS45NTY5OCAzMS43NDcyQzAuODY5NzY5IDMxLjMxMjMgMCAzMC44Nzc0IDAgMjkuODk4OUMwIDI5LjEzNzggMC41NDM2MDYgMjguNTk0MiAxLjUyMjEgMjguMzc2N0M0LjY3NTAxIDI3LjcyNDQgMTAuOTgwOCAyNi4wOTM1IDE3LjcyMTUgMjIuNjE0NEMxOC45MTc1IDIxLjk2MjEgMTkuNjc4NSAyMi4zOTcgMTkuNzg3MiAyMy43MDE2TDIwLjU0ODMgMzIuNTA4MkwyMC42NTcgMzMuNTk1NEMyMy40ODM4IDI3LjUwNjkgMjkuMTM3MyAyMS4yMDEgNDAuNDQ0MyAyMS4yMDFDNTYuMTAwMSAyMS4yMDEgNjIuODQwOCAyOS42ODE0IDYyLjg0MDggNDcuMDc3MVY3NC44MDE1QzYyLjg0MDggNzguNjA2OCA2My4wNTgzIDgwLjg5IDY1LjEyNCA4MS42NTExWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEwOC40IDIxLjIwMUMxMjcuNzUzIDIxLjIwMSAxNDAuMTQ3IDM1Ljc2OTkgMTQwLjE0NyA1My42MDA1QzE0MC4xNDcgNzEuNTM5OCAxMjcuNzUzIDg2IDEwOC40IDg2Qzg5LjA0NzggODYgNzYuNzYyMyA3MS41Mzk4IDc2Ljc2MjMgNTMuNjAwNUM3Ni44NzEgMzUuNzY5OSA4OS4wNDc4IDIxLjIwMSAxMDguNCAyMS4yMDFaTTEwMi45NjQgMjQuODk3NkM5Mi44NTMgMjYuODU0NiA5MS4xMTM1IDQxLjA5NzMgOTMuODMxNSA1Ni4xMDExQzk2LjQ0MDggNzEuMzIyNCAxMDMuODM0IDg0LjA0MyAxMTQuMDU0IDgyLjMwMzRDMTI0LjA1NiA4MC4zNDY0IDEyNS42ODcgNjYuMTAzNyAxMjMuMDc3IDUxLjA5OTlDMTIwLjQ2OCAzNS44Nzg2IDExMy4wNzUgMjMuMTU4IDEwMi45NjQgMjQuODk3NloiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0xOTUuNjkyIDE5Ljg5NjNDMjAzLjg0NiAyMC40Mzk5IDIwMy42MjkgMjkuNDY0IDIwMC4zNjcgMzcuOTQ0NEwxODIuNDI4IDgzLjQ5OTRDMTgyLjEwMiA4NC4zNjkxIDE4MS40NSA4NC45MTI4IDE4MC41OCA4NC45MTI4TDE3OC4yOTcgODQuODA0Vjg0LjkxMjhIMTcwLjc5NUMxNjkuODE3IDg0LjkxMjggMTY5LjI3MyA4NC40Nzc5IDE2OC45NDcgODMuNDk5NEwxNDkuODEyIDMyLjM5OTVDMTQ4LjA3MiAyNy43MjQ0IDE0Ny4yMDMgMjYuNTI4NCAxNDQuOTE5IDI1LjU0OTlDMTQzLjgzMiAyNS4wMDYzIDE0My4wNzEgMjQuNTcxNCAxNDMuMDcxIDIzLjcwMTZDMTQzLjA3MSAyMi45NDA2IDE0My42MTUgMjIuNTA1NyAxNDUuMTM3IDIyLjYxNDRDMTQ3LjMxMSAyMi43MjMxIDE1MC44OTkgMjIuOTQwNiAxNTYuNTUzIDIyLjk0MDZDMTYxLjY2MyAyMi45NDA2IDE2NC45MjQgMjIuNzIzMSAxNjYuODgxIDIyLjYxNDRDMTY4LjI5NCAyMi41MDU3IDE2OC44MzggMjIuOTQwNiAxNjguODM4IDIzLjcwMTZDMTY4LjgzOCAyNC42ODAyIDE2OC4xODYgMjUuMDA2MyAxNjcuMDk5IDI1LjY1ODdDMTY1LjY4NSAyNi42MzcyIDE2Ni4yMjkgMjguMzc2NyAxNjcuNDI1IDMyLjM5OTVMMTgxLjAxNSA3NC44MDE1TDE5Mi45NzQgNDEuODU4NEMxOTUuODAxIDM0LjEzOTEgMTkwLjAzOSAzMi45NDMxIDE4OS4xNjkgMjcuMzk4MkMxODguNTE3IDIzLjU5MjkgMTkxLjAxNyAxOS41NzAyIDE5NS42OTIgMTkuODk2M1oiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0yNDIuODcgMjEuMjAxQzI2Mi4yMjIgMjEuMjAxIDI3NC42MTYgMzUuNzY5OSAyNzQuNjE2IDUzLjYwMDVDMjc0LjYxNiA3MS41Mzk4IDI2Mi4yMjIgODYgMjQyLjg3IDg2QzIyMy41MTcgODYgMjExLjIzMiA3MS41Mzk4IDIxMS4yMzIgNTMuNjAwNUMyMTEuMzQgMzUuNzY5OSAyMjMuNTE3IDIxLjIwMSAyNDIuODcgMjEuMjAxWk0yMzcuNDM0IDI0Ljg5NzZDMjI3LjMyMyAyNi44NTQ2IDIyNS41ODMgNDEuMDk3MyAyMjguMzAxIDU2LjEwMTFDMjMwLjkxIDcxLjMyMjQgMjM4LjMwMyA4NC4wNDMgMjQ4LjUyMyA4Mi4zMDM0QzI1OC41MjUgODAuMzQ2NCAyNjAuMTU2IDY2LjEwMzcgMjU3LjU0NyA1MS4wOTk5QzI1NC45MzggMzUuODc4NiAyNDcuNTQ1IDIzLjE1OCAyMzcuNDM0IDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzE4LjA2NyAyMS4yMDFDMzM3LjQyIDIxLjIwMSAzNDkuODE0IDM1Ljc2OTkgMzQ5LjgxNCA1My42MDA1QzM0OS44MTQgNzEuNTM5OCAzMzcuNDIgODYgMzE4LjA2NyA4NkMyOTguNzE1IDg2IDI4Ni40MjkgNzEuNTM5OCAyODYuNDI5IDUzLjYwMDVDMjg2LjUzOCAzNS43Njk5IDI5OC43MTUgMjEuMjAxIDMxOC4wNjcgMjEuMjAxWk0zMTIuNjMxIDI0Ljg5NzZDMzAyLjUyIDI2Ljg1NDYgMzAwLjc4MSA0MS4wOTczIDMwMy40OTkgNTYuMTAxMUMzMDYuMTA4IDcxLjMyMjQgMzEzLjUwMSA4NC4wNDMgMzIzLjcyMSA4Mi4zMDM0QzMzMy43MjMgODAuMzQ2NCAzMzUuMzU0IDY2LjEwMzcgMzMyLjc0NSA1MS4wOTk5QzMzMC4xMzUgMzUuODc4NiAzMjIuNzQyIDIzLjE1OCAzMTIuNjMxIDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzczLjczNiAxNy43MjE5QzM2Ny43NTYgMTcuNzIxOSAzNjIuOTczIDEzLjgwNzggMzYyLjk3MyA4LjkxNTNDMzYyLjk3MyAzLjkxNDAzIDM2Ny43NTYgMCAzNzMuNzM2IDBDMzc5LjYwNyAwIDM4NC40OTkgMy45MTQwMyAzODQuNDk5IDguOTE1M0MzODQuNDk5IDEzLjgwNzggMzc5LjYwNyAxNy43MjE5IDM3My43MzYgMTcuNzIxOVpNMzg1LjA0MyA4MS42NTExQzM4Ni4yMzkgODIuMTk0NyAzODcgODIuNTIwOSAzODcgODMuMzkwNkMzODcgODQuMjYwNCAzODYuMzQ4IDg0LjY5NTMgMzg0LjkzNCA4NC41ODY2QzM4Mi45NzcgODQuNDc3OSAzNzkuNzE2IDg0LjI2MDQgMzc0LjQ5NyA4NC4yNjA0QzM2OS4zODcgODQuMjYwNCAzNjUuOTA4IDg0LjQ3NzkgMzY0LjA2IDg0LjU4NjZDMzYyLjY0NiA4NC42OTUzIDM2MS45OTQgODQuMjYwNCAzNjEuOTk0IDgzLjM5MDZDMzYxLjk5NCA4Mi41MjA5IDM2Mi43NTUgODIuMTk0NyAzNjMuOTUxIDgxLjY1MTFDMzY2LjAxNyA4MC44OSAzNjYuMjM0IDc4LjYwNjggMzY2LjIzNCA3NC44MDE1VjM4LjcwNTRDMzY2LjIzNCAzNC45MDAxIDM2Ni4wMTcgMzIuNzI1NyAzNjMuOTUxIDMxLjg1NTlDMzYyLjg2NCAzMS40MjEgMzYxLjk5NCAzMC45ODYxIDM2MS45OTQgMzAuMDA3NkMzNjEuOTk0IDI5LjEzNzggMzYyLjY0NiAyOC41OTQyIDM2My45NTEgMjguMTU5M0MzNjYuODg3IDI3LjYxNTcgMzc0LjI4IDI1Ljg3NjEgMzgwLjY5NCAyMi42MTQ0QzM4MS44OSAyMi4wNzA4IDM4Mi43NiAyMi41MDU3IDM4Mi43NiAyMy43MDE2Vjc0LjgwMTVDMzgyLjc2IDc4LjYwNjggMzgyLjk3NyA4MC44OSAzODUuMDQzIDgxLjY1MTFaIiBmaWxsPSJibGFjayIvPgo8L3N2Zz4K" alt="novooi" style="height:22px;display:block">
+  <div class="topbar-badge">Tilbudsagent</div>
+</div>
+
+<div class="main">
+  <div class="page-title">Nytt tilbud</div>
+
+  <div class="card">
+    <div class="card-head open" onclick="tog(this)"><h2>Prosjekttype</h2><span class="arr">&#9660;</span></div>
+    <div class="card-body">
+      <div class="pills" id="tPills">
+        <div class="pill on" data-v="styling">Styling – visningsbolig</div>
+        <div class="pill" data-v="leie">Leie av møbler</div>
+        <div class="pill" data-v="interiorpakke">Interiørpakke</div>
+        <div class="pill" data-v="foto">Foto / PR-styling</div>
+        <div class="pill" data-v="b2b">B2B / FF&E</div>
+        <div class="pill" data-v="hospitality">Hospitality</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head open" onclick="tog(this)"><h2>Tilbudsdetaljer</h2><span class="arr">&#9660;</span></div>
+    <div class="card-body">
+      <div class="g4" style="margin-bottom:.8rem">
+        <div class="field"><label>Tilbudsnr.</label><input id="fnr" type="text"></div>
+        <div class="field"><label>Dato</label><input id="fdato" type="text"></div>
+        <div class="field"><label>Gyldig til</label><input id="fgyldig" type="text"></div>
+        <div class="field"><label>Saksbehandler</label><input id="fsaksb" type="text" placeholder="Navn"></div>
+      </div>
+      <div class="g2" style="margin-bottom:.8rem">
+        <div class="field"><label>Kunde / selskap</label><input id="fkunde" type="text" placeholder="Norwegian Icons AS"></div>
+        <div class="field"><label>Kontaktperson</label><input id="fkontakt" type="text" placeholder="Navn, tittel"></div>
+      </div>
+      <div class="g2">
+        <div class="field"><label>Prosjektnavn</label><input id="fprosjekt" type="text" placeholder="Showroom Oslo"></div>
+        <div class="field"><label>Adresse / lokasjon</label><input id="fadresse" type="text" placeholder="Aker Brygge, Oslo"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head open" onclick="tog(this)"><h2>Prosjektbeskrivelse</h2><span class="arr">&#9660;</span></div>
+    <div class="card-body">
+      <div class="field"><label>Brief (brukes av AI til å skrive tilbudsteksten)</label>
+        <textarea id="fbrief" rows="3" placeholder="Beskriv oppdraget – formål, omfang, særlige ønsker, tidsplan..."></textarea>
+      </div>
+      <div class="g3">
+        <div class="field"><label>Størrelse</label><input id="fstorrelse" type="text" placeholder="120 m² / 5 rom"></div>
+        <div class="field"><label>Tidsplan / oppstart</label><input id="ftid" type="text" placeholder="August 2026"></div>
+        <div class="field"><label>Utlånsperiode</label><input id="futlan" type="text" placeholder="8 uker"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head open" onclick="tog(this)"><h2>Rom og soner</h2><span class="arr">&#9660;</span></div>
+    <div class="card-body">
+      <div class="field"><label>Velg rom som inngår</label>
+        <div class="pills" id="rPills" style="margin-bottom:.75rem">
+          <div class="pill on" data-r="Stue">Stue</div>
+          <div class="pill" data-r="Kjøkken">Kjøkken</div>
+          <div class="pill on" data-r="Soverom">Soverom</div>
+          <div class="pill" data-r="Bad">Bad</div>
+          <div class="pill" data-r="Gang / entre">Gang</div>
+          <div class="pill" data-r="Spisestue">Spisestue</div>
+          <div class="pill" data-r="Kontor">Kontor</div>
+          <div class="pill" data-r="Terrasse">Terrasse</div>
+          <div class="pill" data-r="Fellesarealer">Fellesarealer</div>
+          <div class="pill" data-r="Alle rom">Alle rom</div>
+        </div>
+      </div>
+      <div class="field"><label>Tilleggsnote om rom</label>
+        <input id="fromnotat" type="text" placeholder="f.eks. Kun stue og kjøkken fotograferes, soverom dekkes delvis">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head open" onclick="tog(this)"><h2>Prislinjer</h2><span class="arr">&#9660;</span></div>
+    <div class="card-body">
+      <div id="lineHdr"></div>
+      <div class="lines-wrap" id="linesWrap"></div>
+      <button class="add-btn" onclick="addLine()">+ Legg til linje</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head open" onclick="tog(this)"><h2>Opsjoner og betingelser</h2><span class="arr">&#9660;</span></div>
+    <div class="card-body">
+      <div class="checks">
+        <label class="check"><input type="checkbox" id="cKjop" checked> Opsjon: kjøp av møbler (30% rabatt)</label>
+        <label class="check"><input type="checkbox" id="cMark" checked> Markedsføringsrettigheter</label>
+        <label class="check"><input type="checkbox" id="cBet" checked> Betaling 50/50</label>
+        <label class="check"><input type="checkbox" id="cPilot"> Pilotpris-merknad</label>
+        <label class="check"><input type="checkbox" id="cFors"> Forsikring inkludert</label>
+        <label class="check"><input type="checkbox" id="cDep"> Depositum kreves</label>
+      </div>
+      <div class="g2" style="margin-bottom:.8rem">
+        <div class="field"><label>Betalingsfrist (dager)</label><input id="fbetfrist" type="text" value="14"></div>
+        <div class="field"><label>Tilbudet gyldig (dager)</label><input id="fgyldigdager" type="text" value="30"></div>
+      </div>
+      <div class="field"><label>Rabatt / handelsvilkår</label>
+        <input id="frabatt" type="text" placeholder="f.eks. 20% trade-rabatt for interiørarkitekter og profesjonelle">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head open" onclick="tog(this)"><h2>Merkevarer og produktkategorier</h2><span class="arr">&#9660;</span></div>
+    <div class="card-body">
+      <div class="field"><label>Merkevarer (trykk Enter for å legge til)</label>
+        <div class="tag-row" id="brandTags" onclick="document.getElementById('brandInp').focus()">
+          <input class="tag-inp" id="brandInp" type="text" placeholder="Skriv merke og trykk Enter..." onkeydown="addTag(event)">
+        </div>
+      </div>
+      <div class="field" style="margin-top:.75rem"><label>Produktkategorier</label>
+        <div class="pills" id="cPills">
+          <div class="pill on" data-c="Møbler">Møbler</div>
+          <div class="pill on" data-c="Belysning">Belysning</div>
+          <div class="pill on" data-c="Tekstiler">Tekstiler</div>
+          <div class="pill on" data-c="Dekor">Dekor</div>
+          <div class="pill" data-c="Kunst">Kunst</div>
+          <div class="pill" data-c="Puter og tepper">Puter / tepper</div>
+          <div class="pill" data-c="Planter">Planter</div>
+          <div class="pill" data-c="Kjøkkenutstyr">Kjøkkenutstyr</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div class="card-head" onclick="tog(this)"><h2>Merknader &nbsp;<span style="font-size:10px;font-weight:400;color:#ccc;letter-spacing:0">— av som standard</span></h2><span class="arr">&#9660;</span></div>
+    <div class="card-body hidden">
+      <div class="field"><label>Tilleggsmerknader (én per linje — vises som bullet-punkter)</label>
+        <textarea id="fmerk" rows="4" placeholder="Møblene leveres og hentes av NOVOOI&#10;Møblene er forsikret gjennom NOVOOI i leieperioden&#10;Tilbudet er gyldig i 30 dager fra utstedelsesdato"></textarea>
+      </div>
+      <div class="field"><label>Interne notater (vises IKKE i PDF)</label>
+        <textarea id="fint" rows="2" placeholder="Kun synlig internt — ikke med i tilbud eller PDF..."></textarea>
+      </div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn-gen" id="genBtn" onclick="doGen()">Generer tilbud</button>
+    <button class="btn-pdf" id="pdfBtn" onclick="doPDF()">&#11015; Last ned PDF</button>
+  </div>
+  <div id="output"></div>
+</div>
+
+<script>
+const LOGO = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzg3IiBoZWlnaHQ9Ijg2IiB2aWV3Qm94PSIwIDAgMzg3IDg2IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNNjUuMTI0IDgxLjY1MTFDNjYuMzE5OSA4Mi4xOTQ3IDY3LjA4MDkgODIuNTIwOSA2Ny4wODA5IDgzLjM5MDZDNjcuMDgwOSA4NC4yNjA0IDY2LjQyODYgODQuNjk1MyA2NS4wMTUyIDg0LjU4NjZDNjMuMTY3IDg0LjQ3NzkgNTkuNjg3OSA4NC4yNjA0IDU0LjU3OCA4NC4yNjA0QzQ5LjQ2ODEgODQuMjYwNCA0NS45ODkgODQuNDc3OSA0NC4xNDA4IDg0LjU4NjZDNDIuNzI3NCA4NC42OTUzIDQyLjA3NTEgODQuMjYwNCA0Mi4wNzUxIDgzLjM5MDZDNDIuMDc1MSA4Mi41MjA5IDQyLjgzNjEgODIuMTk0NyA0NC4wMzIxIDgxLjY1MTFDNDYuMDk3OCA4MC44OSA0Ni4zMTUyIDc4LjYwNjggNDYuMzE1MiA3NC44MDE1VjQ3LjA3NzFDNDYuMzE1MiAzNi45NjU5IDQzLjU5NzIgMjkuMTM3OCAzNC4yNDcyIDI5LjEzNzhDMjQuNTcxIDI5LjEzNzggMjAuNzY1NyAzOC4yNzA1IDIwLjc2NTcgNDYuNTMzNVY3NC44MDE1QzIwLjc2NTcgNzguNjA2OCAyMS4wOTE5IDgwLjg5IDIzLjE1NzYgODEuNjUxMUMyNC4zNTM1IDgyLjE5NDcgMjUuMDA1OSA4Mi41MjA5IDI1LjAwNTkgODMuMzkwNkMyNS4wMDU5IDg0LjI2MDQgMjQuMzUzNSA4NC42OTUzIDIyLjk0MDIgODQuNTg2NkMyMS4yMDA2IDg0LjQ3NzkgMTcuNzIxNSA4NC4yNjA0IDEyLjYxMTcgODQuMjYwNEM3LjM5MzA0IDg0LjI2MDQgNC4wMjI2OCA4NC40Nzc5IDIuMTc0NDIgODQuNTg2NkMwLjc2MTA0OCA4NC42OTUzIDAuMTA4NzIxIDg0LjI2MDQgMC4xMDg3MjEgODMuMzkwNkMwLjEwODcyMSA4Mi41MjA5IDAuODY5NzY5IDgyLjE5NDcgMS45NTY5OCA4MS42NTExQzQuMDIyNjggODAuODkgNC4zNDg4NSA3OC42MDY4IDQuMzQ4ODUgNzQuODAxNVYzOC41OTY3QzQuMzQ4ODUgMzQuNzkxNCA0LjAyMjY4IDMyLjYxNjkgMS45NTY5OCAzMS43NDcyQzAuODY5NzY5IDMxLjMxMjMgMCAzMC44Nzc0IDAgMjkuODk4OUMwIDI5LjEzNzggMC41NDM2MDYgMjguNTk0MiAxLjUyMjEgMjguMzc2N0M0LjY3NTAxIDI3LjcyNDQgMTAuOTgwOCAyNi4wOTM1IDE3LjcyMTUgMjIuNjE0NEMxOC45MTc1IDIxLjk2MjEgMTkuNjc4NSAyMi4zOTcgMTkuNzg3MiAyMy43MDE2TDIwLjU0ODMgMzIuNTA4MkwyMC42NTcgMzMuNTk1NEMyMy40ODM4IDI3LjUwNjkgMjkuMTM3MyAyMS4yMDEgNDAuNDQ0MyAyMS4yMDFDNTYuMTAwMSAyMS4yMDEgNjIuODQwOCAyOS42ODE0IDYyLjg0MDggNDcuMDc3MVY3NC44MDE1QzYyLjg0MDggNzguNjA2OCA2My4wNTgzIDgwLjg5IDY1LjEyNCA4MS42NTExWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEwOC40IDIxLjIwMUMxMjcuNzUzIDIxLjIwMSAxNDAuMTQ3IDM1Ljc2OTkgMTQwLjE0NyA1My42MDA1QzE0MC4xNDcgNzEuNTM5OCAxMjcuNzUzIDg2IDEwOC40IDg2Qzg5LjA0NzggODYgNzYuNzYyMyA3MS41Mzk4IDc2Ljc2MjMgNTMuNjAwNUM3Ni44NzEgMzUuNzY5OSA4OS4wNDc4IDIxLjIwMSAxMDguNCAyMS4yMDFaTTEwMi45NjQgMjQuODk3NkM5Mi44NTMgMjYuODU0NiA5MS4xMTM1IDQxLjA5NzMgOTMuODMxNSA1Ni4xMDExQzk2LjQ0MDggNzEuMzIyNCAxMDMuODM0IDg0LjA0MyAxMTQuMDU0IDgyLjMwMzRDMTI0LjA1NiA4MC4zNDY0IDEyNS42ODcgNjYuMTAzNyAxMjMuMDc3IDUxLjA5OTlDMTIwLjQ2OCAzNS44Nzg2IDExMy4wNzUgMjMuMTU4IDEwMi45NjQgMjQuODk3NloiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0xOTUuNjkyIDE5Ljg5NjNDMjAzLjg0NiAyMC40Mzk5IDIwMy42MjkgMjkuNDY0IDIwMC4zNjcgMzcuOTQ0NEwxODIuNDI4IDgzLjQ5OTRDMTgyLjEwMiA4NC4zNjkxIDE4MS40NSA4NC45MTI4IDE4MC41OCA4NC45MTI4TDE3OC4yOTcgODQuODA0Vjg0LjkxMjhIMTcwLjc5NUMxNjkuODE3IDg0LjkxMjggMTY5LjI3MyA4NC40Nzc5IDE2OC45NDcgODMuNDk5NEwxNDkuODEyIDMyLjM5OTVDMTQ4LjA3MiAyNy43MjQ0IDE0Ny4yMDMgMjYuNTI4NCAxNDQuOTE5IDI1LjU0OTlDMTQzLjgzMiAyNS4wMDYzIDE0My4wNzEgMjQuNTcxNCAxNDMuMDcxIDIzLjcwMTZDMTQzLjA3MSAyMi45NDA2IDE0My42MTUgMjIuNTA1NyAxNDUuMTM3IDIyLjYxNDRDMTQ3LjMxMSAyMi43MjMxIDE1MC44OTkgMjIuOTQwNiAxNTYuNTUzIDIyLjk0MDZDMTYxLjY2MyAyMi45NDA2IDE2NC45MjQgMjIuNzIzMSAxNjYuODgxIDIyLjYxNDRDMTY4LjI5NCAyMi41MDU3IDE2OC44MzggMjIuOTQwNiAxNjguODM4IDIzLjcwMTZDMTY4LjgzOCAyNC42ODAyIDE2OC4xODYgMjUuMDA2MyAxNjcuMDk5IDI1LjY1ODdDMTY1LjY4NSAyNi42MzcyIDE2Ni4yMjkgMjguMzc2NyAxNjcuNDI1IDMyLjM5OTVMMTgxLjAxNSA3NC44MDE1TDE5Mi45NzQgNDEuODU4NEMxOTUuODAxIDM0LjEzOTEgMTkwLjAzOSAzMi45NDMxIDE4OS4xNjkgMjcuMzk4MkMxODguNTE3IDIzLjU5MjkgMTkxLjAxNyAxOS41NzAyIDE5NS42OTIgMTkuODk2M1oiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0yNDIuODcgMjEuMjAxQzI2Mi4yMjIgMjEuMjAxIDI3NC42MTYgMzUuNzY5OSAyNzQuNjE2IDUzLjYwMDVDMjc0LjYxNiA3MS41Mzk4IDI2Mi4yMjIgODYgMjQyLjg3IDg2QzIyMy41MTcgODYgMjExLjIzMiA3MS41Mzk4IDIxMS4yMzIgNTMuNjAwNUMyMTEuMzQgMzUuNzY5OSAyMjMuNTE3IDIxLjIwMSAyNDIuODcgMjEuMjAxWk0yMzcuNDM0IDI0Ljg5NzZDMjI3LjMyMyAyNi44NTQ2IDIyNS41ODMgNDEuMDk3MyAyMjguMzAxIDU2LjEwMTFDMjMwLjkxIDcxLjMyMjQgMjM4LjMwMyA4NC4wNDMgMjQ4LjUyMyA4Mi4zMDM0QzI1OC41MjUgODAuMzQ2NCAyNjAuMTU2IDY2LjEwMzcgMjU3LjU0NyA1MS4wOTk5QzI1NC45MzggMzUuODc4NiAyNDcuNTQ1IDIzLjE1OCAyMzcuNDM0IDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzE4LjA2NyAyMS4yMDFDMzM3LjQyIDIxLjIwMSAzNDkuODE0IDM1Ljc2OTkgMzQ5LjgxNCA1My42MDA1QzM0OS44MTQgNzEuNTM5OCAzMzcuNDIgODYgMzE4LjA2NyA4NkMyOTguNzE1IDg2IDI4Ni40MjkgNzEuNTM5OCAyODYuNDI5IDUzLjYwMDVDMjg2LjUzOCAzNS43Njk5IDI5OC43MTUgMjEuMjAxIDMxOC4wNjcgMjEuMjAxWk0zMTIuNjMxIDI0Ljg5NzZDMzAyLjUyIDI2Ljg1NDYgMzAwLjc4MSA0MS4wOTczIDMwMy40OTkgNTYuMTAxMUMzMDYuMTA4IDcxLjMyMjQgMzEzLjUwMSA4NC4wNDMgMzIzLjcyMSA4Mi4zMDM0QzMzMy43MjMgODAuMzQ2NCAzMzUuMzU0IDY2LjEwMzcgMzMyLjc0NSA1MS4wOTk5QzMzMC4xMzUgMzUuODc4NiAzMjIuNzQyIDIzLjE1OCAzMTIuNjMxIDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzczLjczNiAxNy43MjE5QzM2Ny43NTYgMTcuNzIxOSAzNjIuOTczIDEzLjgwNzggMzYyLjk3MyA4LjkxNTNDMzYyLjk3MyAzLjkxNDAzIDM2Ny43NTYgMCAzNzMuNzM2IDBDMzc5LjYwNyAwIDM4NC40OTkgMy45MTQwMyAzODQuNDk5IDguOTE1M0MzODQuNDk5IDEzLjgwNzggMzc5LjYwNyAxNy43MjE5IDM3My43MzYgMTcuNzIxOVpNMzg1LjA0MyA4MS42NTExQzM4Ni4yMzkgODIuMTk0NyAzODcgODIuNTIwOSAzODcgODMuMzkwNkMzODcgODQuMjYwNCAzODYuMzQ4IDg0LjY5NTMgMzg0LjkzNCA4NC41ODY2QzM4Mi45NzcgODQuNDc3OSAzNzkuNzE2IDg0LjI2MDQgMzc0LjQ5NyA4NC4yNjA0QzM2OS4zODcgODQuMjYwNCAzNjUuOTA4IDg0LjQ3NzkgMzY0LjA2IDg0LjU4NjZDMzYyLjY0NiA4NC42OTUzIDM2MS45OTQgODQuMjYwNCAzNjEuOTk0IDgzLjM5MDZDMzYxLjk5NCA4Mi41MjA5IDM2Mi43NTUgODIuMTk0NyAzNjMuOTUxIDgxLjY1MTFDMzY2LjAxNyA4MC44OSAzNjYuMjM0IDc4LjYwNjggMzY2LjIzNCA3NC44MDE1VjM4LjcwNTRDMzY2LjIzNCAzNC45MDAxIDM2Ni4wMTcgMzIuNzI1NyAzNjMuOTUxIDMxLjg1NTlDMzYyLjg2NCAzMS40MjEgMzYxLjk5NCAzMC45ODYxIDM2MS45OTQgMzAuMDA3NkMzNjEuOTk0IDI5LjEzNzggMzYyLjY0NiAyOC41OTQyIDM2My45NTEgMjguMTU5M0MzNjYuODg3IDI3LjYxNTcgMzc0LjI4IDI1Ljg3NjEgMzgwLjY5NCAyMi42MTQ0QzM4MS44OSAyMi4wNzA4IDM4Mi43NiAyMi41MDU3IDM4Mi43NiAyMy43MDE2Vjc0LjgwMTVDMzgyLjc2IDc4LjYwNjggMzgyLjk3NyA4MC44OSAzODUuMDQzIDgxLjY1MTFaIiBmaWxsPSJibGFjayIvPgo8L3N2Zz4K";
+
+// ── CONFIG ─────────────────────────────────────────────────────────────────
+// Sett inn din Cloudflare Worker URL her:
+const WORKER_URL = "https://novooi-tilbud.din-worker.workers.dev";
+// ──────────────────────────────────────────────────────────────────────────
+
+const TYPES = {
+  styling:{label:"Styling av visningsbolig",kind:"service",lines:[
+    ["Konseptutvikling og prosjektledelse","9900"],
+    ["Styling og montering","10000"],
+    ["Utlån av møbler og dekor (8 uker)","18000"],
+    ["Transport tur/retur","7000"],
+    ["Nedrigg og retur","5000"]]},
+  leie:{label:"Leie av designmøbler",kind:"product",lines:[
+    ["","","","",""],["","","","",""]]},
+  interiorpakke:{label:"Interiørpakke",kind:"service",lines:[
+    ["Konsultasjon og behovskartlegging","4900"],
+    ["Kuratering og produktutvalg","9900"],
+    ["Innkjøp og prosjektledelse","12000"],
+    ["Logistikk og levering","6000"]]},
+  foto:{label:"Foto / PR-styling",kind:"service",lines:[
+    ["Styling og montering","12500"],
+    ["Prosjektledelse og koordinering","5000"],
+    ["Transport tur/retur","4900"]]},
+  b2b:{label:"B2B / FF&E",kind:"service",lines:[
+    ["Konseptutvikling og kuratering","14900"],
+    ["Innkjøp og sourcing",""],
+    ["Logistikk og leveranse",""],
+    ["Prosjektledelse","9900"]]},
+  hospitality:{label:"Hospitality-interiør",kind:"service",lines:[
+    ["Konseptutvikling","19900"],
+    ["FF&E kuratering og sourcing",""],
+    ["Prosjektledelse og koordinering","14900"],
+    ["Logistikk og installasjon",""]]}
+};
+
+let curType="styling", genData=null, tags=[];
+
+const dtFmt=d=>d.toLocaleDateString("nb-NO",{day:"numeric",month:"long",year:"numeric"});
+const plus=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
+const now=new Date();
+document.getElementById("fdato").value=dtFmt(now);
+document.getElementById("fgyldig").value=dtFmt(plus(now,30));
+document.getElementById("fnr").value="2026-0"+(10+Math.floor(Math.random()*89));
+
+function tog(h){h.classList.toggle("open");h.nextElementSibling.classList.toggle("hidden");}
+
+document.querySelectorAll("#tPills .pill").forEach(p=>p.addEventListener("click",()=>{
+  curType=p.dataset.v;
+  document.querySelectorAll("#tPills .pill").forEach(x=>x.classList.remove("on"));
+  p.classList.add("on"); buildLines();
+}));
+document.querySelectorAll("#rPills .pill").forEach(p=>p.addEventListener("click",()=>p.classList.toggle("on")));
+document.querySelectorAll("#cPills .pill").forEach(p=>p.addEventListener("click",()=>p.classList.toggle("on")));
+
+function addTag(e){
+  if(e.key!=="Enter") return;
+  const v=e.target.value.trim(); if(!v) return;
+  tags.push(v); renderTags(); e.target.value="";
+}
+function removeTag(i){tags.splice(i,1);renderTags();}
+function renderTags(){
+  const r=document.getElementById("brandTags"); r.innerHTML="";
+  tags.forEach((b,i)=>{
+    const t=document.createElement("div"); t.className="tag";
+    t.innerHTML=b+`<button onclick="removeTag(${i})">&#215;</button>`;
+    r.appendChild(t);
+  });
+  const inp=document.createElement("input");
+  inp.className="tag-inp"; inp.id="brandInp"; inp.type="text";
+  inp.placeholder="Skriv merke og trykk Enter..."; inp.onkeydown=addTag;
+  r.appendChild(inp);
+}
+
+function fmt(n){if(!n&&n!==0)return"—";return"kr "+parseFloat(n).toLocaleString("nb-NO",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtR(n){if(!n&&n!==0)return"—";return"kr "+Math.round(parseFloat(n)).toLocaleString("nb-NO");}
+function parseKr(s){if(!s)return null;const n=parseFloat(s.replace(/[^0-9.,]/g,"").replace(",","."));return isNaN(n)?null:n;}
+
+function buildLines(){
+  const w=document.getElementById("linesWrap"),h=document.getElementById("lineHdr");
+  w.innerHTML="";h.innerHTML="";
+  const kind=TYPES[curType].kind;
+  if(kind==="product"){
+    h.className="line-prod";
+    ["Produkt","Ant.","Utsalgspris","Leiepris (10%)","Total leie",""].forEach(t=>{
+      const d=document.createElement("div");d.className="col-lbl";d.textContent=t;h.appendChild(d);
+    });
+    TYPES[curType].lines.forEach(l=>addProd(...l));
+  } else {
+    h.className="line-svc";
+    ["Beskrivelse","Pris eks. mva",""].forEach(t=>{
+      const d=document.createElement("div");d.className="col-lbl";d.textContent=t;h.appendChild(d);
+    });
+    TYPES[curType].lines.forEach(l=>addSvc(l[0],l[1]));
+  }
+}
+
+function addLine(){TYPES[curType].kind==="product"?addProd("","","","",""):addSvc("","");}
+
+function addSvc(desc,price){
+  const w=document.getElementById("linesWrap"),row=document.createElement("div");
+  row.className="line-svc";
+  row.innerHTML=`<input type="text" class="ld" placeholder="Beskrivelse" value="${desc||""}">
+    <input type="text" class="lp" placeholder="kr 0" value="${price?"kr "+Number(price).toLocaleString("nb-NO"):""}">
+    <button class="del-btn" onclick="this.closest('.line-svc').remove()">&#215;</button>`;
+  w.appendChild(row);
+}
+
+function addProd(desc,qty,ut,lp,tot){
+  const w=document.getElementById("linesWrap"),row=document.createElement("div");
+  row.className="line-prod";
+  row.innerHTML=`<textarea class="ld" placeholder="Produktnavn&#10;Merkevare · Art.nr&#10;Mål / materiale">${desc||""}</textarea>
+    <input type="text" class="lq hm" placeholder="1" value="${qty||""}">
+    <input type="text" class="lu hm" placeholder="kr 0" value="${ut?fmt(ut):""}">
+    <input type="text" class="ll hm" placeholder="kr 0" value="${lp?fmt(lp):""}">
+    <input type="text" class="lt" placeholder="kr 0" value="${tot?fmt(tot):""}">
+    <button class="del-btn" onclick="this.closest('.line-prod').remove()">&#215;</button>`;
+  w.appendChild(row);
+}
+
+function collectLines(){
+  return Array.from(document.querySelectorAll("#linesWrap .line-svc, #linesWrap .line-prod")).map(r=>{
+    if(TYPES[curType].kind==="product") return{kind:"product",desc:r.querySelector(".ld").value.trim(),qty:(r.querySelector(".lq")||{value:""}).value.trim(),utsalg:(r.querySelector(".lu")||{value:""}).value.trim(),leiepris:(r.querySelector(".ll")||{value:""}).value.trim(),total:r.querySelector(".lt").value.trim()};
+    return{kind:"service",desc:r.querySelector(".ld").value.trim(),price:r.querySelector(".lp").value.trim()};
+  }).filter(l=>l.desc);
+}
+
+function getSelPills(id,attr){return Array.from(document.querySelectorAll(`#${id} .pill.on`)).map(p=>p.dataset[attr]);}
+
+function getFD(){
+  return{
+    type:curType,typeLabel:TYPES[curType].label,kind:TYPES[curType].kind,
+    nr:document.getElementById("fnr").value,
+    dato:document.getElementById("fdato").value,
+    gyldig:document.getElementById("fgyldig").value,
+    saksb:document.getElementById("fsaksb").value,
+    kunde:document.getElementById("fkunde").value,
+    kontakt:document.getElementById("fkontakt").value,
+    prosjekt:document.getElementById("fprosjekt").value,
+    adresse:document.getElementById("fadresse").value,
+    brief:document.getElementById("fbrief").value,
+    storrelse:document.getElementById("fstorrelse").value,
+    tid:document.getElementById("ftid").value,
+    futlan:document.getElementById("futlan").value,
+    rom:getSelPills("rPills","r"),
+    fromnotat:document.getElementById("fromnotat").value,
+    lines:collectLines(),
+    cKjop:document.getElementById("cKjop").checked,
+    cMark:document.getElementById("cMark").checked,
+    cBet:document.getElementById("cBet").checked,
+    cPilot:document.getElementById("cPilot").checked,
+    cFors:document.getElementById("cFors").checked,
+    cDep:document.getElementById("cDep").checked,
+    betfrist:document.getElementById("fbetfrist").value,
+    rabatt:document.getElementById("frabatt").value,
+    merknader:document.getElementById("fmerk").value,
+    brands:tags,
+    cats:getSelPills("cPills","c"),
+  };
+}
+
+async function callAPI(body){
+  const hdrs={"Content-Type":"application/json"};
+  // If WORKER_URL is set, use it (it adds the API key server-side)
+  if(WORKER_URL && !WORKER_URL.includes("din-worker")){
+    const r=await fetch(WORKER_URL,{method:"POST",headers:hdrs,body:JSON.stringify(body)});
+    if(!r.ok) throw new Error(`Worker feil: ${r.status}`);
+    return r.json();
+  }
+  throw new Error("Cloudflare Worker URL ikke konfigurert. Se README.md for oppsett.");
+}
+
+async function doGen(){
+  const fd=getFD();
+  if(!fd.kunde||!fd.brief){
+    document.getElementById("output").innerHTML='<div class="err">Fyll inn kunde og prosjektbeskrivelse.</div>';return;
+  }
+  const btn=document.getElementById("genBtn");
+  btn.disabled=true;btn.textContent="Genererer…";
+  document.getElementById("pdfBtn").style.display="none";
+  document.getElementById("output").innerHTML=`<div class="preview-wrap"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Lager tilbud for ${fd.kunde}…</span></div></div>`;
+
+  const linesText=fd.lines.map(l=>fd.kind==="product"
+    ?`- ${l.desc} | Ant:${l.qty} | Utsalg:${l.utsalg} | Leie:${l.leiepris} | Total:${l.total}`
+    :`- ${l.desc}: ${l.price||"(ikke satt)"}`).join("\n");
+
+  const prompt=`Du er tilbudsansvarlig for NOVOOI – norsk premium designstudio med over 120 norske merkevarer. Svar BARE med gyldig JSON, ingen markdown.
+
+Type: ${fd.typeLabel}
+Kunde: ${fd.kunde}${fd.kontakt?" – "+fd.kontakt:""}
+Prosjekt: ${fd.prosjekt||fd.kunde}${fd.adresse?" · "+fd.adresse:""}
+${fd.storrelse?"Størrelse: "+fd.storrelse:""}${fd.tid?" | Tidsplan: "+fd.tid:""}${fd.futlan?" | Utlån: "+fd.futlan:""}
+${fd.rom.length?"Rom: "+fd.rom.join(", "):""}${fd.fromnotat?" ("+fd.fromnotat+")":""}
+${fd.brands.length?"Merkevarer: "+fd.brands.join(", "):""}
+${fd.cats.length?"Kategorier: "+fd.cats.join(", "):""}
+Brief: ${fd.brief}
+${fd.cBet?"Betaling: 50% ved oppstart, 50% ved ferdigstillelse.":""}
+${fd.cFors?"Møbler forsikret av NOVOOI i leieperioden.":""}
+${fd.cDep?"Depositum kreves.":""}
+${fd.rabatt?"Handelsvilkår: "+fd.rabatt:""}
+${fd.cKjop?"Inkluder opsjon for kjøp med inntil 30% rabatt.":""}
+${fd.cMark?"Inkluder markedsføringsparagraf.":""}
+${fd.cPilot?"Legg til pilotpris-merknad med volumpriser.":""}
+
+Returner JSON:
+{"ingress":"En-setning ingressbeskrivelse","beskrivelse":"2-3 setninger","omfang":["punkt1","punkt2","punkt3","punkt4"],"opsjon":"tekst eller null","betaling":"tekst eller null","markedsforing":"tekst eller null","merknader":["merknad1"],"avslutning":"Kort avslutning"}`;
+
+  try{
+    const d=await callAPI({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]});
+    let txt=(d.content||[{text:""}]).map(x=>x.text||"").join("").replace(/```json|```/g,"").trim();
+    const ai=JSON.parse(txt);
+    genData={fd,ai};
+    renderPreview(fd,ai);
+    document.getElementById("pdfBtn").style.display="block";
+  }catch(e){
+    document.getElementById("output").innerHTML=`<div class="err"><strong>Feil:</strong> ${e.message}</div>`;
+  }
+  btn.disabled=false;btn.textContent="Generer tilbud";
+}
+
+function calcST(lines){let t=0;lines.forEach(l=>{const p=parseKr(l.price);if(p)t+=p;});return t;}
+function calcPT(lines){let t=0;lines.forEach(l=>{const p=parseKr(l.total);if(p)t+=p;});return t;}
+
+function renderPreview(fd,ai){
+  const kind=fd.kind;
+  let tableHTML="";
+  if(kind==="product"){
+    let rows="";
+    fd.lines.forEach(l=>{
+      const dp=l.desc.split("\n");
+      rows+=`<tr><td><strong>${dp[0]||""}</strong>${dp.slice(1).map(s=>`<br><span style="color:#888;font-size:11px">${s}</span>`).join("")}</td><td style="text-align:center">${l.qty}</td><td>${l.utsalg||"—"}</td><td>${l.leiepris||"—"}</td><td><strong>${l.total||"—"}</strong></td></tr>`;
+    });
+    const pt=calcPT(fd.lines);
+    tableHTML=`<div class="prev-sec">Spesifikasjon</div>
+<table class="prev-table"><thead><tr><th>Produkt</th><th style="text-align:center">Ant.</th><th>Utsalgspris</th><th>Leiepris (10%)</th><th>Total leie</th></tr></thead><tbody>${rows}</tbody></table>
+${pt?`<div style="margin-top:.6rem;font-size:13px;display:flex;justify-content:space-between;padding:7px 9px;border-top:1px solid #eee"><span>Møbler totalt (eks. mva)</span><strong>${fmtR(pt)}</strong></div>`:""}
+<div class="prev-total-box"><span>TOTALT INKL. MVA</span><span>${pt?fmtR(pt*1.25):"—"}</span></div>`;
+  } else {
+    let rows="",tot=0;
+    fd.lines.forEach(l=>{const p=parseKr(l.price);if(p)tot+=p;rows+=`<tr><td>${l.desc}</td><td>${l.price||"—"}</td></tr>`;});
+    tableHTML=`<table class="prev-table" style="margin-top:.6rem">
+<thead><tr><th>Beskrivelse</th><th style="text-align:right">Pris eks. mva</th></tr></thead>
+<tbody>${rows}</tbody>
+${tot?`<tfoot><tr class="bld"><td>TOTALT EKS. MVA</td><td>${fmtR(tot)}</td></tr></tfoot>`:""}
+</table>`;
+  }
+
+  const rawM=fd.merknader?fd.merknader.split("\n").map(s=>s.trim()).filter(Boolean):[];
+  const allM=[...rawM,...(ai.merknader||[])];
+  const kontStr=fd.kontakt?`<br><span style="font-weight:400;color:#888;font-size:10px">${fd.kontakt}</span>`:"";
+
+  document.getElementById("output").innerHTML=`
+<div class="preview-wrap">
+  <div class="preview-bar"><span>Forhåndsvisning</span></div>
+  <div class="preview-body" id="prevBody">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem">
+      <img src="${LOGO}" style="height:22px;display:block">
+      <div style="font-size:10px;color:#bbb;letter-spacing:.04em">Tilbudsnr. ${fd.nr}</div>
+    </div>
+    <div class="prev-meta">
+      <div><div class="mk">Fra</div><div class="mv">NOVOOI AS<br>Oslo, Norge<br>hei@novooi.com</div></div>
+      <div><div class="mk">Til</div><div class="mv">${fd.kunde}${kontStr}</div></div>
+      <div><div class="mk">Dato</div><div class="mv">${fd.dato}</div></div>
+      <div><div class="mk">Gyldig til</div><div class="mv">${fd.gyldig}</div></div>
+    </div>
+    <hr class="prev-rule">
+    <div class="prev-h1">${fd.typeLabel.toUpperCase()}</div>
+    <div class="prev-ingress">${ai.ingress||""}</div>
+    <div class="prev-sec">Beskrivelse</div>
+    <p class="prev-txt">${ai.beskrivelse}</p>
+    <div class="prev-sec">Omfang</div>
+    <ul class="prev-list">${(ai.omfang||[]).map(o=>`<li>${o}</li>`).join("")}</ul>
+    ${tableHTML}
+    ${ai.opsjon?`<div class="prev-sec">Opsjon: kjøp av møbler og interiør</div><p class="prev-txt">${ai.opsjon}</p>`:""}
+    ${ai.betaling?`<div class="prev-sec">Tidsplan og betalingsbetingelser</div><p class="prev-txt">${ai.betaling}</p>`:""}
+    ${ai.markedsforing?`<div class="prev-sec">Markedsføring</div><p class="prev-txt">${ai.markedsforing}</p>`:""}
+    ${allM.length?`<div class="prev-sec">Merknader</div>${allM.map(m=>`<div class="prev-note">${m}</div>`).join("")}`:""}
+    ${ai.avslutning?`<p style="font-size:12px;font-style:italic;color:#999;margin-top:1.25rem">${ai.avslutning}</p>`:""}
+    <div class="prev-footer">NOVOOI AS &#183; hei@novooi.com &#183; novooi.com${fd.saksb?" &#183; "+fd.saksb:""}</div>
+  </div>
+</div>`;
+}
+
+function doPDF(){
+  if(!genData) return;
+  const {fd,ai}=genData;
+  const {jsPDF}=window.jspdf;
+  const doc=new jsPDF({unit:"mm",format:"a4"});
+  const W=210,ml=20,mr=20,cw=W-ml-mr;
+  let y=14;
+
+  const T=(txt,x,yy,sz,st,col)=>{
+    doc.setFontSize(sz||10);doc.setFont("helvetica",st||"normal");
+    doc.setTextColor(...(col||[17,17,17]));
+    Array.isArray(txt)?doc.text(txt,x,yy):doc.text(String(txt),x,yy);
+  };
+  const HR=(yy,w,c)=>{doc.setLineWidth(w||0.25);doc.setDrawColor(...(c||[17,17,17]));doc.line(ml,yy,W-mr,yy);};
+  const SEC=(title)=>{if(y>250){doc.addPage();y=20;}T(title,ml,y,8.5,"bold",[50,50,50]);y+=5;};
+  const BODY=(txt,extra)=>{const ls=doc.splitTextToSize(txt,cw-(extra||0));T(ls,ml,y,10,"normal",[60,60,60]);y+=ls.length*4.8+3;};
+
+  // Logo
+  try{doc.addImage(LOGO,"SVG",ml,y,36,8);}catch(e){T("novooi",ml,y+6,22,"bold");}
+  T("Tilbudsnr. "+fd.nr,W-mr,y+3,8.5,"normal",[160,160,160]);
+  y+=14;
+
+  // Meta
+  const mc=[ml,ml+42,ml+86,ml+128];
+  ["FRA","TIL","DATO","GYLDIG TIL"].forEach((k,i)=>T(k,mc[i],y,7.5,"normal",[160,160,160]));
+  y+=4.5;
+  [
+    [["NOVOOI AS","bold"],["Oslo, Norge","normal"],["hei@novooi.com","normal"]],
+    [[fd.kunde,"bold"],[fd.kontakt||"","normal"]],
+    [[fd.dato,"normal"]],
+    [[fd.gyldig,"normal"]]
+  ].forEach((lines,i)=>lines.forEach((l,j)=>{if(l[0])T(l[0],mc[i],y+j*4.2,9,l[1]);}));
+  y+=13;
+
+  HR(y,0.7);y+=8;
+
+  T(fd.typeLabel.toUpperCase(),ml,y,19,"bold");y+=7;
+  if(ai.ingress){const il=doc.splitTextToSize(ai.ingress,cw);T(il,ml,y,10,"normal",[100,100,100]);y+=il.length*4.5+4;}
+
+  SEC("BESKRIVELSE");BODY(ai.beskrivelse||"");
+  SEC("OMFANG");
+  (ai.omfang||[]).forEach(o=>{const ls=doc.splitTextToSize("• "+o,cw-3);T(ls,ml+1,y,10,"normal",[60,60,60]);y+=ls.length*4.8;});
+  y+=4;
+
+  if(fd.kind==="product"){
+    SEC("SPESIFIKASJON");
+    const cw4=[cw*0.42,14,32,30,28];
+    const cx=[ml,...[0,1,2,3].map(i=>cw4.slice(0,i+1).reduce((a,b)=>a+b,ml))];
+    HR(y-1,0.2,[200,200,200]);
+    ["Produkt","Ant.","Utsalgspris","Leiepris (10%)","Total leie"].forEach((h,i)=>{
+      doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150,150,150);
+      doc.text(h,i>0?cx[i]+cw4[i]:cx[i],y+3,{align:i>0?"right":"left"});
+    });
+    y+=6;HR(y,0.2,[200,200,200]);
+    fd.lines.forEach(l=>{
+      const dp=l.desc.split("\n");const rh=Math.max(dp.length*4.3+3,9);
+      doc.setFontSize(9.5);doc.setFont("helvetica","bold");doc.setTextColor(17);if(dp[0])doc.text(dp[0],ml,y+5);
+      doc.setFontSize(8.5);doc.setFont("helvetica","normal");doc.setTextColor(120);
+      dp.slice(1).forEach((p,pi)=>{if(p)doc.text(p,ml,y+5+(pi+1)*4.2);});
+      [[l.qty||""],[l.utsalg||""],[l.leiepris||""],[l.total||""]].forEach((v,i)=>{
+        doc.setFontSize(i===3?10:9.5);doc.setFont("helvetica",i===3?"bold":"normal");doc.setTextColor(17);
+        doc.text(v[0],cx[i+1]+cw4[i+1],y+5,{align:"right"});
+      });
+      y+=rh+3;HR(y-1,0.15,[220,220,220]);
+    });
+    y+=3;
+    const pt=calcPT(fd.lines);
+    T("TILLEGG OG GEBYRER",ml,y,8.5,"bold",[50,50,50]);y+=5;
+    [["Møbler totalt (eks. mva)",fmtR(pt),false],
+     ["Tillegg totalt (eks. mva)","—",false],
+     ["TOTALT EKS. MVA",fmtR(pt),true],
+     ["MVA (25%)",fmtR(pt*0.25),false]
+    ].forEach(([k,v,b])=>{
+      doc.setFontSize(b?10.5:10);doc.setFont("helvetica",b?"bold":"normal");doc.setTextColor(b?17:70);
+      doc.text(k,ml,y);doc.text(v,W-mr,y,{align:"right"});y+=5.5;
+    });
+    y+=1;
+    doc.setFillColor(17,17,17);doc.rect(ml,y,cw,11,"F");
+    doc.setFontSize(12);doc.setFont("helvetica","bold");doc.setTextColor(255);
+    doc.text("TOTALT INKL. MVA",ml+4,y+7.5);doc.text(fmtR(pt*1.25),W-mr-4,y+7.5,{align:"right"});
+    doc.setTextColor(17);y+=16;
+  } else {
+    HR(y-1,0.2,[200,200,200]);
+    doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150);
+    doc.text("Beskrivelse",ml,y+3);doc.text("Pris eks. mva",W-mr,y+3,{align:"right"});
+    y+=6;HR(y,0.2,[200,200,200]);
+    let st=0;
+    fd.lines.forEach(l=>{
+      const p=parseKr(l.price);if(p)st+=p;
+      const ls=doc.splitTextToSize(l.desc,cw*0.72);
+      T(ls,ml,y+5,10,"normal",[60,60,60]);T(l.price||"—",W-mr,y+5,10,"normal",[60,60,60]);
+      doc.setTextColor(60);doc.text(l.price||"—",W-mr,y+5,{align:"right"});
+      y+=Math.max(ls.length*4.8,5)+4;HR(y-1,0.12,[230,230,230]);
+    });
+    y+=3;HR(y-1,0.5);
+    doc.setFontSize(11);doc.setFont("helvetica","bold");doc.setTextColor(17);
+    doc.text("TOTALT EKS. MVA",ml,y+1);doc.text(fmtR(st),W-mr,y+1,{align:"right"});y+=8;
+  }
+
+  if(ai.opsjon){if(y>245){doc.addPage();y=20;}SEC("OPSJON: KJØP AV MØBLER OG INTERIØR");BODY(ai.opsjon);}
+  if(ai.betaling){if(y>245){doc.addPage();y=20;}SEC("TIDSPLAN OG BETALINGSBETINGELSER");BODY(ai.betaling);}
+  if(ai.markedsforing){if(y>245){doc.addPage();y=20;}SEC("MARKEDSFØRING");BODY(ai.markedsforing);}
+
+  const rawM=fd.merknader?fd.merknader.split("\n").map(s=>s.trim()).filter(Boolean):[];
+  const allM=[...rawM,...(ai.merknader||[])];
+  if(allM.length){
+    if(y>245){doc.addPage();y=20;}
+    HR(y,0.2,[200,200,200]);y+=6;
+    T("MERKNADER",ml,y,8.5,"bold",[50,50,50]);y+=5;
+    allM.forEach(m=>{const ls=doc.splitTextToSize("• "+m,cw-2);T(ls,ml+1,y,9.5,"normal",[80,80,80]);y+=ls.length*4.5+1;});
+  }
+
+  if(ai.avslutning){if(y>250){doc.addPage();y=20;}y+=3;const ls=doc.splitTextToSize(ai.avslutning,cw);doc.setFontSize(10);doc.setFont("helvetica","italic");doc.setTextColor(130);doc.text(ls,ml,y);}
+
+  doc.setFontSize(8.5);doc.setFont("helvetica","normal");doc.setTextColor(180);
+  doc.text("NOVOOI AS · hei@novooi.com · novooi.com"+(fd.saksb?" · "+fd.saksb:""),W/2,287,{align:"center"});
+
+  doc.save("NOVOOI_Tilbud_"+fd.kunde.replace(/[^a-zA-Z0-9]/g,"_")+"_"+fd.nr+".pdf");
+}
+
+buildLines();
+</script>
+</body>
+</html>
