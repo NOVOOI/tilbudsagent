@@ -89,15 +89,7 @@ textarea{resize:vertical;line-height:1.55}
 @media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}.line-prod{grid-template-columns:1fr 40px 28px}.line-prod .hm{display:none}}
 
 .prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-top:10px}
-#selectedProds{
-  display:grid!important;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  width:100%;
-  box-sizing:border-box;
-}
-@media(min-width:480px){#selectedProds{grid-template-columns:repeat(3,1fr)!important}}
-@media(min-width:680px){#selectedProds{grid-template-columns:repeat(4,1fr)!important}}
+/* selectedProds uses inline flexbox style */
 .prod-card{border:1px solid #e8e8e4;border-radius:5px;overflow:hidden;position:relative;background:#fff;transition:box-shadow .15s}
 .prod-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .prod-card.selected{border-color:#111;box-shadow:0 0 0 2px #111}
@@ -370,7 +362,7 @@ textarea{resize:vertical;line-height:1.55}
       <!-- Selected products -->
       <div id="selectedProdsWrap" style="display:none;margin-top:14px;width:100%">
         <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:8px">Valgte produkter (<span id="prodCount">0</span>)</div>
-        <div class="prod-grid" id="selectedProds"></div>
+        <div id="selectedProds" style="display:flex;flex-wrap:wrap;gap:10px;margin-top:10px;width:100%"></div>
       </div>
 
     </div>
@@ -745,7 +737,7 @@ function renderSelectedProducts() {
     const lineTotal = afterDisc * qty;
     const discLabel = discVal ? (discType==='pct' ? `-${discVal}%` : `-kr ${discVal.toLocaleString('nb-NO')}`) : '';
     return `
-    <div class="prod-card selected">
+    <div class="prod-card selected" style="flex:1 1 160px;min-width:0;max-width:calc(50% - 5px)">
       ${p.image
         ? `<img class="prod-img" src="${p.image}" loading="lazy" onerror="this.style.display='none'">`
         : '<div class="prod-img-placeholder">&#128247;</div>'}
@@ -980,6 +972,20 @@ function discLabel(disc){
 // Read editable preview fields back into ai object before PDF
 function syncEditableFields(){
   if(!genData) return;
+  // Pull fresh values from form for fd fields (unless user edited in preview)
+  const freshMap = {
+    nr: document.getElementById('fnr')?.value,
+    dato: document.getElementById('fdato')?.value,
+    gyldig: document.getElementById('fgyldig')?.value,
+    saksb: document.getElementById('fsaksb')?.value,
+    kunde: document.getElementById('fkunde')?.value,
+    kontakt: document.getElementById('fkontakt')?.value,
+    prosjekt: document.getElementById('fprosjekt')?.value,
+    adresse: document.getElementById('fadresse')?.value,
+    brief: document.getElementById('fbrief')?.value,
+    merknader: document.getElementById('fmerk')?.value,
+  };
+  Object.entries(freshMap).forEach(([k,v]) => { if(v!==undefined) genData.fd[k]=v; });
   // AI text fields (ingress, beskrivelse, betaling, opsjon, markedsforing, avslutning)
   document.querySelectorAll('[data-ai-field]').forEach(el => {
     const key = el.dataset.aiField;
@@ -1142,7 +1148,7 @@ function renderPreview(fd,ai){
       <div><div class="mk">Gyldig til</div><div class="mv e" contenteditable="true" data-fd-field="gyldig">${fd.gyldig}</div></div>
     </div>
     <hr class="prev-rule">
-    <div class="prev-h1 e" contenteditable="true" data-fd-field="typeLabel">${fd.typeLabel.toUpperCase()}</div>
+    <div class="prev-h1 e" contenteditable="true" data-fd-field="typeLabel">${(fd.prosjekt||fd.typeLabel).toUpperCase()}</div>
     <div class="prev-ingress prev-editable" contenteditable="true" data-ai-field="ingress">${ai.ingress||""}</div>
     ${!ph.beskrivelse ? `
     <div class="prev-sec">Beskrivelse</div>
@@ -1239,7 +1245,7 @@ async function doPDF(){
   HR(y,0.6); y+=14;
 
   // ── Tittel + ingress ──────────────────────────────────────────────────────
-  T(fd.typeLabel.toUpperCase(),ml,y,19,"bold"); y+=8;
+  T((fd.prosjekt ? fd.prosjekt : fd.typeLabel).toUpperCase(),ml,y,19,"bold"); y+=8;
   if(ai.ingress){doc.setFontSize(FS);doc.setFont("helvetica","normal");const il=doc.splitTextToSize(ai.ingress,cw);T(il,ml,y,FS,"normal",[110,110,110]);y+=il.length*5+5;}
 
   // ── Visibility flags ──────────────────────────────────────────────────────
@@ -1486,6 +1492,45 @@ function convertLogoToPNG(){
 convertLogoToPNG();
 
 buildLines();
+
+// Live sync: when key form fields change, update genData.fd immediately
+// so the preview always reflects the current form state
+(function(){
+  const liveFields = [
+    ['fnr','nr'],['fdato','dato'],['fgyldig','gyldig'],['fsaksb','saksb'],
+    ['fkunde','kunde'],['fkontakt','kontakt'],['fprosjekt','prosjekt'],
+    ['fadresse','adresse'],['fbrief','brief'],['fomfang','omfangPre'],
+    ['fstorrelse','storrelse'],['ftid','tid'],['futlan','futlan'],
+    ['fmerk','merknader'],
+  ];
+  liveFields.forEach(([elId, fdKey]) => {
+    const el = document.getElementById(elId);
+    if(!el) return;
+    el.addEventListener('input', () => {
+      if(!genData) return;
+      genData.fd[fdKey] = el.value;
+      // Re-render just the header elements that change immediately
+      if(['fnr','fdato','fgyldig','fkunde','fkontakt','fprosjekt'].includes(elId)){
+        const titleEl = document.querySelector('[data-fd-field="typeLabel"]');
+        if(titleEl && !titleEl._userEdited) titleEl.textContent = (genData.fd.prosjekt||genData.fd.typeLabel||'').toUpperCase();
+        const nrEl = document.querySelector('[data-fd-field="nr"]');
+        if(nrEl && !nrEl._userEdited) nrEl.textContent = 'Tilbudsnr. '+(genData.fd.nr||'');
+        const kundeEl = document.querySelector('[data-fd-field="kunde"]');
+        if(kundeEl && !kundeEl._userEdited) kundeEl.textContent = genData.fd.kunde||'';
+        const datoEl = document.querySelector('[data-fd-field="dato"]');
+        if(datoEl && !datoEl._userEdited) datoEl.textContent = genData.fd.dato||'';
+        const gyldigEl = document.querySelector('[data-fd-field="gyldig"]');
+        if(gyldigEl && !gyldigEl._userEdited) gyldigEl.textContent = genData.fd.gyldig||'';
+      }
+    });
+  });
+  // Mark fields as user-edited when manually typed in preview
+  document.addEventListener('input', (e) => {
+    if(e.target.dataset && e.target.dataset.fdField) e.target._userEdited = true;
+    if(e.target.dataset && e.target.dataset.aiField) e.target._userEdited = true;
+  });
+})();
+
 </script>
 </body>
 </html>
