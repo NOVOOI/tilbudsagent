@@ -267,9 +267,9 @@ textarea{resize:vertical;line-height:1.55}
     <div class="card-head open" onclick="tog(this)"><h2>Produkter</h2><span class="arr">&#9660;</span></div>
     <div class="card-body">
 
-      <div class="prod-tabs">
-        <div class="prod-tab on" onclick="switchProdTab('woo',this)">S&#248;k i WooCommerce</div>
-        <div class="prod-tab" onclick="switchProdTab('manual',this)">Legg til manuelt</div>
+      <div class="prod-tabs" onclick="event.stopPropagation()">
+        <div class="prod-tab on" onclick="switchProdTab('woo',this);event.stopPropagation()">S&#248;k i WooCommerce</div>
+        <div class="prod-tab" onclick="switchProdTab('manual',this);event.stopPropagation()">Legg til manuelt</div>
       </div>
 
       <!-- WooCommerce search -->
@@ -378,16 +378,23 @@ function tog(h){h.classList.toggle("open");h.nextElementSibling.classList.toggle
 document.querySelectorAll("#tPills .pill").forEach(p=>p.addEventListener("click",()=>{
   curType=p.dataset.v;
   document.querySelectorAll("#tPills .pill").forEach(x=>x.classList.remove("on"));
-  p.classList.add("on"); 
+  p.classList.add("on");
+buildLines();
+}));
+
 // ── PRODUCTS ──────────────────────────────────────────────────────────────
 let selectedProducts = [];
 let manualImgData = null;
 
 function switchProdTab(tab, el) {
-  document.getElementById('tabWoo').style.display = tab==='woo' ? '' : 'none';
-  document.getElementById('tabManual').style.display = tab==='manual' ? '' : 'none';
+  const tw = document.getElementById('tabWoo');
+  const tm = document.getElementById('tabManual');
+  if (!tw || !tm) { console.error('Tab elements not found'); return; }
+  tw.style.display = tab==='woo' ? '' : 'none';
+  tm.style.display = tab==='manual' ? '' : 'none';
   document.querySelectorAll('.prod-tab').forEach(t => t.classList.remove('on'));
   el.classList.add('on');
+  console.log('Switched to tab:', tab);
 }
 
 function previewManualImg(e) {
@@ -404,8 +411,15 @@ function previewManualImg(e) {
 }
 
 function addManualProduct() {
-  const name = document.getElementById('manName').value.trim();
-  if (!name) { alert('Produktnavn er påkrevd'); return; }
+  const nameEl = document.getElementById('manName');
+  const name = nameEl.value.trim();
+  if (!name) {
+    nameEl.style.borderColor = '#e24b4a';
+    nameEl.placeholder = 'Produktnavn er påkrevd';
+    nameEl.focus();
+    setTimeout(() => { nameEl.style.borderColor = ''; }, 2000);
+    return;
+  }
   selectedProducts.push({
     id: 'manual_' + Date.now(),
     name,
@@ -423,6 +437,12 @@ function addManualProduct() {
   document.getElementById('manualImgPrev').style.display = 'none';
   document.getElementById('manualImg').value = '';
   manualImgData = null;
+  // Visual feedback
+  const btn = document.querySelector('.add-manual-btn');
+  const orig = btn.textContent;
+  btn.textContent = '✓ Lagt til!';
+  btn.style.background = '#2a7a2a';
+  setTimeout(() => { btn.textContent = orig; btn.style.background = ''; }, 1500);
   renderSelectedProducts();
 }
 
@@ -431,24 +451,44 @@ async function wooSearch() {
   if (!q) return;
   const btn = document.getElementById('wooBtn');
   const status = document.getElementById('wooStatus');
+  const resultsEl = document.getElementById('wooResults');
   btn.disabled = true; btn.textContent = 'Søker…';
   status.textContent = 'Henter produkter fra novooi.com…';
-  document.getElementById('wooResults').innerHTML = '';
+  status.style.color = '#aaa';
+  resultsEl.innerHTML = '';
+
+  if (!WORKER_URL || WORKER_URL.includes('din-worker')) {
+    status.textContent = '⚠ Worker URL ikke konfigurert i index.html';
+    status.style.color = '#c00';
+    btn.disabled = false; btn.textContent = 'Søk';
+    return;
+  }
 
   try {
     const res = await fetch(WORKER_URL + '/woo?q=' + encodeURIComponent(q) + '&per_page=20');
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    const products = await res.json();
-    if (!products.length) {
-      document.getElementById('wooResults').innerHTML = '<div class="woo-empty">Ingen produkter funnet for «' + q + '»</div>';
+    const data = await res.json();
+    if (!res.ok) {
+      const msg = data.error || ('HTTP ' + res.status);
+      const detail = data.detail ? (' — ' + data.detail.substring(0,120)) : '';
+      throw new Error(msg + detail);
+    }
+    if (!Array.isArray(data) || !data.length) {
+      resultsEl.innerHTML = '<div class="woo-empty">Ingen produkter funnet for «' + q + '»</div>';
       status.textContent = 'Ingen treff.';
     } else {
-      status.textContent = products.length + ' produkter funnet — klikk for å legge til';
-      renderWooResults(products);
+      status.textContent = data.length + ' produkter funnet — klikk for å legge til';
+      status.style.color = '#3a8a3a';
+      renderWooResults(data);
     }
   } catch(e) {
-    status.textContent = 'Feil: ' + e.message;
-    document.getElementById('wooResults').innerHTML = '<div class="woo-empty" style="color:#c00">' + e.message + '</div>';
+    status.textContent = '✗ ' + e.message;
+    status.style.color = '#c00';
+    resultsEl.innerHTML = `<div class="woo-empty" style="color:#c00;font-size:12px;line-height:1.5">
+      <strong>Kunne ikke hente produkter.</strong><br>
+      Sjekk at Worker er deployet og at <code>WOO_CONSUMER_KEY</code> / <code>WOO_CONSUMER_SECRET</code>
+      er lagt inn som secrets i Cloudflare.<br><br>
+      <span style="color:#aaa">Feilmelding: ${e.message}</span>
+    </div>`;
   }
   btn.disabled = false; btn.textContent = 'Søk';
 }
@@ -523,8 +563,6 @@ function renderSelectedProducts() {
 }
 // ── END PRODUCTS ──────────────────────────────────────────────────────────
 
-buildLines();
-}));
 document.querySelectorAll("#rPills .pill").forEach(p=>p.addEventListener("click",()=>p.classList.toggle("on")));
 document.querySelectorAll("#cPills .pill").forEach(p=>p.addEventListener("click",()=>p.classList.toggle("on")));
 
