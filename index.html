@@ -769,7 +769,18 @@ function changeQty(id, delta) {
   const p = selectedProducts.find(x => String(x.id) === String(id));
   if (!p) return;
   p.qty = Math.max(1, (p.qty || 1) + delta);
-  renderSelectedProducts();
+  // Update only the qty display and total — no full re-render
+  const dv    = p.discVal || 0;
+  const dt    = p.discType || 'pct';
+  const unit  = parseKr(p.price) || 0;
+  const after = dv ? (dt === 'pct' ? unit * (1 - dv/100) : Math.max(0, unit - dv)) : unit;
+  const total = after * p.qty;
+  const card  = document.querySelector(`.pcard[data-pid="${String(id)}"]`);
+  if (!card) return;
+  const valEl = card.querySelector('.pcard-qty-val');
+  const totEl = card.querySelector('.pcard-qty-tot');
+  if (valEl) valEl.textContent = p.qty;
+  if (totEl) totEl.textContent = '= ' + fmtInt(total);
 }
 
 function updateProdDisc(id, val, type) {
@@ -777,7 +788,22 @@ function updateProdDisc(id, val, type) {
   if (!p) return;
   p.discVal  = parseFloat(val) || 0;
   p.discType = type || 'pct';
-  renderSelectedProducts();
+  // Update only the affected display elements — do NOT re-render the whole grid
+  // (re-rendering destroys focus and scrolls the page)
+  const dv    = p.discVal;
+  const dt    = p.discType;
+  const unit  = parseKr(p.price) || 0;
+  const after = dv ? (dt === 'pct' ? unit * (1 - dv/100) : Math.max(0, unit - dv)) : unit;
+  const total = after * (p.qty || 1);
+  const dlbl  = dv ? (dt === 'pct' ? `-${dv}%` : `-kr ${dv.toLocaleString('nb-NO')}`) : '';
+
+  // Find the card for this product and update just its total + discount label
+  const card = document.querySelector(`.pcard[data-pid="${String(id)}"]`);
+  if (!card) return;
+  const totEl  = card.querySelector('.pcard-qty-tot');
+  const resEl  = card.querySelector('.pcard-disc-res');
+  if (totEl) totEl.textContent = '= ' + fmtInt(total);
+  if (resEl) { resEl.textContent = dlbl; resEl.style.display = dv ? '' : 'none'; }
 }
 
 // ── Render selected product cards ──────────────────────────────────────────
@@ -806,7 +832,7 @@ function renderSelectedProducts() {
     const total = after * qty;
     const dlbl  = dv ? (dt === 'pct' ? `-${dv}%` : `-kr ${dv.toLocaleString('nb-NO')}`) : '';
 
-    return `<div class="pcard sel">
+    return `<div class="pcard sel" data-pid="${String(p.id).replace(/"/g, '&quot;')}">
       ${p.image
         ? `<img src="${p.image}" loading="lazy" onerror="this.style.display='none'">`
         : '<div class="pcard-ph">&#128247;</div>'}
@@ -832,7 +858,7 @@ function renderSelectedProducts() {
             <option value="pct" ${dt==='pct'?'selected':''}>%</option>
             <option value="kr"  ${dt==='kr' ?'selected':''}>kr</option>
           </select>
-          ${dv ? `<span class="pcard-disc-res">${dlbl}</span>` : ''}
+          <span class="pcard-disc-res" style="${dv?'':`display:none`}">${dlbl}</span>
         </div>
       </div>
       <button class="pcard-remove" onclick="removeProduct('${id}')" title="Fjern">&#215;</button>
@@ -1059,6 +1085,8 @@ function syncEditableFields(){
     merknader: document.getElementById('fmerk')?.value,
   };
   Object.entries(freshMap).forEach(([k,v]) => { if(v!==undefined) genData.fd[k]=v; });
+  // Always let brief override beschrivelse in final PDF
+  if(genData.fd.brief) genData.ai._brief_override = genData.fd.brief;
   // AI text fields (ingress, beskrivelse, betaling, opsjon, markedsforing, avslutning)
   document.querySelectorAll('[data-ai-field]').forEach(el => {
     const key = el.dataset.aiField;
@@ -1222,10 +1250,10 @@ function renderPreview(fd,ai){
     </div>
     <hr class="prev-rule">
     <div class="prev-h1 e" contenteditable="true" data-fd-field="typeLabel">${(fd.prosjekt||fd.typeLabel).toUpperCase()}</div>
-    <div class="prev-ingress prev-editable" contenteditable="true" data-ai-field="ingress">${ai.ingress||""}</div>
+    ${ai.ingress ? `<div class="prev-ingress prev-editable" contenteditable="true" data-ai-field="ingress">${ai.ingress}</div>` : `<div class="prev-ingress prev-editable" contenteditable="true" data-ai-field="ingress" style="min-height:8px"></div>`}
     ${!ph.beskrivelse ? `
     <div class="prev-sec">Beskrivelse</div>
-    <p class="prev-txt prev-editable" contenteditable="true" data-ai-field="beskrivelse" style="display:block">${ai.beskrivelse||fd.brief||""}</p>
+    <p class="prev-txt prev-editable" contenteditable="true" data-ai-field="beskrivelse" style="display:block">${fd.brief||ai.beskrivelse||""}</p>
     <div class="prev-sec">Omfang</div>
     <ul class="prev-list" id="prevOmfang">${(ai.omfang||[]).map((o,i)=>`<li contenteditable="true" class="prev-editable" data-ai-field="omfang_${i}">${o}</li>`).join("")}</ul>
     ` : ''}
@@ -1336,7 +1364,7 @@ async function doPDF(){
 
   // ── MODULE: Beskrivelse + omfang ──────────────────────────────────────────
   if(!ph.beskrivelse){
-    SEC("BESKRIVELSE"); BODY(ai.beskrivelse||fd.brief||"");
+    SEC("BESKRIVELSE"); BODY(fd.brief||ai.beskrivelse||"");
     SEC("OMFANG");
     (ai.omfang||[]).forEach(o=>{doc.setFontSize(FS);doc.setFont("helvetica","normal");const ls=doc.splitTextToSize("• "+o,cw-4);T(ls,ml+2,y,FS,"normal",[60,60,60]);y+=ls.length*5;});
     y+=6;
@@ -1583,6 +1611,12 @@ buildLines();
       if(!genData) return;
       genData.fd[fdKey] = el.value;
       // Re-render just the header elements that change immediately
+      // Live-update beskrivelse from brief
+      if(elId === 'fbrief'){
+        const bEl = document.querySelector('[data-ai-field="beskrivelse"]');
+        if(bEl && !bEl._userEdited) bEl.textContent = el.value;
+        if(genData) genData.ai.beskrivelse = el.value;
+      }
       if(['fnr','fdato','fgyldig','fkunde','fkontakt','fprosjekt'].includes(elId)){
         const titleEl = document.querySelector('[data-fd-field="typeLabel"]');
         if(titleEl && !titleEl._userEdited) titleEl.textContent = (genData.fd.prosjekt||genData.fd.typeLabel||'').toUpperCase();
