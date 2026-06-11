@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NOVOOI Tilbudsagent</title>
-<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='6' fill='%23111'/%3E%3Ctext x='16' y='22' font-family='Georgia,serif' font-size='18' font-weight='700' fill='white' text-anchor='middle'%3En%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27> <rect width=%2732%27 height=%2732%27 rx=%276%27 fill=%27%23111%27/> <text x=%2716%27 y=%2724%27 font-family=%27Georgia,serif%27 font-size=%2730%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27 opacity=%270.14%27>n</text> <line x1=%275%27 y1=%279%27 x2=%2727%27 y2=%279%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27/> <line x1=%275%27 y1=%2715%27 x2=%2718%27 y2=%2715%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27 opacity=%270.38%27/> <line x1=%275%27 y1=%2721%27 x2=%2727%27 y2=%2721%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27/> <line x1=%275%27 y1=%2727%27 x2=%2718%27 y2=%2727%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27 opacity=%270.38%27/></svg>">
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -151,6 +151,15 @@ textarea{resize:vertical;line-height:1.55}
 .prev-prod-table td{padding:10px 9px;border-bottom:1px solid #f2f2f0;vertical-align:middle}
 .prev-prod-table td:last-child{text-align:right;font-weight:500}
 .prev-prod-img{width:44px;height:44px;object-fit:cover;border-radius:3px;background:#f5f5f0;display:block;border:1px solid #eee}
+
+.prod-disc-row{display:flex;align-items:center;gap:5px;margin-top:5px;padding-top:5px;border-top:1px dashed #eee}
+.prod-disc-row label{font-size:11px;color:#aaa;margin:0;text-transform:none;letter-spacing:0;font-weight:400;white-space:nowrap}
+.prod-disc-inp{width:52px!important;font-size:12px!important;padding:3px 6px!important;border:1px solid #e0e0e0!important;border-radius:3px!important}
+.prod-disc-type{font-size:12px;padding:3px 5px;border:1px solid #e0e0e0;border-radius:3px;background:#fff;font-family:inherit;color:#555}
+.prod-disc-result{font-size:11px;color:#2a7a2a;margin-left:auto;font-weight:600}
+.e{outline:none;border-radius:2px;cursor:text}
+.e:hover{background:rgba(240,192,64,.12)}
+.e:focus{background:rgba(240,192,64,.18);box-shadow:0 0 0 1.5px #f0c040}
 </style>
 </head>
 <body>
@@ -697,6 +706,14 @@ function changeQty(id, delta) {
   renderSelectedProducts();
 }
 
+function updateProdDisc(id, val, type){
+  const p = selectedProducts.find(x=>String(x.id)===String(id));
+  if(!p) return;
+  p.discVal = parseFloat(val)||0;
+  p.discType = type||'pct';
+  renderSelectedProducts();
+}
+
 function renderSelectedProducts() {
   const wrap = document.getElementById('selectedProdsWrap');
   const grid = document.getElementById('selectedProds');
@@ -705,8 +722,14 @@ function renderSelectedProducts() {
   wrap.style.display = '';
   grid.innerHTML = selectedProducts.map(p => {
     const qty = p.qty || 1;
-    const unitPrice = parseKr(p.price);
-    const totalPrice = unitPrice ? fmtInt(unitPrice * qty) : null;
+    const unitPrice = parseKr(p.price) || 0;
+    const discVal = p.discVal || 0;
+    const discType = p.discType || 'pct';
+    const afterDisc = discVal
+      ? (discType==='pct' ? unitPrice*(1-discVal/100) : Math.max(0,unitPrice-discVal))
+      : unitPrice;
+    const lineTotal = afterDisc * qty;
+    const discLabel = discVal ? (discType==='pct' ? `-${discVal}%` : `-kr ${discVal.toLocaleString('nb-NO')}`) : '';
     return `
     <div class="prod-card selected">
       ${p.image
@@ -716,12 +739,22 @@ function renderSelectedProducts() {
         <div class="prod-name" title="${p.name}">${p.name}</div>
         ${p.variant ? `<div class="prod-brand" style="color:#555">${p.variant}</div>` : ''}
         ${p.brand ? `<div class="prod-brand">${p.brand}</div>` : ''}
-        ${p.price ? `<div class="prod-price">${p.price}</div>` : ''}
+        ${p.price ? `<div class="prod-price">${p.price}${discVal?` <span style="color:#2a7a2a;font-size:10px">${discLabel} = ${fmtInt(afterDisc)}</span>`:''}` : ''}
         <div class="prod-qty-row">
           <button class="prod-qty-btn" onclick="changeQty('${p.id}',-1)">−</button>
           <span class="prod-qty-val">${qty}</span>
           <button class="prod-qty-btn" onclick="changeQty('${p.id}',1)">+</button>
-          ${totalPrice && qty > 1 ? `<span class="prod-qty-total">= ${totalPrice}</span>` : ''}
+          <span class="prod-qty-total">= ${fmtInt(lineTotal)}</span>
+        </div>
+        <div class="prod-disc-row">
+          <label>Rabatt:</label>
+          <input class="prod-disc-inp" type="text" value="${discVal||''}" placeholder="0"
+            oninput="updateProdDisc('${p.id}',this.value,this.nextElementSibling.value)">
+          <select class="prod-disc-type" onchange="updateProdDisc('${p.id}',this.previousElementSibling.value,this.value)">
+            <option value="pct" ${discType==='pct'?'selected':''}>%</option>
+            <option value="kr" ${discType==='kr'?'selected':''}>kr</option>
+          </select>
+          ${discVal ? `<span class="prod-disc-result">${discLabel}</span>` : ''}
         </div>
       </div>
       <button class="prod-remove" onclick="removeProduct('${p.id}')" title="Fjern">&#215;</button>
@@ -930,21 +963,32 @@ function discLabel(disc){
 
 // Read editable preview fields back into ai object before PDF
 function syncEditableFields(){
-  const fields = document.querySelectorAll('[data-ai-field]');
-  fields.forEach(el => {
+  if(!genData) return;
+  // AI text fields
+  document.querySelectorAll('[data-ai-field]').forEach(el => {
     const key = el.dataset.aiField;
-    if(genData && genData.ai) genData.ai[key] = el.innerText.trim();
+    genData.ai[key] = el.innerText.trim();
   });
-  // Sync service line prices
+  // fd fields (nr, dates, kunde, typeLabel)
+  document.querySelectorAll('[data-fd-field]').forEach(el => {
+    const key = el.dataset.fdField;
+    genData.fd[key] = el.innerText.trim();
+  });
+  // Service line prices
   document.querySelectorAll('[data-svc-price]').forEach(el => {
     const idx = parseInt(el.dataset.svcPrice);
-    if(genData && genData.fd.lines[idx]) genData.fd.lines[idx].price = el.innerText.trim();
+    if(genData.fd.lines[idx]) genData.fd.lines[idx].price = el.innerText.trim();
   });
-  // Sync product prices
+  // Product prices + name/variant/brand/sku
   document.querySelectorAll('[data-prod-price]').forEach(el => {
     const id = el.dataset.prodPrice;
-    const p = genData && genData.fd.products.find(x=>String(x.id)===id);
+    const p = genData.fd.products.find(x=>String(x.id)===id);
     if(p) p.price = el.innerText.trim();
+  });
+  document.querySelectorAll('[data-prod-field]').forEach(el => {
+    const [id, field] = el.dataset.prodField.split('_');
+    const p = genData.fd.products.find(x=>String(x.id)===id);
+    if(p) p[field] = el.innerText.trim();
   });
 }
 
@@ -972,7 +1016,7 @@ function renderPreview(fd,ai){
     const dSvc = fd.discSvc && fd.discSvc.val;
     const svcAfter = dSvc ? applyDisc(svcTotal, fd.discSvc) : svcTotal;
     tjenesterHTML=`
-    <div class="prev-sec">Tjenester</div>
+    <div class="prev-sec e" contenteditable="true">Tjenester</div>
     <table class="prev-table" style="margin-top:.4rem">
       <thead><tr><th>Beskrivelse</th><th style="text-align:right">Pris eks. mva</th></tr></thead>
       <tbody>${rows}</tbody>
@@ -990,30 +1034,35 @@ function renderPreview(fd,ai){
   if(hasProds){
     let rows='';
     fd.products.forEach(p=>{
-      const qty=p.qty||1, unit=parseKr(p.price)||0, tot=unit*qty;
+      const qty=p.qty||1, unit=parseKr(p.price)||0;
+      const disc={val:p.discVal||0,type:p.discType||'pct'};
+      const afterD=disc.val?(disc.type==='pct'?unit*(1-disc.val/100):Math.max(0,unit-disc.val)):unit;
+      const tot=afterD*qty;
+      const discLbl=disc.val?(disc.type==='pct'?`-${disc.val}%`:`-kr ${disc.val.toLocaleString('nb-NO')}`):'';
       prodTotal+=tot;
       rows+=`<tr>
         <td style="padding:9px;width:52px">
           ${p.image?`<img src="${p.image}" class="prev-prod-img" onerror="this.style.display='none'">`:'<div class="prev-prod-img" style="background:#f5f5f0"></div>'}
         </td>
         <td style="padding:9px">
-          <div style="font-size:13px;font-weight:500;color:#111">${p.name}</div>
-          ${p.variant?`<div style="font-size:11px;color:#666;margin-top:1px">${p.variant}</div>`:''}
-          ${p.brand?`<div style="font-size:11px;color:#aaa;margin-top:1px">${p.brand}</div>`:''}
-          ${p.sku?`<div style="font-size:10px;color:#ccc;margin-top:1px">SKU: ${p.sku}</div>`:''}
+          <div style="font-size:13px;font-weight:500;color:#111" contenteditable="true" class="e" data-prod-field="${p.id}_name">${p.name}</div>
+          ${p.variant?`<div style="font-size:11px;color:#555;margin-top:1px" contenteditable="true" class="e" data-prod-field="${p.id}_variant">${p.variant}</div>`:''}
+          ${p.brand?`<div style="font-size:11px;color:#aaa;margin-top:1px" contenteditable="true" class="e" data-prod-field="${p.id}_brand">${p.brand}</div>`:''}
+          ${p.sku?`<div style="font-size:10px;color:#ccc;margin-top:1px" contenteditable="true" class="e" data-prod-field="${p.id}_sku">SKU: ${p.sku}</div>`:''}
           <div style="font-size:11px;color:#888;margin-top:3px">Antall: ${qty}</div>
         </td>
         <td style="padding:9px;text-align:right;vertical-align:top">
           <div style="font-size:12px;color:#999">${fmtR(unit)} × ${qty}</div>
           <div style="font-size:13px;font-weight:600;color:#111;margin-top:2px" contenteditable="true"
-            data-prod-price="${p.id}" class="prev-editable">${fmtR(tot)}</div>
+            data-prod-price="${p.id}" class="e prev-editable">${fmtR(tot)}</div>
+          ${disc.val?`<div style="font-size:11px;color:#2a7a2a;margin-top:2px">${discLbl} → ${fmtR(afterD*qty)}</div>`:''}
         </td>
       </tr>`;
     });
     const dProd = fd.discProd && fd.discProd.val;
     const prodAfter = dProd ? applyDisc(prodTotal, fd.discProd) : prodTotal;
     produkterHTML=`
-    <div class="prev-sec">Produkter</div>
+    <div class="prev-sec e" contenteditable="true">Produkter</div>
     <table class="prev-prod-table">
       <thead><tr><th style="width:52px"></th><th>Produkt</th><th>Pris</th></tr></thead>
       <tbody>${rows}</tbody>
@@ -1051,16 +1100,16 @@ function renderPreview(fd,ai){
   <div class="preview-body" id="prevBody">
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1.25rem">
       <img src="${LOGO}" style="height:22px;display:block">
-      <div style="font-size:10px;color:#bbb;letter-spacing:.04em">Tilbudsnr. ${fd.nr}</div>
+      <div style="font-size:10px;color:#bbb;letter-spacing:.04em" contenteditable="true" data-fd-field="nr" class="e">Tilbudsnr. ${fd.nr}</div>
     </div>
     <div class="prev-meta">
-      <div><div class="mk">Fra</div><div class="mv">NOVOOI AS<br>St. Halvards gate 33c, 0192 Oslo<br>hei@novooi.com</div></div>
-      <div><div class="mk">Til</div><div class="mv">${fd.kunde}${kontStr}</div></div>
-      <div><div class="mk">Dato</div><div class="mv">${fd.dato}</div></div>
-      <div><div class="mk">Gyldig til</div><div class="mv">${fd.gyldig}</div></div>
+      <div><div class="mk">Fra</div><div class="mv e" contenteditable="true" data-fd-field="fra">NOVOOI AS<br>St. Halvards gate 33c, 0192 Oslo<br>hei@novooi.com</div></div>
+      <div><div class="mk">Til</div><div class="mv e" contenteditable="true" data-fd-field="kunde">${fd.kunde}${kontStr}</div></div>
+      <div><div class="mk">Dato</div><div class="mv e" contenteditable="true" data-fd-field="dato">${fd.dato}</div></div>
+      <div><div class="mk">Gyldig til</div><div class="mv e" contenteditable="true" data-fd-field="gyldig">${fd.gyldig}</div></div>
     </div>
     <hr class="prev-rule">
-    <div class="prev-h1">${fd.typeLabel.toUpperCase()}</div>
+    <div class="prev-h1 e" contenteditable="true" data-fd-field="typeLabel">${fd.typeLabel.toUpperCase()}</div>
     <div class="prev-ingress prev-editable" contenteditable="true" data-ai-field="ingress">${ai.ingress||""}</div>
     ${!ph.beskrivelse ? `
     <div class="prev-sec">Beskrivelse</div>
@@ -1071,10 +1120,10 @@ function renderPreview(fd,ai){
     ${tjenesterHTML}
     ${produkterHTML}
     ${totalHTML}
-    ${!ph.opsjon && ai.opsjon ? `<div class="prev-sec">Opsjon: kjøp av møbler og interiør</div><p class="prev-txt prev-editable" contenteditable="true" data-ai-field="opsjon" style="display:block">${ai.opsjon}</p>` : ''}
-    ${!ph.betaling && ai.betaling ? `<div class="prev-sec">Tidsplan og betalingsbetingelser</div><p class="prev-txt prev-editable" contenteditable="true" data-ai-field="betaling" style="display:block">${ai.betaling}</p>` : ''}
-    ${!ph.marked && ai.markedsforing ? `<div class="prev-sec">Markedsføring</div><p class="prev-txt prev-editable" contenteditable="true" data-ai-field="markedsforing" style="display:block">${ai.markedsforing}</p>` : ''}
-    ${!ph.merknader && allM.length ? `<div class="prev-sec">Merknader</div>${allM.map(m=>`<div class="prev-note prev-editable" contenteditable="true">${m}</div>`).join("")}` : ''}
+    ${!ph.opsjon && ai.opsjon ? `<div class="prev-sec e" contenteditable="true">Opsjon: kjøp av møbler og interiør</div><p class="prev-txt prev-editable" contenteditable="true" data-ai-field="opsjon" style="display:block">${ai.opsjon}</p>` : ''}
+    ${!ph.betaling && ai.betaling ? `<div class="prev-sec e" contenteditable="true">Tidsplan og betalingsbetingelser</div><p class="prev-txt prev-editable" contenteditable="true" data-ai-field="betaling" style="display:block">${ai.betaling}</p>` : ''}
+    ${!ph.marked && ai.markedsforing ? `<div class="prev-sec e" contenteditable="true">Markedsføring</div><p class="prev-txt prev-editable" contenteditable="true" data-ai-field="markedsforing" style="display:block">${ai.markedsforing}</p>` : ''}
+    ${!ph.merknader && allM.length ? `<div class="prev-sec e" contenteditable="true">Merknader</div>${allM.map(m=>`<div class="prev-note prev-editable" contenteditable="true">${m}</div>`).join("")}` : ''}
     ${!ph.avslutning && ai.avslutning ? `<p style="font-size:12px;font-style:italic;color:#999;margin-top:1.25rem" contenteditable="true" class="prev-editable" data-ai-field="avslutning">${ai.avslutning}</p>` : ''}
     <div class="prev-footer">NOVOOI AS &#183; St. Halvards gate 33c, 0192 Oslo &#183; hei@novooi.com &#183; novooi.com &#183; Org.nr. 827 340 162${fd.saksb?" &#183; "+fd.saksb:""}</div>
   </div>
@@ -1225,7 +1274,7 @@ async function doPDF(){
   const hasProducts = !ph.produkter && fd.products && fd.products.length > 0;
   let prodTotal = 0;
   // Always calc for grand total
-  if(fd.products) fd.products.forEach(p=>{const n=parseKr(p.price);if(n)prodTotal+=n*(p.qty||1);});
+  if(fd.products) fd.products.forEach(p=>{const n=parseKr(p.price)||0;const dv=p.discVal||0,dt=p.discType||'pct';const aft=dv?(dt==='pct'?n*(1-dv/100):Math.max(0,n-dv)):n;prodTotal+=aft*(p.qty||1);});
 
   if(hasProducts){
     NP(20); SEC("PRODUKTER");
@@ -1250,6 +1299,9 @@ async function doPDF(){
       } else {
         doc.setFillColor(245,245,242);doc.rect(ml,y,imgSz,imgSz,'F');
       }
+      const pDisc={val:p.discVal||0,type:p.discType||'pct'};
+      const pAfterDisc=pDisc.val?(pDisc.type==='pct'?pUnit*(1-pDisc.val/100):Math.max(0,pUnit-pDisc.val)):pUnit;
+      const pLineTot=pAfterDisc*pQty;
       const tx=ml+imgSz+5;
       let lineY=y+5;
       doc.setFontSize(FS);doc.setFont("helvetica","normal");
@@ -1257,12 +1309,17 @@ async function doPDF(){
       T(nls[0]||'',tx,lineY,FS,"normal",[17,17,17]); lineY+=5;
       if(p.variant){ T(p.variant,tx,lineY,9,"normal",[80,80,80]); lineY+=4.5; }
       if(p.brand){ T(p.brand,tx,lineY,9,"normal",[160,160,160]); lineY+=4.5; }
-      if(p.sku){ T("SKU: "+p.sku,tx,lineY,8.5,"normal",[190,190,190]); lineY+=4; }
+      if(p.sku){ T(p.sku.startsWith('SKU:')?p.sku:'SKU: '+p.sku,tx,lineY,8.5,"normal",[190,190,190]); lineY+=4; }
       if(pQty>1){ T("Antall: "+pQty,tx,lineY,9,"normal",[100,100,100]); }
       if(pUnit){
-        if(pQty>1){
-          TR(pQty+" x "+fmtR(pUnit),priceX,y+5,9,"normal",[140,140,140]);
-          TR(fmtR(pTotal),priceX,y+11,FS,"normal",[17,17,17]);
+        const discLbl=pDisc.val?(pDisc.type==='pct'?`-${pDisc.val}%`:`-kr ${pDisc.val.toLocaleString('nb-NO')}`):'';
+        if(pDisc.val){
+          TR(fmtR(pUnit)+" "+discLbl,priceX,y+5,8.5,"normal",[140,140,140]);
+          TR(fmtR(pAfterDisc)+(pQty>1?" × "+pQty:""),priceX,y+10,9,"normal",[100,100,100]);
+          TR(fmtR(pLineTot),priceX,y+15,FS,"normal",[17,17,17]);
+        } else if(pQty>1){
+          TR(pQty+" × "+fmtR(pUnit),priceX,y+5,9,"normal",[140,140,140]);
+          TR(fmtR(pLineTot),priceX,y+11,FS,"normal",[17,17,17]);
         } else {
           TR(fmtR(pUnit),priceX,y+5,FS,"normal",[40,40,40]);
         }
