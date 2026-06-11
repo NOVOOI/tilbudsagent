@@ -297,23 +297,48 @@ textarea{resize:vertical;line-height:1.55}
       <div class="field"><label>Rabatt / handelsvilkår (tekst)</label>
         <input id="frabatt" type="text" placeholder="F.eks. 20% trade-rabatt for arkitekter">
       </div>
-      <div style="border-top:1px solid #f0f0ec;margin-top:12px;padding-top:12px">
-        <label style="margin-bottom:8px;display:block">Prisrabatter i PDF</label>
-        <div class="disc-row">
-          <label>Rabatt på tjenester:</label>
-          <input type="text" id="discSvc" placeholder="0" style="width:64px">
-          <select id="discSvcType"><option value="pct">%</option><option value="kr">kr</option></select>
+      <div style="border-top:1px solid #f0f0ec;margin-top:14px;padding-top:14px">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:10px">Prisrabatter i PDF</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
+
+          <div style="background:#fafaf8;border:1px solid #eee;border-radius:5px;padding:10px 12px">
+            <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:8px">Tjenester</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="text" id="discSvc" placeholder="0"
+                style="width:52px;font-size:14px;font-weight:600;padding:6px 8px;border:1.5px solid #ddd;border-radius:4px;text-align:center">
+              <select id="discSvcType" style="flex:1;font-size:13px;padding:6px 6px;border:1.5px solid #ddd;border-radius:4px;background:#fff;font-family:inherit;color:#555">
+                <option value="pct">%</option>
+                <option value="kr">kr</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background:#fafaf8;border:1px solid #eee;border-radius:5px;padding:10px 12px">
+            <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:8px">Produkter</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="text" id="discProd" placeholder="0"
+                style="width:52px;font-size:14px;font-weight:600;padding:6px 8px;border:1.5px solid #ddd;border-radius:4px;text-align:center">
+              <select id="discProdType" style="flex:1;font-size:13px;padding:6px 6px;border:1.5px solid #ddd;border-radius:4px;background:#fff;font-family:inherit;color:#555">
+                <option value="pct">%</option>
+                <option value="kr">kr</option>
+              </select>
+            </div>
+          </div>
+
+          <div style="background:#fafaf8;border:1px solid #eee;border-radius:5px;padding:10px 12px">
+            <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:8px">Totalsum</div>
+            <div style="display:flex;gap:6px;align-items:center">
+              <input type="text" id="discTotal" placeholder="0"
+                style="width:52px;font-size:14px;font-weight:600;padding:6px 8px;border:1.5px solid #ddd;border-radius:4px;text-align:center">
+              <select id="discTotalType" style="flex:1;font-size:13px;padding:6px 6px;border:1.5px solid #ddd;border-radius:4px;background:#fff;font-family:inherit;color:#555">
+                <option value="pct">%</option>
+                <option value="kr">kr</option>
+              </select>
+            </div>
+          </div>
+
         </div>
-        <div class="disc-row">
-          <label>Rabatt på produkter:</label>
-          <input type="text" id="discProd" placeholder="0" style="width:64px">
-          <select id="discProdType"><option value="pct">%</option><option value="kr">kr</option></select>
-        </div>
-        <div class="disc-row">
-          <label>Rabatt på totalsum:</label>
-          <input type="text" id="discTotal" placeholder="0" style="width:64px">
-          <select id="discTotalType"><option value="pct">%</option><option value="kr">kr</option></select>
-        </div>
+        <div style="font-size:11px;color:#bbb;margin-top:8px">Rabatter vises som grønne linjer i forhåndsvisning og PDF</div>
       </div>
     </div>
   </div>
@@ -630,46 +655,100 @@ async function addWooProduct(idx) {
 }
 
 // ── Variant picker ─────────────────────────────────────────────────────────
+// Store pending variants so onclick can reference by index safely
+let _pendingVariants = [];
+
 function showVariantPicker(p, variations, img, brand) {
   document.getElementById('variantPickerOverlay')?.remove();
+
+  // Build product data objects and store in module variable
+  _pendingVariants = variations.map((v, i) => {
+    const lbl  = v.attributes && v.attributes.length
+      ? v.attributes.map(a => a.option).join(' / ')
+      : 'Variant ' + (i + 1);
+    const full = v.attributes && v.attributes.length
+      ? v.attributes.map(a => a.name + ': ' + a.option).join(', ')
+      : lbl;
+    const vprice = v.price
+      ? 'kr ' + parseFloat(v.price).toLocaleString('nb-NO')
+      : (p.price ? 'kr ' + parseFloat(p.price).toLocaleString('nb-NO') : '');
+    const vimg = v.image && v.image.src ? v.image.src : img;
+    return {
+      id: p.id + '_v' + v.id,
+      name: p.name,
+      brand,
+      price: vprice,
+      variant: full,
+      image: vimg,
+      sku: v.sku || p.sku || '',
+      qty: 1, discVal: 0, discType: 'pct',
+      source: 'woo',
+      permalink: p.permalink || '',
+      // For display
+      _lbl: lbl,
+      _vprice: vprice,
+      _vimg: vimg,
+    };
+  });
+
   const overlay = document.createElement('div');
   overlay.id = 'variantPickerOverlay';
   overlay.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:9999;display:flex;align-items:center;justify-content:center;padding:1rem';
+
   const modal = document.createElement('div');
-  modal.style.cssText = 'background:#fff;border-radius:6px;padding:1.5rem;max-width:420px;width:100%;max-height:80vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.18)';
+  modal.style.cssText = 'background:#fff;border-radius:6px;padding:1.5rem;max-width:440px;width:100%;max-height:82vh;overflow-y:auto;box-shadow:0 8px 32px rgba(0,0,0,.2)';
 
-  const rows = variations.map((v, i) => {
-    const lbl   = v.attributes && v.attributes.length ? v.attributes.map(a => a.option).join(' / ') : 'Variant ' + (i+1);
-    const full  = v.attributes && v.attributes.length ? v.attributes.map(a => a.name + ': ' + a.option).join(', ') : lbl;
-    const vprice = v.price ? 'kr ' + parseFloat(v.price).toLocaleString('nb-NO') : (p.price ? 'kr ' + parseFloat(p.price).toLocaleString('nb-NO') : '');
-    const vimg  = v.image && v.image.src ? v.image.src : img;
-    const pd    = JSON.stringify({ id: p.id+'_v'+v.id, name: p.name, brand, price: vprice, variant: full, image: vimg, sku: v.sku||p.sku||'', qty:1, discVal:0, discType:'pct', source:'woo', permalink: p.permalink||'' });
-    return `<div onclick='pickVariant(${pd.replace(/'/g,"&#39;").replace(/"/g,"'")})'
-      style="display:flex;align-items:center;gap:10px;padding:10px;border:1px solid #eee;border-radius:4px;margin-bottom:6px;cursor:pointer"
-      onmouseover="this.style.borderColor='#111'" onmouseout="this.style.borderColor='#eee'">
-      <img src="${vimg||''}" style="width:44px;height:44px;object-fit:cover;border-radius:3px;background:#f5f5f0;flex-shrink:0" onerror="this.style.display='none'">
-      <div>
-        <div style="font-size:13px;font-weight:600;color:#111">${lbl}</div>
-        ${vprice ? `<div style="font-size:12px;color:#666;margin-top:2px">${vprice}</div>` : ''}
-      </div>
-    </div>`;
-  }).join('');
+  // Header
+  const header = document.createElement('div');
+  header.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem';
+  header.innerHTML = `
+    <div>
+      <div style="font-size:14px;font-weight:700;color:#111">${p.name}</div>
+      <div style="font-size:11px;color:#aaa;margin-top:3px">Velg variant</div>
+    </div>
+    <button style="background:none;border:none;font-size:24px;cursor:pointer;color:#aaa;line-height:1;padding:0" onclick="document.getElementById('variantPickerOverlay').remove()">×</button>`;
+  modal.appendChild(header);
 
-  modal.innerHTML = `<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem">
-    <div><div style="font-size:13px;font-weight:700">${p.name}</div>
-    <div style="font-size:11px;color:#aaa;margin-top:2px">Velg variant</div></div>
-    <button onclick="document.getElementById('variantPickerOverlay').remove()" style="background:none;border:none;font-size:22px;cursor:pointer;color:#aaa">×</button>
-  </div>${rows}`;
+  // Variant rows — built with DOM, not innerHTML, so no escaping issues
+  _pendingVariants.forEach((pd, idx) => {
+    const row = document.createElement('div');
+    row.style.cssText = 'display:flex;align-items:center;gap:12px;padding:11px;border:1px solid #eee;border-radius:5px;margin-bottom:6px;cursor:pointer;transition:all .12s';
+    row.onmouseenter = () => { row.style.borderColor = '#111'; row.style.background = '#fafaf8'; };
+    row.onmouseleave = () => { row.style.borderColor = '#eee'; row.style.background = '#fff'; };
+    row.onclick = () => pickVariant(idx);
+
+    const imgEl = document.createElement('img');
+    imgEl.src = pd._vimg || '';
+    imgEl.style.cssText = 'width:48px;height:48px;object-fit:cover;border-radius:4px;background:#f5f5f0;flex-shrink:0';
+    imgEl.onerror = () => { imgEl.style.display = 'none'; };
+
+    const info = document.createElement('div');
+    info.style.flex = '1';
+    info.innerHTML = `<div style="font-size:13px;font-weight:600;color:#111">${pd._lbl}</div>
+      ${pd._vprice ? `<div style="font-size:12px;color:#666;margin-top:3px">${pd._vprice}</div>` : ''}`;
+
+    const check = document.createElement('div');
+    check.style.cssText = 'width:20px;height:20px;border-radius:50%;border:1.5px solid #ddd;flex-shrink:0';
+
+    row.appendChild(imgEl);
+    row.appendChild(info);
+    row.appendChild(check);
+    modal.appendChild(row);
+  });
 
   overlay.appendChild(modal);
   overlay.addEventListener('click', e => { if (e.target === overlay) overlay.remove(); });
   document.body.appendChild(overlay);
 }
 
-function pickVariant(productData) {
+function pickVariant(idx) {
+  const pd = _pendingVariants[idx];
+  if (!pd) return;
   document.getElementById('variantPickerOverlay')?.remove();
-  if (selectedProducts.some(s => s.id == productData.id)) return;
-  pushProduct(productData);
+  if (selectedProducts.some(s => s.id == pd.id)) return;
+  // Clean internal display fields before pushing
+  const { _lbl, _vprice, _vimg, ...clean } = pd;
+  pushProduct(clean);
 }
 
 // ── Core push / remove / update ────────────────────────────────────────────
