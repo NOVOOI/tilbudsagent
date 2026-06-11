@@ -321,7 +321,7 @@ textarea{resize:vertical;line-height:1.55}
 
   <div class="btn-row">
     <button class="btn-gen" id="genBtn" onclick="doGen()">Generer tilbud</button>
-    <button class="btn-pdf" id="pdfBtn" onclick="doPDF()">&#11015; Last ned PDF</button>
+    <button class="btn-pdf" id="pdfBtn" onclick="doPDF().catch(e=>console.error(e))">&#11015; Last ned PDF</button>
   </div>
   <div id="output"></div>
 </div>
@@ -809,9 +809,28 @@ ${tot?`<tfoot><tr class="bld"><td>TOTALT EKS. MVA</td><td>${fmtR(tot)}</td></tr>
 </div>`;
 }
 
-function doPDF(){
+async function doPDF(){
   if(!genData) return;
   const {fd,ai}=genData;
+
+  // Pre-fetch product images as base64 via Worker (bypasses CORS)
+  const btn = document.getElementById('pdfBtn');
+  const origText = btn.textContent;
+  if(fd.products && fd.products.length){
+    btn.textContent = '⏳ Laster bilder…'; btn.disabled = true;
+    await Promise.all(fd.products.map(async p=>{
+      if(!p.image || p.image.startsWith('data:')) return; // already base64 or empty
+      try{
+        const res = await fetch(WORKER_URL + '/img?url=' + encodeURIComponent(p.image));
+        if(res.ok){
+          const d = await res.json();
+          if(d.data) p.image = d.data; // replace URL with base64 data URI
+        }
+      }catch(e){ /* keep original, will fail silently in PDF */ }
+    }));
+    btn.disabled = false;
+  }
+  btn.textContent = origText;
   const {jsPDF}=window.jspdf;
   const doc=new jsPDF({unit:"mm",format:"a4"});
   const W=210,ml=20,mr=20,cw=W-ml-mr;
