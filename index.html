@@ -88,8 +88,8 @@ textarea{resize:vertical;line-height:1.55}
 .prev-footer{margin-top:2rem;padding-top:.75rem;border-top:1px solid #eee;font-size:10px;color:#ccc;letter-spacing:.04em;text-align:center;text-transform:uppercase}
 @media(max-width:640px){.g2,.g3,.g4{grid-template-columns:1fr}.line-prod{grid-template-columns:1fr 40px 28px}.line-prod .hm{display:none}}
 
-.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:10px;margin-top:10px}
-#selectedProds{grid-template-columns:repeat(auto-fill,minmax(150px,1fr));min-width:0}
+.prod-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(155px,1fr));gap:10px;margin-top:10px}
+#selectedProds{display:grid!important;grid-template-columns:repeat(2,1fr);gap:10px;width:100%}@media(min-width:500px){#selectedProds{grid-template-columns:repeat(3,1fr)}}@media(min-width:700px){#selectedProds{grid-template-columns:repeat(4,1fr)}}
 .prod-card{border:1px solid #e8e8e4;border-radius:5px;overflow:hidden;position:relative;background:#fff;transition:box-shadow .15s}
 .prod-card:hover{box-shadow:0 2px 8px rgba(0,0,0,.08)}
 .prod-card.selected{border-color:#111;box-shadow:0 0 0 2px #111}
@@ -197,15 +197,15 @@ textarea{resize:vertical;line-height:1.55}
         <div class="field"><label>Tilbudsnr.</label><input id="fnr" type="text"></div>
         <div class="field"><label>Dato</label><input id="fdato" type="text"></div>
         <div class="field"><label>Gyldig til</label><input id="fgyldig" type="text"></div>
-        <div class="field"><label>Saksbehandler</label><input id="fsaksb" type="text" placeholder="Navn"></div>
+        <div class="field"><label>Saksbehandler</label><input id="fsaksb" type="text" placeholder="F.eks. Stig"></div>
       </div>
       <div class="g2" style="margin-bottom:.8rem">
-        <div class="field"><label>Kunde / selskap</label><input id="fkunde" type="text" placeholder="Norwegian Icons AS"></div>
-        <div class="field"><label>Kontaktperson</label><input id="fkontakt" type="text" placeholder="Navn, tittel"></div>
+        <div class="field"><label>Kunde / selskap</label><input id="fkunde" type="text" placeholder="Kundenavn / selskap"></div>
+        <div class="field"><label>Kontaktperson</label><input id="fkontakt" type="text" placeholder="F.eks. Kari Hansen, daglig leder"></div>
       </div>
       <div class="g2">
-        <div class="field"><label>Prosjektnavn</label><input id="fprosjekt" type="text" placeholder="Showroom Oslo"></div>
-        <div class="field"><label>Adresse / lokasjon</label><input id="fadresse" type="text" placeholder="Aker Brygge, Oslo"></div>
+        <div class="field"><label>Prosjektnavn</label><input id="fprosjekt" type="text" placeholder="F.eks. Kontorinnredning Sentrum"></div>
+        <div class="field"><label>Adresse / lokasjon</label><input id="fadresse" type="text" placeholder="Gate, by"></div>
       </div>
     </div>
   </div>
@@ -222,9 +222,9 @@ textarea{resize:vertical;line-height:1.55}
         <div style="font-size:11px;color:#aaa;margin-top:4px">La stå tom for å la AI generere omfangspunktene automatisk</div>
       </div>
       <div class="g3">
-        <div class="field"><label>Størrelse</label><input id="fstorrelse" type="text" placeholder="120 m² / 5 rom"></div>
-        <div class="field"><label>Tidsplan / oppstart</label><input id="ftid" type="text" placeholder="August 2026"></div>
-        <div class="field"><label>Utlånsperiode</label><input id="futlan" type="text" placeholder="8 uker"></div>
+        <div class="field"><label>Størrelse</label><input id="fstorrelse" type="text" placeholder="F.eks. 200 m² / 4 etasjer"></div>
+        <div class="field"><label>Tidsplan / oppstart</label><input id="ftid" type="text" placeholder="F.eks. September 2026"></div>
+        <div class="field"><label>Utlånsperiode</label><input id="futlan" type="text" placeholder="F.eks. 6 uker"></div>
       </div>
     </div>
   </div>
@@ -247,7 +247,7 @@ textarea{resize:vertical;line-height:1.55}
         </div>
       </div>
       <div class="field"><label>Tilleggsnote om rom</label>
-        <input id="fromnotat" type="text" placeholder="f.eks. Kun stue og kjøkken fotograferes, soverom dekkes delvis">
+        <input id="fromnotat" type="text" placeholder="Tillegg om rom, f.eks. kun stue og kjøkken">
       </div>
     </div>
   </div>
@@ -277,7 +277,7 @@ textarea{resize:vertical;line-height:1.55}
         <div class="field"><label>Tilbudet gyldig (dager)</label><input id="fgyldigdager" type="text" value="30"></div>
       </div>
       <div class="field"><label>Rabatt / handelsvilkår (tekst)</label>
-        <input id="frabatt" type="text" placeholder="f.eks. 20% trade-rabatt for interiørarkitekter og profesjonelle">
+        <input id="frabatt" type="text" placeholder="F.eks. 20% trade-rabatt for arkitekter">
       </div>
       <div style="border-top:1px solid #f0f0ec;margin-top:12px;padding-top:12px">
         <label style="margin-bottom:8px;display:block">Prisrabatter i PDF</label>
@@ -351,10 +351,10 @@ textarea{resize:vertical;line-height:1.55}
           <img id="manualImgPrev" style="max-height:100px;margin-top:10px;border-radius:3px;display:none">
         </div>
         <div class="manual-form">
-          <div class="field"><label>Produktnavn</label><input type="text" id="manName" placeholder="f.eks. Eames Lounge Chair"></div>
-          <div class="field"><label>Merkevare</label><input type="text" id="manBrand" placeholder="f.eks. Vitra"></div>
+          <div class="field"><label>Produktnavn</label><input type="text" id="manName" placeholder="Produktnavn"></div>
+          <div class="field"><label>Merkevare</label><input type="text" id="manBrand" placeholder="Merkevare"></div>
           <div class="field"><label>Pris (eks. mva)</label><input type="text" id="manPrice" placeholder="kr 24 900"></div>
-          <div class="field"><label>SKU / Art.nr</label><input type="text" id="manSku" placeholder="f.eks. EA-670"></div>
+          <div class="field"><label>SKU / Art.nr</label><input type="text" id="manSku" placeholder="SKU / Art.nr"></div>
           <button class="add-manual-btn" onclick="addManualProduct()">+ Legg til produkt</button>
         </div>
       </div>
