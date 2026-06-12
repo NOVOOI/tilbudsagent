@@ -35,7 +35,7 @@ textarea{resize:vertical;line-height:1.55}
 .pill.on{background:#111;color:#fff;border-color:#111}
 .pill:hover:not(.on){border-color:#888;color:#111}
 .lines-wrap{display:flex;flex-direction:column;gap:5px}
-.line-svc{display:grid;grid-template-columns:1fr 130px 28px;gap:7px;align-items:center}
+.line-svc{display:grid;grid-template-columns:1fr 52px 120px 72px 28px;gap:7px;align-items:center}
 .line-prod{display:grid;grid-template-columns:2fr 44px 96px 96px 96px 28px;gap:6px;align-items:start}
 .line-svc input,.line-prod input{margin:0;font-size:13px;padding:7px 9px}
 .line-prod textarea{margin:0;font-size:13px;padding:7px 9px;min-height:62px;resize:vertical}
@@ -201,7 +201,9 @@ textarea{resize:vertical;line-height:1.55}
   <img src="data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzg3IiBoZWlnaHQ9Ijg2IiB2aWV3Qm94PSIwIDAgMzg3IDg2IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNNjUuMTI0IDgxLjY1MTFDNjYuMzE5OSA4Mi4xOTQ3IDY3LjA4MDkgODIuNTIwOSA2Ny4wODA5IDgzLjM5MDZDNjcuMDgwOSA4NC4yNjA0IDY2LjQyODYgODQuNjk1MyA2NS4wMTUyIDg0LjU4NjZDNjMuMTY3IDg0LjQ3NzkgNTkuNjg3OSA4NC4yNjA0IDU0LjU3OCA4NC4yNjA0QzQ5LjQ2ODEgODQuMjYwNCA0NS45ODkgODQuNDc3OSA0NC4xNDA4IDg0LjU4NjZDNDIuNzI3NCA4NC42OTUzIDQyLjA3NTEgODQuMjYwNCA0Mi4wNzUxIDgzLjM5MDZDNDIuMDc1MSA4Mi41MjA5IDQyLjgzNjEgODIuMTk0NyA0NC4wMzIxIDgxLjY1MTFDNDYuMDk3OCA4MC44OSA0Ni4zMTUyIDc4LjYwNjggNDYuMzE1MiA3NC44MDE1VjQ3LjA3NzFDNDYuMzE1MiAzNi45NjU5IDQzLjU5NzIgMjkuMTM3OCAzNC4yNDcyIDI5LjEzNzhDMjQuNTcxIDI5LjEzNzggMjAuNzY1NyAzOC4yNzA1IDIwLjc2NTcgNDYuNTMzNVY3NC44MDE1QzIwLjc2NTcgNzguNjA2OCAyMS4wOTE5IDgwLjg5IDIzLjE1NzYgODEuNjUxMUMyNC4zNTM1IDgyLjE5NDcgMjUuMDA1OSA4Mi41MjA5IDI1LjAwNTkgODMuMzkwNkMyNS4wMDU5IDg0LjI2MDQgMjQuMzUzNSA4NC42OTUzIDIyLjk0MDIgODQuNTg2NkMyMS4yMDA2IDg0LjQ3NzkgMTcuNzIxNSA4NC4yNjA0IDEyLjYxMTcgODQuMjYwNEM3LjM5MzA0IDg0LjI2MDQgNC4wMjI2OCA4NC40Nzc5IDIuMTc0NDIgODQuNTg2NkMwLjc2MTA0OCA4NC42OTUzIDAuMTA4NzIxIDg0LjI2MDQgMC4xMDg3MjEgODMuMzkwNkMwLjEwODcyMSA4Mi41MjA5IDAuODY5NzY5IDgyLjE5NDcgMS45NTY5OCA4MS42NTExQzQuMDIyNjggODAuODkgNC4zNDg4NSA3OC42MDY4IDQuMzQ4ODUgNzQuODAxNVYzOC41OTY3QzQuMzQ4ODUgMzQuNzkxNCA0LjAyMjY4IDMyLjYxNjkgMS45NTY5OCAzMS43NDcyQzAuODY5NzY5IDMxLjMxMjMgMCAzMC44Nzc0IDAgMjkuODk4OUMwIDI5LjEzNzggMC41NDM2MDYgMjguNTk0MiAxLjUyMjEgMjguMzc2N0M0LjY3NTAxIDI3LjcyNDQgMTAuOTgwOCAyNi4wOTM1IDE3LjcyMTUgMjIuNjE0NEMxOC45MTc1IDIxLjk2MjEgMTkuNjc4NSAyMi4zOTcgMTkuNzg3MiAyMy43MDE2TDIwLjU0ODMgMzIuNTA4MkwyMC42NTcgMzMuNTk1NEMyMy40ODM4IDI3LjUwNjkgMjkuMTM3MyAyMS4yMDEgNDAuNDQ0MyAyMS4yMDFDNTYuMTAwMSAyMS4yMDEgNjIuODQwOCAyOS42ODE0IDYyLjg0MDggNDcuMDc3MVY3NC44MDE1QzYyLjg0MDggNzguNjA2OCA2My4wNTgzIDgwLjg5IDY1LjEyNCA4MS42NTExWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEwOC40IDIxLjIwMUMxMjcuNzUzIDIxLjIwMSAxNDAuMTQ3IDM1Ljc2OTkgMTQwLjE0NyA1My42MDA1QzE0MC4xNDcgNzEuNTM5OCAxMjcuNzUzIDg2IDEwOC40IDg2Qzg5LjA0NzggODYgNzYuNzYyMyA3MS41Mzk4IDc2Ljc2MjMgNTMuNjAwNUM3Ni44NzEgMzUuNzY5OSA4OS4wNDc4IDIxLjIwMSAxMDguNCAyMS4yMDFaTTEwMi45NjQgMjQuODk3NkM5Mi44NTMgMjYuODU0NiA5MS4xMTM1IDQxLjA5NzMgOTMuODMxNSA1Ni4xMDExQzk2LjQ0MDggNzEuMzIyNCAxMDMuODM0IDg0LjA0MyAxMTQuMDU0IDgyLjMwMzRDMTI0LjA1NiA4MC4zNDY0IDEyNS42ODcgNjYuMTAzNyAxMjMuMDc3IDUxLjA5OTlDMTIwLjQ2OCAzNS44Nzg2IDExMy4wNzUgMjMuMTU4IDEwMi45NjQgMjQuODk3NloiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0xOTUuNjkyIDE5Ljg5NjNDMjAzLjg0NiAyMC40Mzk5IDIwMy42MjkgMjkuNDY0IDIwMC4zNjcgMzcuOTQ0NEwxODIuNDI4IDgzLjQ5OTRDMTgyLjEwMiA4NC4zNjkxIDE4MS40NSA4NC45MTI4IDE4MC41OCA4NC45MTI4TDE3OC4yOTcgODQuODA0Vjg0LjkxMjhIMTcwLjc5NUMxNjkuODE3IDg0LjkxMjggMTY5LjI3MyA4NC40Nzc5IDE2OC45NDcgODMuNDk5NEwxNDkuODEyIDMyLjM5OTVDMTQ4LjA3MiAyNy43MjQ0IDE0Ny4yMDMgMjYuNTI4NCAxNDQuOTE5IDI1LjU0OTlDMTQzLjgzMiAyNS4wMDYzIDE0My4wNzEgMjQuNTcxNCAxNDMuMDcxIDIzLjcwMTZDMTQzLjA3MSAyMi45NDA2IDE0My42MTUgMjIuNTA1NyAxNDUuMTM3IDIyLjYxNDRDMTQ3LjMxMSAyMi43MjMxIDE1MC44OTkgMjIuOTQwNiAxNTYuNTUzIDIyLjk0MDZDMTYxLjY2MyAyMi45NDA2IDE2NC45MjQgMjIuNzIzMSAxNjYuODgxIDIyLjYxNDRDMTY4LjI5NCAyMi41MDU3IDE2OC44MzggMjIuOTQwNiAxNjguODM4IDIzLjcwMTZDMTY4LjgzOCAyNC42ODAyIDE2OC4xODYgMjUuMDA2MyAxNjcuMDk5IDI1LjY1ODdDMTY1LjY4NSAyNi42MzcyIDE2Ni4yMjkgMjguMzc2NyAxNjcuNDI1IDMyLjM5OTVMMTgxLjAxNSA3NC44MDE1TDE5Mi45NzQgNDEuODU4NEMxOTUuODAxIDM0LjEzOTEgMTkwLjAzOSAzMi45NDMxIDE4OS4xNjkgMjcuMzk4MkMxODguNTE3IDIzLjU5MjkgMTkxLjAxNyAxOS41NzAyIDE5NS42OTIgMTkuODk2M1oiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0yNDIuODcgMjEuMjAxQzI2Mi4yMjIgMjEuMjAxIDI3NC42MTYgMzUuNzY5OSAyNzQuNjE2IDUzLjYwMDVDMjc0LjYxNiA3MS41Mzk4IDI2Mi4yMjIgODYgMjQyLjg3IDg2QzIyMy41MTcgODYgMjExLjIzMiA3MS41Mzk4IDIxMS4yMzIgNTMuNjAwNUMyMTEuMzQgMzUuNzY5OSAyMjMuNTE3IDIxLjIwMSAyNDIuODcgMjEuMjAxWk0yMzcuNDM0IDI0Ljg5NzZDMjI3LjMyMyAyNi44NTQ2IDIyNS41ODMgNDEuMDk3MyAyMjguMzAxIDU2LjEwMTFDMjMwLjkxIDcxLjMyMjQgMjM4LjMwMyA4NC4wNDMgMjQ4LjUyMyA4Mi4zMDM0QzI1OC41MjUgODAuMzQ2NCAyNjAuMTU2IDY2LjEwMzcgMjU3LjU0NyA1MS4wOTk5QzI1NC45MzggMzUuODc4NiAyNDcuNTQ1IDIzLjE1OCAyMzcuNDM0IDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzE4LjA2NyAyMS4yMDFDMzM3LjQyIDIxLjIwMSAzNDkuODE0IDM1Ljc2OTkgMzQ5LjgxNCA1My42MDA1QzM0OS44MTQgNzEuNTM5OCAzMzcuNDIgODYgMzE4LjA2NyA4NkMyOTguNzE1IDg2IDI4Ni40MjkgNzEuNTM5OCAyODYuNDI5IDUzLjYwMDVDMjg2LjUzOCAzNS43Njk5IDI5OC43MTUgMjEuMjAxIDMxOC4wNjcgMjEuMjAxWk0zMTIuNjMxIDI0Ljg5NzZDMzAyLjUyIDI2Ljg1NDYgMzAwLjc4MSA0MS4wOTczIDMwMy40OTkgNTYuMTAxMUMzMDYuMTA4IDcxLjMyMjQgMzEzLjUwMSA4NC4wNDMgMzIzLjcyMSA4Mi4zMDM0QzMzMy43MjMgODAuMzQ2NCAzMzUuMzU0IDY2LjEwMzcgMzMyLjc0NSA1MS4wOTk5QzMzMC4xMzUgMzUuODc4NiAzMjIuNzQyIDIzLjE1OCAzMTIuNjMxIDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzczLjczNiAxNy43MjE5QzM2Ny43NTYgMTcuNzIxOSAzNjIuOTczIDEzLjgwNzggMzYyLjk3MyA4LjkxNTNDMzYyLjk3MyAzLjkxNDAzIDM2Ny43NTYgMCAzNzMuNzM2IDBDMzc5LjYwNyAwIDM4NC40OTkgMy45MTQwMyAzODQuNDk5IDguOTE1M0MzODQuNDk5IDEzLjgwNzggMzc5LjYwNyAxNy43MjE5IDM3My43MzYgMTcuNzIxOVpNMzg1LjA0MyA4MS42NTExQzM4Ni4yMzkgODIuMTk0NyAzODcgODIuNTIwOSAzODcgODMuMzkwNkMzODcgODQuMjYwNCAzODYuMzQ4IDg0LjY5NTMgMzg0LjkzNCA4NC41ODY2QzM4Mi45NzcgODQuNDc3OSAzNzkuNzE2IDg0LjI2MDQgMzc0LjQ5NyA4NC4yNjA0QzM2OS4zODcgODQuMjYwNCAzNjUuOTA4IDg0LjQ3NzkgMzY0LjA2IDg0LjU4NjZDMzYyLjY0NiA4NC42OTUzIDM2MS45OTQgODQuMjYwNCAzNjEuOTk0IDgzLjM5MDZDMzYxLjk5NCA4Mi41MjA5IDM2Mi43NTUgODIuMTk0NyAzNjMuOTUxIDgxLjY1MTFDMzY2LjAxNyA4MC44OSAzNjYuMjM0IDc4LjYwNjggMzY2LjIzNCA3NC44MDE1VjM4LjcwNTRDMzY2LjIzNCAzNC45MDAxIDM2Ni4wMTcgMzIuNzI1NyAzNjMuOTUxIDMxLjg1NTlDMzYyLjg2NCAzMS40MjEgMzYxLjk5NCAzMC45ODYxIDM2MS45OTQgMzAuMDA3NkMzNjEuOTk0IDI5LjEzNzggMzYyLjY0NiAyOC41OTQyIDM2My45NTEgMjguMTU5M0MzNjYuODg3IDI3LjYxNTcgMzc0LjI4IDI1Ljg3NjEgMzgwLjY5NCAyMi42MTQ0QzM4MS44OSAyMi4wNzA4IDM4Mi43NiAyMi41MDU3IDM4Mi43NiAyMy43MDE2Vjc0LjgwMTVDMzgyLjc2IDc4LjYwNjggMzgyLjk3NyA4MC44OSAzODUuMDQzIDgxLjY1MTFaIiBmaWxsPSJibGFjayIvPgo8L3N2Zz4K" alt="novooi" style="height:22px;display:block">
   <div style="display:flex;align-items:center;gap:10px">
     <a href="https://novooi-agent-hub.github.io" target="_blank" style="display:flex;align-items:center;gap:5px;font-size:11px;color:#888;text-decoration:none;border:1px solid #e5e5e0;border-radius:20px;padding:4px 12px;background:#f5f5f0;letter-spacing:.04em;text-transform:uppercase;transition:all .15s" onmouseover="this.style.background='#111';this.style.color='#fff';this.style.borderColor='#111'" onmouseout="this.style.background='#f5f5f0';this.style.color='#888';this.style.borderColor='#e5e5e0'">&#8592; Agent Hub</a>
-    <div class="topbar-badge">Tilbudsagent</div>
+    <span id="saveIndicator" style="font-size:11px;color:#aaa;letter-spacing:.04em;transition:opacity .4s;opacity:0">✓ Lagret</span>
+  <button onclick="nyttTilbud()" style="font-size:11px;color:#888;background:none;border:1px solid #e5e5e0;border-radius:20px;padding:4px 12px;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;font-family:inherit;transition:all .15s" onmouseover="this.style.background='#f5f5f0'" onmouseout="this.style.background='none'">Nytt tilbud</button>
+  <div class="topbar-badge">Tilbudsagent</div>
   </div>
 </div>
 
@@ -459,27 +461,265 @@ textarea{resize:vertical;line-height:1.55}
         <label class="check"><input type="checkbox" id="phOpsjon"> Skjul Opsjon (kjøp av møbler)</label>
         <label class="check"><input type="checkbox" id="phBetaling"> Skjul Betalingsbetingelser</label>
         <label class="check"><input type="checkbox" id="phMarked"> Skjul Markedsføring</label>
-        <label class="check"><input type="checkbox" id="phMerknader"> Skjul Merknader</label>        <label class="check"><input type="checkbox" id="phTotal"> Skjul Totalpris-boks</label>
-      </div>
-    </div>
-  </div>
-
-  <div class="btn-row">
-    <button class="btn-gen" id="genBtn" onclick="doGen()">Generer tilbud</button>
-    <button class="btn-pdf" id="pdfBtn" onclick="doPDF().catch(e=>console.error(e))">&#11015; Last ned PDF</button>
-  </div>
-  <div id="output"></div>
-</div>
 
 <script>
+// ── LOCAL STORAGE ─────────────────────────────────────────────────────────
+const LS_KEY = 'novooi_tilbud_draft';
+const LS_NR_KEY = 'novooi_tilbudsnr_seq';
+
+function saveToStorage() {
+  try {
+    const data = {
+      ts: Date.now(),
+      fields: {
+        fnr: document.getElementById('fnr')?.value,
+        fdato: document.getElementById('fdato')?.value,
+        fgyldig: document.getElementById('fgyldig')?.value,
+        fsaksb: document.getElementById('fsaksb')?.value,
+        fkunde: document.getElementById('fkunde')?.value,
+        fkontakt: document.getElementById('fkontakt')?.value,
+        fprosjekt: document.getElementById('fprosjekt')?.value,
+        fadresse: document.getElementById('fadresse')?.value,
+        fbrief: document.getElementById('fbrief')?.value,
+        fomfang: document.getElementById('fomfang')?.value,
+        fstorrelse: document.getElementById('fstorrelse')?.value,
+        ftid: document.getElementById('ftid')?.value,
+        futlan: document.getElementById('futlan')?.value,
+        fmerk: document.getElementById('fmerk')?.value,
+        frabatt: document.getElementById('frabatt')?.value,
+        discSvc: document.getElementById('discSvc')?.value,
+        discSvcType: document.getElementById('discSvcType')?.value,
+        discProd: document.getElementById('discProd')?.value,
+        discProdType: document.getElementById('discProdType')?.value,
+        discTotal: document.getElementById('discTotal')?.value,
+        discTotalType: document.getElementById('discTotalType')?.value,
+      },
+      lines: Array.from(document.querySelectorAll('#linesWrap .line-svc')).map(r => ({
+        desc: r.querySelector('.ld')?.value || '',
+        qty: r.querySelector('.lq')?.value || '1',
+        price: r.querySelector('.lp')?.value || ''
+      })),
+      products: selectedProducts,
+      opsjoner: {
+        opsKjop: isOpsOn('opsKjop'), txtKjop: document.getElementById('txtKjop')?.value,
+        opsMark: isOpsOn('opsMark'), txtMark: document.getElementById('txtMark')?.value,
+        opsBet:  isOpsOn('opsBet'),  txtBet:  document.getElementById('txtBet')?.value,
+        opsPilot:isOpsOn('opsPilot'),txtPilot:document.getElementById('txtPilot')?.value,
+        opsFors: isOpsOn('opsFors'), txtFors: document.getElementById('txtFors')?.value,
+        opsDep:  isOpsOn('opsDep'),  txtDep:  document.getElementById('txtDep')?.value,
+      },
+      phFlags: {
+        phBeskrivelse: document.getElementById('phBeskrivelse')?.checked,
+        phTjenester:   document.getElementById('phTjenester')?.checked,
+        phProdukter:   document.getElementById('phProdukter')?.checked,
+        phOpsjon:      document.getElementById('phOpsjon')?.checked,
+        phBetaling:    document.getElementById('phBetaling')?.checked,
+        phMarked:      document.getElementById('phMarked')?.checked,
+        phMerknader:   document.getElementById('phMerknader')?.checked,
+        phTotal:       document.getElementById('phTotal')?.checked,
+      },
+      genData: genData ? {
+        ai: genData.ai,
+        fd: { ...genData.fd, products: undefined } // don't duplicate, reload from products
+      } : null
+    };
+    localStorage.setItem(LS_KEY, JSON.stringify(data));
+    showSaveIndicator();
+  } catch(err) { console.warn('localStorage save failed:', err); }
+}
+
+function loadFromStorage() {
+  try {
+    const raw = localStorage.getItem(LS_KEY);
+    if (!raw) return false;
+    const data = JSON.parse(raw);
+
+    // Restore fields
+    Object.entries(data.fields || {}).forEach(([id, val]) => {
+      const el = document.getElementById(id);
+      if (el && val !== undefined && val !== null) el.value = val;
+    });
+
+    // Restore lines
+    const wrap = document.getElementById('linesWrap');
+    if (wrap && data.lines?.length) {
+      wrap.innerHTML = '';
+      data.lines.forEach(l => addLine(l.desc, l.qty, l.price));
+    }
+
+    // Restore products
+    if (data.products?.length) {
+      selectedProducts = data.products;
+      renderSelectedProducts();
+    }
+
+    // Restore opsjoner
+    if (data.opsjoner) {
+      const om = data.opsjoner;
+      ['Kjop','Mark','Bet','Pilot','Fors','Dep'].forEach(k => {
+        const id = 'ops'+k;
+        const txtId = 'txt'+k;
+        const el = document.getElementById(id);
+        const txtEl = document.getElementById(txtId);
+        if (el && om['ops'+k]) el.classList.add('on');
+        if (el && !om['ops'+k]) el.classList.remove('on');
+        if (txtEl && om['txt'+k] !== undefined) txtEl.value = om['txt'+k];
+      });
+    }
+
+    // Restore ph flags
+    if (data.phFlags) {
+      Object.entries(data.phFlags).forEach(([id, checked]) => {
+        const el = document.getElementById(id);
+        if (el) el.checked = !!checked;
+      });
+    }
+
+    // Restore genData
+    if (data.genData?.ai) {
+      const fd = getFD();
+      genData = { fd, ai: data.genData.ai };
+      renderPreview(fd, data.genData.ai);
+      document.getElementById('pdfBtn').style.display = 'block';
+    }
+
+    updateLiveSum();
+    return true;
+  } catch(err) { console.warn('localStorage load failed:', err); return false; }
+}
+
+function showSaveIndicator() {
+  const el = document.getElementById('saveIndicator');
+  if (!el) return;
+  el.textContent = '✓ Lagret';
+  el.style.opacity = '1';
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.style.opacity = '0'; }, 1800);
+}
+
+function clearStorage() {
+  localStorage.removeItem(LS_KEY);
+}
+
+// Auto-save on any input change
+let _saveTimer;
+function scheduleSave() {
+  clearTimeout(_saveTimer);
+  _saveTimer = setTimeout(saveToStorage, 800);
+}
+document.addEventListener('input', scheduleSave);
+document.addEventListener('change', scheduleSave);
+
+
+// ── SEKVENSIELLE TILBUDSNUMRE ─────────────────────────────────────────────
+function nextTilbudsnr() {
+  const year = new Date().getFullYear();
+  const key  = LS_NR_KEY + '_' + year;
+  let seq = parseInt(localStorage.getItem(key) || '0') + 1;
+  localStorage.setItem(key, seq);
+  return year + '-' + String(seq).padStart(3, '0');
+}
+
+
+// ── LIVE PRISSUM ──────────────────────────────────────────────────────────
+function updateLiveSum() {
+  // Service lines
+  let svcSum = 0;
+  document.querySelectorAll('#linesWrap .line-svc').forEach(r => {
+    const qty   = parseFloat(r.querySelector('.lq')?.value) || 1;
+    const price = parseKr(r.querySelector('.lp')?.value) || 0;
+    svcSum += qty * price;
+  });
+  // Products (with per-product discount)
+  let prodSum = 0;
+  selectedProducts.forEach(p => {
+    const unit = parseKr(p.price) || 0;
+    const dv   = p.discVal || 0;
+    const dt   = p.discType || 'pct';
+    const after= dv ? (dt==='pct' ? unit*(1-dv/100) : Math.max(0,unit-dv)) : unit;
+    prodSum += after * (p.qty || 1);
+  });
+  const total = svcSum + prodSum;
+  const el = document.getElementById('liveSumDisplay');
+  if (el) {
+    el.textContent = total > 0 ? fmtR(total) + ' eks. mva' : '—';
+    el.style.color = total > 0 ? '#111' : '#ccc';
+  }
+}
+
+
+// ── PRISLINJER ────────────────────────────────────────────────────────────
+function addLine(desc='', qty='1', price='') {
+  const wrap = document.getElementById('linesWrap');
+  const row  = document.createElement('div');
+  row.className = 'line-svc';
+  row.innerHTML = `
+    <input class="ld" type="text" placeholder="Tjenestebeskrivelse" value="${desc}"
+      oninput="updateLineTotal(this);scheduleSave()">
+    <input class="lq" type="text" placeholder="1" value="${qty}" style="width:46px;text-align:center"
+      oninput="updateLineTotal(this);updateLiveSum();scheduleSave()">
+    <input class="lp" type="text" placeholder="kr 0" value="${price}"
+      oninput="updateLineTotal(this);updateLiveSum();scheduleSave()">
+    <span class="line-tot" style="font-size:12px;color:#666;text-align:right;padding-right:2px;white-space:nowrap">—</span>
+    <button class="del-btn" onclick="this.parentNode.remove();updateLiveSum();scheduleSave()" title="Slett">&#215;</button>`;
+  wrap.appendChild(row);
+  updateLineTotal(row.querySelector('.ld'));
+  updateLiveSum();
+}
+
+function updateLineTotal(inputEl) {
+  const row  = inputEl.closest('.line-svc');
+  if (!row) return;
+  const qty  = parseFloat(row.querySelector('.lq')?.value) || 1;
+  const unit = parseKr(row.querySelector('.lp')?.value) || 0;
+  const tot  = qty * unit;
+  const totEl = row.querySelector('.line-tot');
+  if (totEl) totEl.textContent = tot > 0 ? fmtR(tot) : '—';
+  updateLiveSum();
+}
+
 function collectLines() {
   return Array.from(document.querySelectorAll('#linesWrap .line-svc')).map(r => ({
     kind: 'service',
-    desc: r.querySelector('.ld')?.value.trim()||'',
-    price: r.querySelector('.lp')?.value.trim()||''
+    desc:  r.querySelector('.ld')?.value.trim()  || '',
+    qty:   r.querySelector('.lq')?.value.trim()  || '1',
+    price: r.querySelector('.lp')?.value.trim()  || ''
   })).filter(l => l.desc);
 }
 
+
+// ── RESET ─────────────────────────────────────────────────────────────────
+function nyttTilbud() {
+  if (!confirm('Starte nytt tilbud? Gjeldende data vil bli slettet.')) return;
+  clearStorage();
+  // Clear all text inputs and textareas (except ops defaults)
+  document.querySelectorAll('input[type=text], input[type=email], textarea:not(.ops-body textarea)').forEach(el => {
+    if (!['fbetfrist'].includes(el.id)) el.value = '';
+  });
+  // Reset dates
+  const now = new Date();
+  const fmt = d => d.toLocaleDateString('nb-NO',{day:'numeric',month:'long',year:'numeric'});
+  document.getElementById('fdato').value  = fmt(now);
+  const exp = new Date(now); exp.setDate(exp.getDate()+30);
+  document.getElementById('fgyldig').value = fmt(exp);
+  // Reset tilbudsnr
+  document.getElementById('fnr').value = nextTilbudsnr();
+  // Clear lines
+  document.getElementById('linesWrap').innerHTML = '';
+  addLine(); addLine(); addLine();
+  // Clear products
+  selectedProducts = [];
+  renderSelectedProducts();
+  // Turn off all opsjoner
+  ['opsKjop','opsMark','opsBet','opsPilot','opsFors','opsDep'].forEach(id => {
+    document.getElementById(id)?.classList.remove('on');
+  });
+  // Clear output
+  document.getElementById('output').innerHTML = '';
+  document.getElementById('pdfBtn').style.display = 'none';
+  genData = null;
+  updateLiveSum();
+}
 const LOGO = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzg3IiBoZWlnaHQ9Ijg2IiB2aWV3Qm94PSIwIDAgMzg3IDg2IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNNjUuMTI0IDgxLjY1MTFDNjYuMzE5OSA4Mi4xOTQ3IDY3LjA4MDkgODIuNTIwOSA2Ny4wODA5IDgzLjM5MDZDNjcuMDgwOSA4NC4yNjA0IDY2LjQyODYgODQuNjk1MyA2NS4wMTUyIDg0LjU4NjZDNjMuMTY3IDg0LjQ3NzkgNTkuNjg3OSA4NC4yNjA0IDU0LjU3OCA4NC4yNjA0QzQ5LjQ2ODEgODQuMjYwNCA0NS45ODkgODQuNDc3OSA0NC4xNDA4IDg0LjU4NjZDNDIuNzI3NCA4NC42OTUzIDQyLjA3NTEgODQuMjYwNCA0Mi4wNzUxIDgzLjM5MDZDNDIuMDc1MSA4Mi41MjA5IDQyLjgzNjEgODIuMTk0NyA0NC4wMzIxIDgxLjY1MTFDNDYuMDk3OCA4MC44OSA0Ni4zMTUyIDc4LjYwNjggNDYuMzE1MiA3NC44MDE1VjQ3LjA3NzFDNDYuMzE1MiAzNi45NjU5IDQzLjU5NzIgMjkuMTM3OCAzNC4yNDcyIDI5LjEzNzhDMjQuNTcxIDI5LjEzNzggMjAuNzY1NyAzOC4yNzA1IDIwLjc2NTcgNDYuNTMzNVY3NC44MDE1QzIwLjc2NTcgNzguNjA2OCAyMS4wOTE5IDgwLjg5IDIzLjE1NzYgODEuNjUxMUMyNC4zNTM1IDgyLjE5NDcgMjUuMDA1OSA4Mi41MjA5IDI1LjAwNTkgODMuMzkwNkMyNS4wMDU5IDg0LjI2MDQgMjQuMzUzNSA4NC42OTUzIDIyLjk0MDIgODQuNTg2NkMyMS4yMDA2IDg0LjQ3NzkgMTcuNzIxNSA4NC4yNjA0IDEyLjYxMTcgODQuMjYwNEM3LjM5MzA0IDg0LjI2MDQgNC4wMjI2OCA4NC40Nzc5IDIuMTc0NDIgODQuNTg2NkMwLjc2MTA0OCA4NC42OTUzIDAuMTA4NzIxIDg0LjI2MDQgMC4xMDg3MjEgODMuMzkwNkMwLjEwODcyMSA4Mi41MjA5IDAuODY5NzY5IDgyLjE5NDcgMS45NTY5OCA4MS42NTExQzQuMDIyNjggODAuODkgNC4zNDg4NSA3OC42MDY4IDQuMzQ4ODUgNzQuODAxNVYzOC41OTY3QzQuMzQ4ODUgMzQuNzkxNCA0LjAyMjY4IDMyLjYxNjkgMS45NTY5OCAzMS43NDcyQzAuODY5NzY5IDMxLjMxMjMgMCAzMC44Nzc0IDAgMjkuODk4OUMwIDI5LjEzNzggMC41NDM2MDYgMjguNTk0MiAxLjUyMjEgMjguMzc2N0M0LjY3NTAxIDI3LjcyNDQgMTAuOTgwOCAyNi4wOTM1IDE3LjcyMTUgMjIuNjE0NEMxOC45MTc1IDIxLjk2MjEgMTkuNjc4NSAyMi4zOTcgMTkuNzg3MiAyMy43MDE2TDIwLjU0ODMgMzIuNTA4MkwyMC42NTcgMzMuNTk1NEMyMy40ODM4IDI3LjUwNjkgMjkuMTM3MyAyMS4yMDEgNDAuNDQ0MyAyMS4yMDFDNTYuMTAwMSAyMS4yMDEgNjIuODQwOCAyOS42ODE0IDYyLjg0MDggNDcuMDc3MVY3NC44MDE1QzYyLjg0MDggNzguNjA2OCA2My4wNTgzIDgwLjg5IDY1LjEyNCA4MS42NTExWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEwOC40IDIxLjIwMUMxMjcuNzUzIDIxLjIwMSAxNDAuMTQ3IDM1Ljc2OTkgMTQwLjE0NyA1My42MDA1QzE0MC4xNDcgNzEuNTM5OCAxMjcuNzUzIDg2IDEwOC40IDg2Qzg5LjA0NzggODYgNzYuNzYyMyA3MS41Mzk4IDc2Ljc2MjMgNTMuNjAwNUM3Ni44NzEgMzUuNzY5OSA4OS4wNDc4IDIxLjIwMSAxMDguNCAyMS4yMDFaTTEwMi45NjQgMjQuODk3NkM5Mi44NTMgMjYuODU0NiA5MS4xMTM1IDQxLjA5NzMgOTMuODMxNSA1Ni4xMDExQzk2LjQ0MDggNzEuMzIyNCAxMDMuODM0IDg0LjA0MyAxMTQuMDU0IDgyLjMwMzRDMTI0LjA1NiA4MC4zNDY0IDEyNS42ODcgNjYuMTAzNyAxMjMuMDc3IDUxLjA5OTlDMTIwLjQ2OCAzNS44Nzg2IDExMy4wNzUgMjMuMTU4IDEwMi45NjQgMjQuODk3NloiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0xOTUuNjkyIDE5Ljg5NjNDMjAzLjg0NiAyMC40Mzk5IDIwMy42MjkgMjkuNDY0IDIwMC4zNjcgMzcuOTQ0NEwxODIuNDI4IDgzLjQ5OTRDMTgyLjEwMiA4NC4zNjkxIDE4MS40NSA4NC45MTI4IDE4MC41OCA4NC45MTI4TDE3OC4yOTcgODQuODA0Vjg0LjkxMjhIMTcwLjc5NUMxNjkuODE3IDg0LjkxMjggMTY5LjI3MyA4NC40Nzc5IDE2OC45NDcgODMuNDk5NEwxNDkuODEyIDMyLjM5OTVDMTQ4LjA3MiAyNy43MjQ0IDE0Ny4yMDMgMjYuNTI4NCAxNDQuOTE5IDI1LjU0OTlDMTQzLjgzMiAyNS4wMDYzIDE0My4wNzEgMjQuNTcxNCAxNDMuMDcxIDIzLjcwMTZDMTQzLjA3MSAyMi45NDA2IDE0My42MTUgMjIuNTA1NyAxNDUuMTM3IDIyLjYxNDRDMTQ3LjMxMSAyMi43MjMxIDE1MC44OTkgMjIuOTQwNiAxNTYuNTUzIDIyLjk0MDZDMTYxLjY2MyAyMi45NDA2IDE2NC45MjQgMjIuNzIzMSAxNjYuODgxIDIyLjYxNDRDMTY4LjI5NCAyMi41MDU3IDE2OC44MzggMjIuOTQwNiAxNjguODM4IDIzLjcwMTZDMTY4LjgzOCAyNC42ODAyIDE2OC4xODYgMjUuMDA2MyAxNjcuMDk5IDI1LjY1ODdDMTY1LjY4NSAyNi42MzcyIDE2Ni4yMjkgMjguMzc2NyAxNjcuNDI1IDMyLjM5OTVMMTgxLjAxNSA3NC44MDE1TDE5Mi45NzQgNDEuODU4NEMxOTUuODAxIDM0LjEzOTEgMTkwLjAzOSAzMi45NDMxIDE4OS4xNjkgMjcuMzk4MkMxODguNTE3IDIzLjU5MjkgMTkxLjAxNyAxOS41NzAyIDE5NS42OTIgMTkuODk2M1oiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0yNDIuODcgMjEuMjAxQzI2Mi4yMjIgMjEuMjAxIDI3NC42MTYgMzUuNzY5OSAyNzQuNjE2IDUzLjYwMDVDMjc0LjYxNiA3MS41Mzk4IDI2Mi4yMjIgODYgMjQyLjg3IDg2QzIyMy41MTcgODYgMjExLjIzMiA3MS41Mzk4IDIxMS4yMzIgNTMuNjAwNUMyMTEuMzQgMzUuNzY5OSAyMjMuNTE3IDIxLjIwMSAyNDIuODcgMjEuMjAxWk0yMzcuNDM0IDI0Ljg5NzZDMjI3LjMyMyAyNi44NTQ2IDIyNS41ODMgNDEuMDk3MyAyMjguMzAxIDU2LjEwMTFDMjMwLjkxIDcxLjMyMjQgMjM4LjMwMyA4NC4wNDMgMjQ4LjUyMyA4Mi4zMDM0QzI1OC41MjUgODAuMzQ2NCAyNjAuMTU2IDY2LjEwMzcgMjU3LjU0NyA1MS4wOTk5QzI1NC45MzggMzUuODc4NiAyNDcuNTQ1IDIzLjE1OCAyMzcuNDM0IDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzE4LjA2NyAyMS4yMDFDMzM3LjQyIDIxLjIwMSAzNDkuODE0IDM1Ljc2OTkgMzQ5LjgxNCA1My42MDA1QzM0OS44MTQgNzEuNTM5OCAzMzcuNDIgODYgMzE4LjA2NyA4NkMyOTguNzE1IDg2IDI4Ni40MjkgNzEuNTM5OCAyODYuNDI5IDUzLjYwMDVDMjg2LjUzOCAzNS43Njk5IDI5OC43MTUgMjEuMjAxIDMxOC4wNjcgMjEuMjAxWk0zMTIuNjMxIDI0Ljg5NzZDMzAyLjUyIDI2Ljg1NDYgMzAwLjc4MSA0MS4wOTczIDMwMy40OTkgNTYuMTAxMUMzMDYuMTA4IDcxLjMyMjQgMzEzLjUwMSA4NC4wNDMgMzIzLjcyMSA4Mi4zMDM0QzMzMy43MjMgODAuMzQ2NCAzMzUuMzU0IDY2LjEwMzcgMzMyLjc0NSA1MS4wOTk5QzMzMC4xMzUgMzUuODc4NiAzMjIuNzQyIDIzLjE1OCAzMTIuNjMxIDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzczLjczNiAxNy43MjE5QzM2Ny43NTYgMTcuNzIxOSAzNjIuOTczIDEzLjgwNzggMzYyLjk3MyA4LjkxNTNDMzYyLjk3MyAzLjkxNDAzIDM2Ny43NTYgMCAzNzMuNzM2IDBDMzc5LjYwNyAwIDM4NC40OTkgMy45MTQwMyAzODQuNDk5IDguOTE1M0MzODQuNDk5IDEzLjgwNzggMzc5LjYwNyAxNy43MjE5IDM3My43MzYgMTcuNzIxOVpNMzg1LjA0MyA4MS42NTExQzM4Ni4yMzkgODIuMTk0NyAzODcgODIuNTIwOSAzODcgODMuMzkwNkMzODcgODQuMjYwNCAzODYuMzQ4IDg0LjY5NTMgMzg0LjkzNCA4NC41ODY2QzM4Mi45NzcgODQuNDc3OSAzNzkuNzE2IDg0LjI2MDQgMzc0LjQ5NyA4NC4yNjA0QzM2OS4zODcgODQuMjYwNCAzNjUuOTA4IDg0LjQ3NzkgMzY0LjA2IDg0LjU4NjZDMzYyLjY0NiA4NC42OTUzIDM2MS45OTQgODQuMjYwNCAzNjEuOTk0IDgzLjM5MDZDMzYxLjk5NCA4Mi41MjA5IDM2Mi43NTUgODIuMTk0NyAzNjMuOTUxIDgxLjY1MTFDMzY2LjAxNyA4MC44OSAzNjYuMjM0IDc4LjYwNjggMzY2LjIzNCA3NC44MDE1VjM4LjcwNTRDMzY2LjIzNCAzNC45MDAxIDM2Ni4wMTcgMzIuNzI1NyAzNjMuOTUxIDMxLjg1NTlDMzYyLjg2NCAzMS40MjEgMzYxLjk5NCAzMC45ODYxIDM2MS45OTQgMzAuMDA3NkMzNjEuOTk0IDI5LjEzNzggMzYyLjY0NiAyOC41OTQyIDM2My45NTEgMjguMTU5M0MzNjYuODg3IDI3LjYxNTcgMzc0LjI4IDI1Ljg3NjEgMzgwLjY5NCAyMi42MTQ0QzM4MS44OSAyMi4wNzA4IDM4Mi43NiAyMi41MDU3IDM4Mi43NiAyMy43MDE2Vjc0LjgwMTVDMzgyLjc2IDc4LjYwNjggMzgyLjk3NyA4MC44OSAzODUuMDQzIDgxLjY1MTFaIiBmaWxsPSJibGFjayIvPgo8L3N2Zz4K";
 
 // ── CONFIG
@@ -488,12 +728,6 @@ const WORKER_URL = "https://tilbudsagent.marcus-3aa.workers.dev";
 // ──────────────────────────────────────────────────────────────────────────
 
 
-const dtFmt=d=>d.toLocaleDateString("nb-NO",{day:"numeric",month:"long",year:"numeric"});
-const plus=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
-const now=new Date();
-document.getElementById("fdato").value=dtFmt(now);
-document.getElementById("fgyldig").value=dtFmt(plus(now,30));
-document.getElementById("fnr").value="2026-0"+(10+Math.floor(Math.random()*89));
 
 function tog(h){h.classList.toggle("open");h.nextElementSibling.classList.toggle("hidden");}
 
@@ -802,6 +1036,7 @@ function updateProdDisc(id, val, type) {
 
 // ── Render selected product cards
 function renderSelectedProducts() {
+  setTimeout(updateLiveSum, 0);
   const wrapEl  = document.getElementById('selProdsWrap');
   const gridEl  = document.getElementById('selProds');
   const countEl = document.getElementById('prodCount');
@@ -884,7 +1119,6 @@ function renderTags(){
 
 function fmtR(n){if(!n&&n!==0)return"—";return"kr "+Math.round(parseFloat(n)).toLocaleString("nb-NO");}
 function fmt(n){if(!n&&n!==0)return"—";return"kr "+parseFloat(n).toLocaleString("nb-NO",{minimumFractionDigits:2,maximumFractionDigits:2});}
-function fmtR(n){if(!n&&n!==0)return"—";return"kr "+Math.round(parseFloat(n)).toLocaleString("nb-NO");}
 function parseKr(s){if(!s)return null;const n=parseFloat(s.replace(/[^0-9.,]/g,"").replace(",","."));return isNaN(n)?null:n;}
 
 
@@ -1261,7 +1495,21 @@ async function doPDF(){
     doc.text(String(txt),x,yy,{align:"right"});
   };
   const HR=(yy,w,c)=>{doc.setLineWidth(w||0.2);doc.setDrawColor(...(c||[17,17,17]));doc.line(ml,yy,W-mr,yy);};
-  const NP=(sp)=>{if(y+(sp||0)>272){doc.addPage();y=20;}};
+  let _pageNum = 1;
+  const NP=(sp)=>{
+    if(y+(sp||0)>272){
+      // Draw footer on current page before turning
+      _drawPageFooter(_pageNum);
+      doc.addPage();
+      _pageNum++;
+      y=20;
+    }
+  };
+  const _drawPageFooter = (n) => {
+    const totalPages = doc.internal.getNumberOfPages();
+    doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(180);
+    doc.text("Side "+n+" av "+totalPages, W/2, 291, {align:"center"});
+  };
   const SEC=(title)=>{NP(14);y+=2;T(title,ml,y,8.5,"bold",[50,50,50]);y+=6;};
   const BODY=(txt)=>{doc.setFontSize(FS);doc.setFont("helvetica","normal");const ls=doc.splitTextToSize(txt,cw);T(ls,ml,y,FS,"normal",[60,60,60]);y+=ls.length*5+4;};
   const priceX = W-mr;  // right edge for all prices
@@ -1342,11 +1590,20 @@ async function doPDF(){
     // Rows
     fd.lines.filter(l=>l.desc).forEach(l=>{
       NP(12);
-      const priceNum=parseKr(l.price);
-      const descW = cw*0.70;  // description takes 70% of width
+      const qty = parseFloat(l.qty)||1;
+      const unit = parseKr(l.price)||0;
+      const tot  = qty * unit;
+      const descW = cw*0.65;
       const ls=doc.splitTextToSize(l.desc,descW);
       T(ls,ml,y+5,FS,"normal",[40,40,40]);
-      if(priceNum) TR(fmtR(priceNum),priceX,y+5,FS,"normal",[40,40,40]);
+      if(unit){
+        if(qty>1){
+          TR(qty+' × '+fmtR(unit),priceX,y+5,9,"normal",[140,140,140]);
+          TR(fmtR(tot),priceX,y+10,FS,"normal",[17,17,17]);
+        } else {
+          TR(fmtR(unit),priceX,y+5,FS,"normal",[40,40,40]);
+        }
+      }
       y+=Math.max(ls.length*5,6)+5;
       HR(y-1,0.1,[230,230,230]);
     });
@@ -1524,8 +1781,23 @@ async function doPDF(){
 
   // ── Footer
   doc.setFontSize(8.5);doc.setFont("helvetica","normal");doc.setTextColor(180);
+  // ── Signeringslinje
+  NP(40);
+  y += 8;
+  const sigY = y;
+  doc.setDrawColor(180,180,180); doc.setLineWidth(0.3);
+  doc.line(ml, sigY, ml+75, sigY);
+  doc.line(W-mr-75, sigY, W-mr, sigY);
+  doc.setFontSize(8); doc.setFont("helvetica","normal"); doc.setTextColor(150);
+  doc.text("Kundens underskrift og dato", ml, sigY+4.5);
+  doc.text("NOVOOI AS — underskrift og dato", W-mr-75, sigY+4.5);
+  y += 16;
+
   doc.text("NOVOOI AS · St. Halvards gate 33c, 0192 Oslo · hei@novooi.com · novooi.com"+(fd.saksb?" · "+fd.saksb:""),W/2,283,{align:"center"});
   doc.text("Org.nr. 827 340 162",W/2,288,{align:"center"});
+
+  // Draw page footer on last page
+  _drawPageFooter(_pageNum);
 
   doc.save("NOVOOI_Tilbud_"+fd.kunde.replace(/[^a-zA-Z0-9]/g,"_")+"_"+fd.nr+".pdf");
 }
@@ -1598,6 +1870,34 @@ function getOpsText(id) {
 }
 
 (function(){
+  // ── INIT ──────────────────────────────────────────────────────────────
+  const _now = new Date();
+  const _fmt  = d => d.toLocaleDateString('nb-NO',{day:'numeric',month:'long',year:'numeric'});
+  const _exp  = new Date(_now); _exp.setDate(_exp.getDate()+30);
+
+  // Set defaults if fields are empty
+  if(!document.getElementById('fdato').value)   document.getElementById('fdato').value   = _fmt(_now);
+  if(!document.getElementById('fgyldig').value) document.getElementById('fgyldig').value = _fmt(_exp);
+  if(!document.getElementById('fnr').value)     document.getElementById('fnr').value     = nextTilbudsnr();
+
+  // Default 3 empty service lines
+  if(!document.getElementById('linesWrap').children.length){
+    addLine(); addLine(); addLine();
+  }
+
+  // Load saved draft (overrides defaults)
+  const loaded = loadFromStorage();
+  if(!loaded){
+    // Reset sequence if loading fresh
+    document.getElementById('fnr').value = nextTilbudsnr();
+  }
+
+  updateLiveSum();
+
+  // Wire liveSum to product operations
+  const origRSP = renderSelectedProducts;
+  // Already hooked above via setTimeout
+
   const liveFields = [
     ['fnr','nr'],['fdato','dato'],['fgyldig','gyldig'],['fsaksb','saksb'],
     ['fkunde','kunde'],['fkontakt','kontakt'],['fprosjekt','prosjekt'],
@@ -1639,7 +1939,6 @@ function getOpsText(id) {
   });
 
 })();
-
 </script>
 </body>
 </html>
