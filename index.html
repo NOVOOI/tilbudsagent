@@ -205,9 +205,6 @@ textarea{resize:vertical;line-height:1.55}
 
 
 /* ── UX improvements: PDF visibility, status, validation and live price summary ── */
-.pdf-visibility{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#fafaf8;border:1px solid #eee;border-radius:5px;padding:8px 11px;margin-bottom:12px}
-.pdf-visibility .txt{font-size:11px;color:#888;letter-spacing:.04em;text-transform:uppercase;font-weight:700}
-.pdf-visibility .check{margin:0;font-size:12px;color:#666;text-transform:none;letter-spacing:0;font-weight:500}
 .status-box{display:none;margin:.85rem 0 0;padding:10px 13px;border-radius:5px;border:1px solid #eee;background:#fafaf8;font-size:13px;line-height:1.45;color:#666}
 .status-box.on{display:block}
 .status-box.ok{border-color:#d8ead8;background:#f4fbf4;color:#2a7a2a}
@@ -222,7 +219,7 @@ textarea{resize:vertical;line-height:1.55}
 .live-summary-row.total{font-size:15px;font-weight:800;color:#111;border-top:1.5px solid #111;margin-top:5px;padding-top:8px}
 .live-summary-row.muted{color:#aaa;font-size:12px}
 .btn-pdf:disabled{border-color:#ccc;color:#aaa;cursor:default;background:#fafaf8}
-@media(max-width:700px){.g2,.g3,.g4,.manual-grid{grid-template-columns:1fr!important}.line-svc{grid-template-columns:1fr 44px 92px 60px 28px}.pdf-visibility{align-items:flex-start;flex-direction:column}.live-summary{margin-left:0;margin-right:0}}
+@media(max-width:700px){.g2,.g3,.g4,.manual-grid{grid-template-columns:1fr!important}.line-svc{grid-template-columns:1fr 44px 92px 60px 28px}.live-summary{margin-left:0;margin-right:0}}
 
 </style>
 </head>
@@ -263,7 +260,6 @@ textarea{resize:vertical;line-height:1.55}
   <div class="card">
     <div class="card-head open" onclick="tog(this)"><h2>Prosjektbeskrivelse</h2><span class="arr">&#9660;</span></div>
     <div class="card-body">
-      <div class="pdf-visibility"><span class="txt">PDF-visning</span><label class="check"><input type="checkbox" id="phBeskrivelse"> Skjul beskrivelse og omfang i PDF</label></div>
       <div class="field"><label>Brief (brukes av AI til å skrive tilbudsteksten)</label>
         <textarea id="fbrief" rows="3" placeholder="Beskriv oppdraget – formål, omfang, særlige ønsker, tidsplan..."></textarea>
       </div>
@@ -283,7 +279,6 @@ textarea{resize:vertical;line-height:1.55}
   <div class="card">
     <div class="card-head open" onclick="tog(this)"><h2>Prislinjer</h2><span class="arr">&#9660;</span></div>
     <div class="card-body">
-      <div class="pdf-visibility"><span class="txt">PDF-visning</span><label class="check"><input type="checkbox" id="phTjenester"> Skjul tjenester i PDF</label></div>
       <div class="lines-wrap" id="linesWrap"></div>
       <button class="add-btn" onclick="addLine()">+ Legg til linje</button>
     </div>
@@ -293,11 +288,6 @@ textarea{resize:vertical;line-height:1.55}
     <div class="card-head open" onclick="tog(this)"><h2>Opsjoner og betingelser</h2><span class="arr">&#9660;</span></div>
     <div class="card-body">
 
-      <div class="pdf-visibility" style="align-items:flex-start"><span class="txt">PDF-visning</span><div style="display:flex;flex-direction:column;gap:6px">
-        <label class="check"><input type="checkbox" id="phOpsjon"> Skjul kjøpsopsjon i PDF</label>
-        <label class="check"><input type="checkbox" id="phBetaling"> Skjul betalingsbetingelser i PDF</label>
-        <label class="check"><input type="checkbox" id="phMarked"> Skjul markedsføring i PDF</label>
-      </div></div>
       <div style="font-size:11px;color:#aaa;margin-bottom:12px">Slå på de opsjonene som skal med i tilbudet. Teksten kan redigeres.</div>
 
       <div class="ops-item" id="opsKjop">
@@ -420,7 +410,6 @@ textarea{resize:vertical;line-height:1.55}
   <div class="card">
     <div class="card-head open" onclick="tog(this)"><h2>Produkter</h2><span class="arr">&#9660;</span></div>
     <div class="card-body">
-      <div class="pdf-visibility"><span class="txt">PDF-visning</span><label class="check"><input type="checkbox" id="phProdukter"> Skjul produkter i PDF</label></div>
 
       <div class="ptabs">
         <div class="ptab on" onclick="switchProdTab('woo',this)">Søk i WooCommerce</div>
@@ -474,7 +463,6 @@ textarea{resize:vertical;line-height:1.55}
     <div id="liveSummaryRows">
       <div class="live-summary-row muted"><span>Legg inn tjenester eller produkter</span><span>—</span></div>
     </div>
-    <label class="check" style="justify-content:center;margin-top:10px"><input type="checkbox" id="phTotal"> Skjul totalpris i PDF</label>
     <div id="liveSumDisplay" style="display:none">—</div>
   </div>
   <div class="btn-row">
@@ -540,7 +528,6 @@ function saveToStorage() {
         phBetaling:    document.getElementById('phBetaling')?.checked,
         phMarked:      document.getElementById('phMarked')?.checked,
         phMerknader:   document.getElementById('phMerknader')?.checked,
-        phTotal:       document.getElementById('phTotal')?.checked,
       },
       genData: genData ? {
         ai: genData.ai,
@@ -1202,7 +1189,7 @@ function getFD(){
     phBetaling:    isChecked('phBetaling'),
     phMarked:      isChecked('phMarked'),
     phMerknader:   isChecked('phMerknader'),
-    phTotal:       isChecked('phTotal'),
+    phTotal:       false,
     discSvc:   {val: parseFloat(document.getElementById('discSvc').value)||0, type: document.getElementById('discSvcType').value},
     discProd:  {val: parseFloat(document.getElementById('discProd').value)||0, type: document.getElementById('discProdType').value},
     discTotal: {val: parseFloat(document.getElementById('discTotal').value)||0, type: document.getElementById('discTotalType').value},
@@ -1399,7 +1386,7 @@ function renderPreview(fd,ai){
     produkter: fd.phProdukter, opsjon: fd.phOpsjon,
     betaling: fd.phBetaling, marked: fd.phMarked,
     merknader: fd.phMerknader,
-    total: fd.phTotal,
+    total: false,
   };
   const kind=fd.kind || "service";
 
@@ -1653,7 +1640,7 @@ async function doPDF(){
     betaling:    fd.phBetaling,
     marked:      fd.phMarked,
     merknader:   fd.phMerknader,
-    total:       fd.phTotal,
+    total:       false,
   };
   const kind = fd.kind || "service";
 
