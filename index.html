@@ -1198,6 +1198,10 @@ async function callAPI(body){
 }
 
 
+function escapeHtml(v){
+  return String(v ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','\"':'&quot;'}[ch] || ch));
+}
+
 function fallbackAI(fd){
   const omfang = (fd.omfangPre || '')
     .split('\n')
@@ -1214,53 +1218,31 @@ function fallbackAI(fd){
 }
 
 async function doGen(){
-  const fd=getFD();
-  if(!fd.kunde||!fd.brief){
-    document.getElementById("output").innerHTML='<div class="err">Fyll inn kunde og prosjektbeskrivelse.</div>';return;
-  }
   const btn=document.getElementById("genBtn");
-  btn.disabled=true;btn.textContent="Genererer…";
-  document.getElementById("pdfBtn").style.display="none";
-  document.getElementById("output").innerHTML=`<div class="preview-wrap"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Lager tilbud for ${fd.kunde}…</span></div></div>`;
-
-  const linesText=fd.lines.map(l=>l.kind==="product"
-    ?`- ${l.desc} | Ant:${l.qty} | Utsalg:${l.utsalg} | Leie:${l.leiepris} | Total:${l.total}`
-    :`- ${l.desc}: ${l.price||"(ikke satt)"}`).join("\n");
-
-  const prompt=`Du er tilbudsansvarlig for NOVOOI – norsk premium designstudio med over 120 norske merkevarer. Svar BARE med gyldig JSON, ingen markdown.
-
-Type: ${fd.typeLabel}
-Kunde: ${fd.kunde}${fd.kontakt?" – "+fd.kontakt:""}
-Prosjekt: ${fd.prosjekt||fd.kunde}${fd.adresse?" · "+fd.adresse:""}
-${fd.storrelse?"Størrelse: "+fd.storrelse:""}${fd.tid?" | Tidsplan: "+fd.tid:""}${fd.futlan?" | Utlån: "+fd.futlan:""}
-${fd.brands.length?"Merkevarer: "+fd.brands.join(", "):""}
-Brief: ${fd.brief}
-${fd.omfangPre ? 'Forhåndsutfylt omfang (bruk disse punktene eksakt, ikke generer nye):\n'+fd.omfangPre : ''}
-${fd.rabatt?"Handelsvilkår: "+fd.rabatt:""}
-
-Returner JSON:
-{"beskrivelse":"2-3 setninger om oppdraget","omfang":[],"opsjon":"tekst eller null","betaling":"tekst eller null","markedsforing":"tekst eller null","merknader":[]}`;
-
   try{
-    const d=await callAPI({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]});
-    let txt=(d.content||[{text:""}]).map(x=>x.text).join("").replace(/```json|```/g,"").trim();
-    const ai=JSON.parse(txt);
-    genData={fd,ai};
-    renderPreview(fd,ai);
-    document.getElementById("pdfBtn").style.display="block";
-  }catch(e){
+    const fd=getFD();
+    if(!fd.kunde || !fd.brief){
+      document.getElementById("output").innerHTML='<div class="err">Fyll inn kunde og prosjektbeskrivelse først.</div>';
+      return;
+    }
+    if(btn){ btn.disabled=true; btn.textContent="Genererer…"; }
+    const pdfBtn=document.getElementById("pdfBtn");
+    if(pdfBtn) pdfBtn.style.display="none";
+
+    // Viktig: generer forhåndsvisning lokalt med én gang.
+    // Den gamle versjonen ventet på Worker/AI-kall først. Hvis Worker/API/CORS hang,
+    // så virket det som knappen ikke gjorde noe.
     const ai=fallbackAI(fd);
     genData={fd,ai};
     renderPreview(fd,ai);
-    document.getElementById("pdfBtn").style.display="block";
-    const warn=document.createElement('div');
-    warn.className='err';
-    warn.innerHTML='<strong>Merk:</strong> AI-tekst kunne ikke hentes, så tilbudet ble laget med teksten du fylte inn. Du kan fortsatt redigere forhåndsvisningen og laste ned PDF.';
-    document.getElementById('output').prepend(warn);
-    console.warn('AI/Worker-feil:', e);
+    if(pdfBtn) pdfBtn.style.display="block";
+    saveToStorage();
+  }catch(e){
+    console.error('doGen-feil:', e);
+    document.getElementById("output").innerHTML='<div class="err"><strong>Feil ved generering:</strong> '+escapeHtml(e.message || e)+'</div>';
+  }finally{
+    if(btn){ btn.disabled=false; btn.textContent="Generer tilbud"; }
   }
-  btn.disabled=false;btn.textContent="Generer tilbud";
-  saveToStorage();
 }
 
 function calcPT(lines){let t=0;lines.forEach(l=>{const p=parseKr(l.total);if(p)t+=p;});return t;}
@@ -1499,24 +1481,35 @@ function renderPreview(fd,ai){
 }
 
 async function doPDF(){
-  if(!genData) return;
+  try{
+  if(!genData){
+    document.getElementById("output").insertAdjacentHTML("afterbegin", '<div class="err">Generer forhåndsvisning før du laster ned PDF.</div>');
+    return;
+  }
+  if(!window.jspdf || !window.jspdf.jsPDF){
+    document.getElementById("output").insertAdjacentHTML("afterbegin", '<div class="err"><strong>PDF-biblioteket ble ikke lastet.</strong> Sjekk internett/CDN eller last siden på nytt.</div>');
+    return;
+  }
   syncEditableFields();
   const {fd,ai}=genData;
 
   // Pre-fetch product images as base64 via Worker (bypasses CORS)
   const btn = document.getElementById('pdfBtn');
   const origText = btn.textContent;
-  if(fd.products && fd.products.length){
+  if(fd.products && fd.products.length && WORKER_URL && !WORKER_URL.includes('din-worker')){
     btn.textContent = '⏳ Laster bilder…'; btn.disabled = true;
     await Promise.all(fd.products.map(async p=>{
-      if(!p.image || p.image.startsWith('data:')) return; // already base64 or empty
+      if(!p.image || p.image.startsWith('data:')) return;
       try{
-        const res = await fetch(WORKER_URL + '/img?url=' + encodeURIComponent(p.image));
+        const ctrl = new AbortController();
+        const t = setTimeout(() => ctrl.abort(), 2500);
+        const res = await fetch(WORKER_URL + '/img?url=' + encodeURIComponent(p.image), {signal: ctrl.signal});
+        clearTimeout(t);
         if(res.ok){
           const d = await res.json();
-          if(d.data) p.image = d.data; // replace URL with base64 data URI
+          if(d.data) p.image = d.data;
         }
-      }catch(e){ /* keep original, will fail silently in PDF */ }
+      }catch(e){ /* behold original; PDF lager tom bildeplass hvis bildet ikke kan lastes */ }
     }));
     btn.disabled = false;
   }
@@ -1848,6 +1841,13 @@ async function doPDF(){
   _drawPageFooter(_pageNum);
 
   doc.save("NOVOOI_Tilbud_"+fd.kunde.replace(/[^a-zA-Z0-9]/g,"_")+"_"+fd.nr+".pdf");
+  }catch(e){
+    console.error('doPDF-feil:', e);
+    const out=document.getElementById("output");
+    if(out) out.insertAdjacentHTML("afterbegin", '<div class="err"><strong>Feil ved PDF:</strong> '+escapeHtml(e.message || e)+'</div>');
+    const btn=document.getElementById("pdfBtn");
+    if(btn){ btn.disabled=false; btn.textContent="⬇ Last ned PDF"; }
+  }
 }
 
 
@@ -1984,6 +1984,23 @@ function getOpsText(id) {
   document.addEventListener('input', (e) => {
     if(e.target.dataset && e.target.dataset.fdField) e.target._userEdited = true;
     if(e.target.dataset && e.target.dataset.aiField) e.target._userEdited = true;
+  });
+
+
+  // Ekstra sikkerhet: koble knappene via event listeners også, ikke bare inline onclick.
+  const genBtn = document.getElementById('genBtn');
+  if(genBtn){ genBtn.onclick = null; genBtn.addEventListener('click', (e)=>{ e.preventDefault(); doGen(); }); }
+  const pdfBtn = document.getElementById('pdfBtn');
+  if(pdfBtn){ pdfBtn.onclick = null; pdfBtn.addEventListener('click', (e)=>{ e.preventDefault(); doPDF(); }); }
+
+  window.addEventListener('error', (e)=>{
+    const out=document.getElementById('output');
+    if(out) out.insertAdjacentHTML('afterbegin','<div class="err"><strong>JavaScript-feil:</strong> '+escapeHtml(e.message || 'Ukjent feil')+'</div>');
+  });
+  window.addEventListener('unhandledrejection', (e)=>{
+    const out=document.getElementById('output');
+    const msg=e.reason && (e.reason.message || e.reason) || 'Ukjent feil';
+    if(out) out.insertAdjacentHTML('afterbegin','<div class="err"><strong>Feil:</strong> '+escapeHtml(msg)+'</div>');
   });
 
 })();
