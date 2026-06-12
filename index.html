@@ -209,20 +209,6 @@ textarea{resize:vertical;line-height:1.55}
   <div class="page-title">Nytt tilbud</div>
 
   <div class="card">
-    <div class="card-head open" onclick="tog(this)"><h2>Prosjekttype</h2><span class="arr">&#9660;</span></div>
-    <div class="card-body">
-      <div class="pills" id="tPills">
-        <div class="pill on" data-v="styling">Styling – visningsbolig</div>
-        <div class="pill" data-v="leie">Leie av møbler</div>
-        <div class="pill" data-v="interiorpakke">Interiørpakke</div>
-        <div class="pill" data-v="foto">Foto / PR-styling</div>
-        <div class="pill" data-v="b2b">B2B / FF&E</div>
-        <div class="pill" data-v="hospitality">Hospitality</div>
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
     <div class="card-head open" onclick="tog(this)"><h2>Tilbudsdetaljer</h2><span class="arr">&#9660;</span></div>
     <div class="card-body">
       <div class="g4" style="margin-bottom:.8rem">
@@ -262,32 +248,8 @@ textarea{resize:vertical;line-height:1.55}
   </div>
 
   <div class="card">
-    <div class="card-head open" onclick="tog(this)"><h2>Rom og soner</h2><span class="arr">&#9660;</span></div>
-    <div class="card-body">
-      <div class="field"><label>Velg rom som inngår</label>
-        <div class="pills" id="rPills" style="margin-bottom:.75rem">
-          <div class="pill on" data-r="Stue">Stue</div>
-          <div class="pill" data-r="Kjøkken">Kjøkken</div>
-          <div class="pill on" data-r="Soverom">Soverom</div>
-          <div class="pill" data-r="Bad">Bad</div>
-          <div class="pill" data-r="Gang / entre">Gang</div>
-          <div class="pill" data-r="Spisestue">Spisestue</div>
-          <div class="pill" data-r="Kontor">Kontor</div>
-          <div class="pill" data-r="Terrasse">Terrasse</div>
-          <div class="pill" data-r="Fellesarealer">Fellesarealer</div>
-          <div class="pill" data-r="Alle rom">Alle rom</div>
-        </div>
-      </div>
-      <div class="field"><label>Tilleggsnote om rom</label>
-        <input id="fromnotat" type="text" placeholder="Tillegg om rom, f.eks. kun stue og kjøkken">
-      </div>
-    </div>
-  </div>
-
-  <div class="card">
     <div class="card-head open" onclick="tog(this)"><h2>Prislinjer</h2><span class="arr">&#9660;</span></div>
     <div class="card-body">
-      <div id="lineHdr"></div>
       <div class="lines-wrap" id="linesWrap"></div>
       <button class="add-btn" onclick="addLine()">+ Legg til linje</button>
     </div>
@@ -510,6 +472,14 @@ textarea{resize:vertical;line-height:1.55}
 </div>
 
 <script>
+function collectLines() {
+  return Array.from(document.querySelectorAll('#linesWrap .line-svc')).map(r => ({
+    kind: 'service',
+    desc: r.querySelector('.ld')?.value.trim()||'',
+    price: r.querySelector('.lp')?.value.trim()||''
+  })).filter(l => l.desc);
+}
+
 const LOGO = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzg3IiBoZWlnaHQ9Ijg2IiB2aWV3Qm94PSIwIDAgMzg3IDg2IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNNjUuMTI0IDgxLjY1MTFDNjYuMzE5OSA4Mi4xOTQ3IDY3LjA4MDkgODIuNTIwOSA2Ny4wODA5IDgzLjM5MDZDNjcuMDgwOSA4NC4yNjA0IDY2LjQyODYgODQuNjk1MyA2NS4wMTUyIDg0LjU4NjZDNjMuMTY3IDg0LjQ3NzkgNTkuNjg3OSA4NC4yNjA0IDU0LjU3OCA4NC4yNjA0QzQ5LjQ2ODEgODQuMjYwNCA0NS45ODkgODQuNDc3OSA0NC4xNDA4IDg0LjU4NjZDNDIuNzI3NCA4NC42OTUzIDQyLjA3NTEgODQuMjYwNCA0Mi4wNzUxIDgzLjM5MDZDNDIuMDc1MSA4Mi41MjA5IDQyLjgzNjEgODIuMTk0NyA0NC4wMzIxIDgxLjY1MTFDNDYuMDk3OCA4MC44OSA0Ni4zMTUyIDc4LjYwNjggNDYuMzE1MiA3NC44MDE1VjQ3LjA3NzFDNDYuMzE1MiAzNi45NjU5IDQzLjU5NzIgMjkuMTM3OCAzNC4yNDcyIDI5LjEzNzhDMjQuNTcxIDI5LjEzNzggMjAuNzY1NyAzOC4yNzA1IDIwLjc2NTcgNDYuNTMzNVY3NC44MDE1QzIwLjc2NTcgNzguNjA2OCAyMS4wOTE5IDgwLjg5IDIzLjE1NzYgODEuNjUxMUMyNC4zNTM1IDgyLjE5NDcgMjUuMDA1OSA4Mi41MjA5IDI1LjAwNTkgODMuMzkwNkMyNS4wMDU5IDg0LjI2MDQgMjQuMzUzNSA4NC42OTUzIDIyLjk0MDIgODQuNTg2NkMyMS4yMDA2IDg0LjQ3NzkgMTcuNzIxNSA4NC4yNjA0IDEyLjYxMTcgODQuMjYwNEM3LjM5MzA0IDg0LjI2MDQgNC4wMjI2OCA4NC40Nzc5IDIuMTc0NDIgODQuNTg2NkMwLjc2MTA0OCA4NC42OTUzIDAuMTA4NzIxIDg0LjI2MDQgMC4xMDg3MjEgODMuMzkwNkMwLjEwODcyMSA4Mi41MjA5IDAuODY5NzY5IDgyLjE5NDcgMS45NTY5OCA4MS42NTExQzQuMDIyNjggODAuODkgNC4zNDg4NSA3OC42MDY4IDQuMzQ4ODUgNzQuODAxNVYzOC41OTY3QzQuMzQ4ODUgMzQuNzkxNCA0LjAyMjY4IDMyLjYxNjkgMS45NTY5OCAzMS43NDcyQzAuODY5NzY5IDMxLjMxMjMgMCAzMC44Nzc0IDAgMjkuODk4OUMwIDI5LjEzNzggMC41NDM2MDYgMjguNTk0MiAxLjUyMjEgMjguMzc2N0M0LjY3NTAxIDI3LjcyNDQgMTAuOTgwOCAyNi4wOTM1IDE3LjcyMTUgMjIuNjE0NEMxOC45MTc1IDIxLjk2MjEgMTkuNjc4NSAyMi4zOTcgMTkuNzg3MiAyMy43MDE2TDIwLjU0ODMgMzIuNTA4MkwyMC42NTcgMzMuNTk1NEMyMy40ODM4IDI3LjUwNjkgMjkuMTM3MyAyMS4yMDEgNDAuNDQ0MyAyMS4yMDFDNTYuMTAwMSAyMS4yMDEgNjIuODQwOCAyOS42ODE0IDYyLjg0MDggNDcuMDc3MVY3NC44MDE1QzYyLjg0MDggNzguNjA2OCA2My4wNTgzIDgwLjg5IDY1LjEyNCA4MS42NTExWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEwOC40IDIxLjIwMUMxMjcuNzUzIDIxLjIwMSAxNDAuMTQ3IDM1Ljc2OTkgMTQwLjE0NyA1My42MDA1QzE0MC4xNDcgNzEuNTM5OCAxMjcuNzUzIDg2IDEwOC40IDg2Qzg5LjA0NzggODYgNzYuNzYyMyA3MS41Mzk4IDc2Ljc2MjMgNTMuNjAwNUM3Ni44NzEgMzUuNzY5OSA4OS4wNDc4IDIxLjIwMSAxMDguNCAyMS4yMDFaTTEwMi45NjQgMjQuODk3NkM5Mi44NTMgMjYuODU0NiA5MS4xMTM1IDQxLjA5NzMgOTMuODMxNSA1Ni4xMDExQzk2LjQ0MDggNzEuMzIyNCAxMDMuODM0IDg0LjA0MyAxMTQuMDU0IDgyLjMwMzRDMTI0LjA1NiA4MC4zNDY0IDEyNS42ODcgNjYuMTAzNyAxMjMuMDc3IDUxLjA5OTlDMTIwLjQ2OCAzNS44Nzg2IDExMy4wNzUgMjMuMTU4IDEwMi45NjQgMjQuODk3NloiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0xOTUuNjkyIDE5Ljg5NjNDMjAzLjg0NiAyMC40Mzk5IDIwMy42MjkgMjkuNDY0IDIwMC4zNjcgMzcuOTQ0NEwxODIuNDI4IDgzLjQ5OTRDMTgyLjEwMiA4NC4zNjkxIDE4MS40NSA4NC45MTI4IDE4MC41OCA4NC45MTI4TDE3OC4yOTcgODQuODA0Vjg0LjkxMjhIMTcwLjc5NUMxNjkuODE3IDg0LjkxMjggMTY5LjI3MyA4NC40Nzc5IDE2OC45NDcgODMuNDk5NEwxNDkuODEyIDMyLjM5OTVDMTQ4LjA3MiAyNy43MjQ0IDE0Ny4yMDMgMjYuNTI4NCAxNDQuOTE5IDI1LjU0OTlDMTQzLjgzMiAyNS4wMDYzIDE0My4wNzEgMjQuNTcxNCAxNDMuMDcxIDIzLjcwMTZDMTQzLjA3MSAyMi45NDA2IDE0My42MTUgMjIuNTA1NyAxNDUuMTM3IDIyLjYxNDRDMTQ3LjMxMSAyMi43MjMxIDE1MC44OTkgMjIuOTQwNiAxNTYuNTUzIDIyLjk0MDZDMTYxLjY2MyAyMi45NDA2IDE2NC45MjQgMjIuNzIzMSAxNjYuODgxIDIyLjYxNDRDMTY4LjI5NCAyMi41MDU3IDE2OC44MzggMjIuOTQwNiAxNjguODM4IDIzLjcwMTZDMTY4LjgzOCAyNC42ODAyIDE2OC4xODYgMjUuMDA2MyAxNjcuMDk5IDI1LjY1ODdDMTY1LjY4NSAyNi42MzcyIDE2Ni4yMjkgMjguMzc2NyAxNjcuNDI1IDMyLjM5OTVMMTgxLjAxNSA3NC44MDE1TDE5Mi45NzQgNDEuODU4NEMxOTUuODAxIDM0LjEzOTEgMTkwLjAzOSAzMi45NDMxIDE4OS4xNjkgMjcuMzk4MkMxODguNTE3IDIzLjU5MjkgMTkxLjAxNyAxOS41NzAyIDE5NS42OTIgMTkuODk2M1oiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0yNDIuODcgMjEuMjAxQzI2Mi4yMjIgMjEuMjAxIDI3NC42MTYgMzUuNzY5OSAyNzQuNjE2IDUzLjYwMDVDMjc0LjYxNiA3MS41Mzk4IDI2Mi4yMjIgODYgMjQyLjg3IDg2QzIyMy41MTcgODYgMjExLjIzMiA3MS41Mzk4IDIxMS4yMzIgNTMuNjAwNUMyMTEuMzQgMzUuNzY5OSAyMjMuNTE3IDIxLjIwMSAyNDIuODcgMjEuMjAxWk0yMzcuNDM0IDI0Ljg5NzZDMjI3LjMyMyAyNi44NTQ2IDIyNS41ODMgNDEuMDk3MyAyMjguMzAxIDU2LjEwMTFDMjMwLjkxIDcxLjMyMjQgMjM4LjMwMyA4NC4wNDMgMjQ4LjUyMyA4Mi4zMDM0QzI1OC41MjUgODAuMzQ2NCAyNjAuMTU2IDY2LjEwMzcgMjU3LjU0NyA1MS4wOTk5QzI1NC45MzggMzUuODc4NiAyNDcuNTQ1IDIzLjE1OCAyMzcuNDM0IDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzE4LjA2NyAyMS4yMDFDMzM3LjQyIDIxLjIwMSAzNDkuODE0IDM1Ljc2OTkgMzQ5LjgxNCA1My42MDA1QzM0OS44MTQgNzEuNTM5OCAzMzcuNDIgODYgMzE4LjA2NyA4NkMyOTguNzE1IDg2IDI4Ni40MjkgNzEuNTM5OCAyODYuNDI5IDUzLjYwMDVDMjg2LjUzOCAzNS43Njk5IDI5OC43MTUgMjEuMjAxIDMxOC4wNjcgMjEuMjAxWk0zMTIuNjMxIDI0Ljg5NzZDMzAyLjUyIDI2Ljg1NDYgMzAwLjc4MSA0MS4wOTczIDMwMy40OTkgNTYuMTAxMUMzMDYuMTA4IDcxLjMyMjQgMzEzLjUwMSA4NC4wNDMgMzIzLjcyMSA4Mi4zMDM0QzMzMy43MjMgODAuMzQ2NCAzMzUuMzU0IDY2LjEwMzcgMzMyLjc0NSA1MS4wOTk5QzMzMC4xMzUgMzUuODc4NiAzMjIuNzQyIDIzLjE1OCAzMTIuNjMxIDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzczLjczNiAxNy43MjE5QzM2Ny43NTYgMTcuNzIxOSAzNjIuOTczIDEzLjgwNzggMzYyLjk3MyA4LjkxNTNDMzYyLjk3MyAzLjkxNDAzIDM2Ny43NTYgMCAzNzMuNzM2IDBDMzc5LjYwNyAwIDM4NC40OTkgMy45MTQwMyAzODQuNDk5IDguOTE1M0MzODQuNDk5IDEzLjgwNzggMzc5LjYwNyAxNy43MjE5IDM3My43MzYgMTcuNzIxOVpNMzg1LjA0MyA4MS42NTExQzM4Ni4yMzkgODIuMTk0NyAzODcgODIuNTIwOSAzODcgODMuMzkwNkMzODcgODQuMjYwNCAzODYuMzQ4IDg0LjY5NTMgMzg0LjkzNCA4NC41ODY2QzM4Mi45NzcgODQuNDc3OSAzNzkuNzE2IDg0LjI2MDQgMzc0LjQ5NyA4NC4yNjA0QzM2OS4zODcgODQuMjYwNCAzNjUuOTA4IDg0LjQ3NzkgMzY0LjA2IDg0LjU4NjZDMzYyLjY0NiA4NC42OTUzIDM2MS45OTQgODQuMjYwNCAzNjEuOTk0IDgzLjM5MDZDMzYxLjk5NCA4Mi41MjA5IDM2Mi43NTUgODIuMTk0NyAzNjMuOTUxIDgxLjY1MTFDMzY2LjAxNyA4MC44OSAzNjYuMjM0IDc4LjYwNjggMzY2LjIzNCA3NC44MDE1VjM4LjcwNTRDMzY2LjIzNCAzNC45MDAxIDM2Ni4wMTcgMzIuNzI1NyAzNjMuOTUxIDMxLjg1NTlDMzYyLjg2NCAzMS40MjEgMzYxLjk5NCAzMC45ODYxIDM2MS45OTQgMzAuMDA3NkMzNjEuOTk0IDI5LjEzNzggMzYyLjY0NiAyOC41OTQyIDM2My45NTEgMjguMTU5M0MzNjYuODg3IDI3LjYxNTcgMzc0LjI4IDI1Ljg3NjEgMzgwLjY5NCAyMi42MTQ0QzM4MS44OSAyMi4wNzA4IDM4Mi43NiAyMi41MDU3IDM4Mi43NiAyMy43MDE2Vjc0LjgwMTVDMzgyLjc2IDc4LjYwNjggMzgyLjk3NyA4MC44OSAzODUuMDQzIDgxLjY1MTFaIiBmaWxsPSJibGFjayIvPgo8L3N2Zz4K";
 
 // ── CONFIG
@@ -517,37 +487,6 @@ const LOGO = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzg3IiBoZWlnaHQ9Ijg2IiB2
 const WORKER_URL = "https://tilbudsagent.marcus-3aa.workers.dev";
 // ──────────────────────────────────────────────────────────────────────────
 
-const TYPES = {
-  styling:{label:"Styling av visningsbolig",kind:"service",lines:[
-    ["",""],
-    ["",""],
-    ["",""],
-    ["",""],
-    ["",""]]},
-  leie:{label:"Leie av designmøbler",kind:"product",lines:[
-    ["","","","",""],["","","","",""]]},
-  interiorpakke:{label:"Interiørpakke",kind:"service",lines:[
-    ["",""],
-    ["",""],
-    ["",""],
-    ["",""]]},
-  foto:{label:"Foto / PR-styling",kind:"service",lines:[
-    ["",""],
-    ["",""],
-    ["",""]]},
-  b2b:{label:"B2B / FF&E",kind:"service",lines:[
-    ["",""],
-    ["",""],
-    ["",""],
-    ["",""]]},
-  hospitality:{label:"Hospitality-interiør",kind:"service",lines:[
-    ["",""],
-    ["",""],
-    ["",""],
-    ["",""]]}
-};
-
-let curType="styling", genData=null, tags=[];
 
 const dtFmt=d=>d.toLocaleDateString("nb-NO",{day:"numeric",month:"long",year:"numeric"});
 const plus=(d,n)=>{const x=new Date(d);x.setDate(x.getDate()+n);return x;};
@@ -558,12 +497,6 @@ document.getElementById("fnr").value="2026-0"+(10+Math.floor(Math.random()*89));
 
 function tog(h){h.classList.toggle("open");h.nextElementSibling.classList.toggle("hidden");}
 
-document.querySelectorAll("#tPills .pill").forEach(p=>p.addEventListener("click",()=>{
-  curType=p.dataset.v;
-  document.querySelectorAll("#tPills .pill").forEach(x=>x.classList.remove("on"));
-  p.classList.add("on");
-buildLines();
-}));
 
 // ── PRODUCTS
 let selectedProducts = [];
@@ -929,9 +862,7 @@ function renderSelectedProducts() {
 // ── END PRODUCTS
 
 
-document.querySelectorAll("#rPills .pill").forEach(p=>p.addEventListener("click",()=>p.classList.toggle("on")));
-document.querySelectorAll("#cPills .pill").forEach(p=>p.addEventListener("click",()=>p.classList.toggle("on")));
-
+documentdocument
 function addTag(e){
   if(e.key!=="Enter") return;
   const v=e.target.value.trim(); if(!v) return;
@@ -956,60 +887,9 @@ function fmt(n){if(!n&&n!==0)return"—";return"kr "+parseFloat(n).toLocaleStrin
 function fmtR(n){if(!n&&n!==0)return"—";return"kr "+Math.round(parseFloat(n)).toLocaleString("nb-NO");}
 function parseKr(s){if(!s)return null;const n=parseFloat(s.replace(/[^0-9.,]/g,"").replace(",","."));return isNaN(n)?null:n;}
 
-function buildLines(){
-  const w=document.getElementById("linesWrap"),h=document.getElementById("lineHdr");
-  w.innerHTML="";h.innerHTML="";
-  const kind=TYPES[curType].kind;
-  if(kind==="product"){
-    h.className="line-prod";
-    ["Produkt","Ant.","Utsalgspris","Leiepris (10%)","Total leie",""].forEach(t=>{
-      const d=document.createElement("div");d.style.cssText="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.05em;padding-bottom:2px";d.textContent=t;h.appendChild(d);
-    });
-    TYPES[curType].lines.forEach(l=>addProd(...l));
-  } else {
-    h.className="line-svc";
-    ["Beskrivelse","Pris eks. mva",""].forEach(t=>{
-      const d=document.createElement("div");d.style.cssText="font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.05em;padding-bottom:2px";d.textContent=t;h.appendChild(d);
-    });
-    TYPES[curType].lines.forEach(l=>addSvc(l[0],l[1]));
-  }
-}
-
-function addLine(){TYPES[curType].kind==="product"?addProd("","","","",""):addSvc("","");}
-
-function addSvc(desc,price){
-  const w=document.getElementById("linesWrap"),row=document.createElement("div");
-  row.className="line-svc";
-  row.innerHTML=`<input type="text" class="ld" placeholder="Beskrivelse" value="${desc||""}">
-    <input type="text" class="lp" placeholder="kr 0" value="${price?"kr "+Number(price).toLocaleString("nb-NO"):""}">
-    <button class="del-btn" onclick="this.closest('.line-svc').remove()">&#215;</button>`;
-  w.appendChild(row);
-}
-
-function addProd(desc,qty,ut,lp,tot){
-  const w=document.getElementById("linesWrap"),row=document.createElement("div");
-  row.className="line-prod";
-  row.innerHTML=`<textarea class="ld" placeholder="Produktnavn&#10;Merkevare · Art.nr&#10;Mål / materiale">${desc||""}</textarea>
-    <input type="text" class="lq hm" placeholder="1" value="${qty||""}">
-    <input type="text" class="lu hm" placeholder="kr 0" value="${ut?fmt(ut):""}">
-    <input type="text" class="ll hm" placeholder="kr 0" value="${lp?fmt(lp):""}">
-    <input type="text" class="lt" placeholder="kr 0" value="${tot?fmt(tot):""}">
-    <button class="del-btn" onclick="this.closest('.line-prod').remove()">&#215;</button>`;
-  w.appendChild(row);
-}
-
-function collectLines(){
-  return Array.from(document.querySelectorAll("#linesWrap .line-svc, #linesWrap .line-prod")).map(r=>{
-    if(TYPES[curType].kind==="product") return{kind:"product",desc:r.querySelector(".ld").value.trim(),qty:(r.querySelector(".lq")||{value:""}).value.trim(),utsalg:(r.querySelector(".lu")||{value:""}).value.trim(),leiepris:(r.querySelector(".ll")||{value:""}).value.trim(),total:r.querySelector(".lt").value.trim()};
-    return{kind:"service",desc:r.querySelector(".ld").value.trim(),price:r.querySelector(".lp").value.trim()};
-  }).filter(l=>l.desc);
-}
-
-function getSelPills(id,attr){return Array.from(document.querySelectorAll(`#${id} .pill.on`)).map(p=>p.dataset[attr]);}
 
 function getFD(){
   return{
-    type:curType,typeLabel:TYPES[curType].label,kind:TYPES[curType].kind,
     nr:document.getElementById("fnr").value,
     dato:document.getElementById("fdato").value,
     gyldig:document.getElementById("fgyldig").value,
@@ -1023,8 +903,6 @@ function getFD(){
     storrelse:document.getElementById("fstorrelse").value,
     tid:document.getElementById("ftid").value,
     futlan:document.getElementById("futlan").value,
-    rom:getSelPills("rPills","r"),
-    fromnotat:document.getElementById("fromnotat").value,
     lines:collectLines(),
     cKjop:  isOpsOn('opsKjop'),  txtKjop:  getOpsText('txtKjop'),
     cMark:  isOpsOn('opsMark'),  txtMark:  getOpsText('txtMark'),
@@ -1036,7 +914,6 @@ function getFD(){
     rabatt:document.getElementById("frabatt").value,
     merknader:document.getElementById("fmerk").value,
     brands:tags,
-    cats:getSelPills("cPills","c"),
     products:selectedProducts,
     // PDF visibility (true = hidden in PDF)
     phBeskrivelse: document.getElementById('phBeskrivelse').checked,
@@ -1084,9 +961,7 @@ Type: ${fd.typeLabel}
 Kunde: ${fd.kunde}${fd.kontakt?" – "+fd.kontakt:""}
 Prosjekt: ${fd.prosjekt||fd.kunde}${fd.adresse?" · "+fd.adresse:""}
 ${fd.storrelse?"Størrelse: "+fd.storrelse:""}${fd.tid?" | Tidsplan: "+fd.tid:""}${fd.futlan?" | Utlån: "+fd.futlan:""}
-${fd.rom.length?"Rom: "+fd.rom.join(", "):""}${fd.fromnotat?" ("+fd.fromnotat+")":""}
 ${fd.brands.length?"Merkevarer: "+fd.brands.join(", "):""}
-${fd.cats.length?"Kategorier: "+fd.cats.join(", "):""}
 Brief: ${fd.brief}
 ${fd.omfangPre ? 'Forhåndsutfylt omfang (bruk disse punktene eksakt, ikke generer nye):\n'+fd.omfangPre : ''}
 ${fd.rabatt?"Handelsvilkår: "+fd.rabatt:""}
@@ -1677,7 +1552,6 @@ function convertLogoToPNG(){
 }
 convertLogoToPNG();
 
-buildLines();
 
 // Live sync: when key form fields change, update genData.fd immediately
 // so the preview always reflects the current form state
