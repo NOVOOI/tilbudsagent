@@ -1695,10 +1695,9 @@ function toggleOps(id) {
       opsKjop:'txtKjop', opsMark:'txtMark', opsBet:'txtBet',
       opsPilot:'txtPilot', opsFors:'txtFors', opsDep:'txtDep'
     };
-    const shortId = id.replace(/^ops/, 'ops');  // e.g. 'opsKjop'
-    if (keyMap[shortId]) {
-      genData.fd[keyMap[shortId]] = isOpsOn(id);
-      genData.fd[txtMap[shortId]] = getOpsText('txt' + shortId.replace('ops',''));
+    if (keyMap[id]) {
+      genData.fd[keyMap[id]] = isOpsOn(id);
+      genData.fd[txtMap[id]] = getOpsText('txt' + id.slice(3)); // 'opsKjop' → 'txtKjop'
     }
     renderPreview(genData.fd, genData.ai);
   }
@@ -1719,6 +1718,8 @@ function isOpsOn(id) {
 function getOpsText(id) {
   const el = document.getElementById(id);
   if (!el) return '';
+  // Handle both: id on the ops-item container OR on the textarea itself
+  if (el.tagName === 'TEXTAREA') return el.value.trim();
   return el.querySelector('textarea')?.value.trim() || '';
 }
 
