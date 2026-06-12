@@ -306,7 +306,7 @@ textarea{resize:vertical;line-height:1.55}
         </div>
         <div class="ops-body">
           <label>Tekst i tilbudet</label>
-          <textarea id="txtKjop">Dersom kunden ønsker å beholde hele eller deler av interiøret etter endt periode, kan produktene kjøpes gjennom NOVOOI med inntil 30 % rabatt på veiledende utsalgspris.</textarea>
+          <textarea id="txtKjop" oninput="updateOpsText('cKjop','txtKjop',this.value)">Dersom kunden ønsker å beholde hele eller deler av interiøret etter endt periode, kan produktene kjøpes gjennom NOVOOI med inntil 30 % rabatt på veiledende utsalgspris.</textarea>
         </div>
       </div>
 
@@ -317,7 +317,7 @@ textarea{resize:vertical;line-height:1.55}
         </div>
         <div class="ops-body">
           <label>Tekst i tilbudet</label>
-          <textarea id="txtMark">NOVOOI gis rett til å benytte ferdige prosjektbilder i egne markedsføringskanaler, inkludert nettside, sosiale medier, nyhetsbrev, presse og presentasjonsmateriell. Kunden krediteres ved publisering.</textarea>
+          <textarea id="txtMark" oninput="updateOpsText('cMark','txtMark',this.value)">NOVOOI gis rett til å benytte ferdige prosjektbilder i egne markedsføringskanaler, inkludert nettside, sosiale medier, nyhetsbrev, presse og presentasjonsmateriell. Kunden krediteres ved publisering.</textarea>
         </div>
       </div>
 
@@ -328,7 +328,7 @@ textarea{resize:vertical;line-height:1.55}
         </div>
         <div class="ops-body">
           <label>Tekst i tilbudet</label>
-          <textarea id="txtBet">Styling gjennomføres etter nærmere avtale. 50 % av tilbudssummen faktureres ved oppstart. 50 % faktureres når styling og montering er ferdigstilt.</textarea>
+          <textarea id="txtBet" oninput="updateOpsText('cBet','txtBet',this.value)">Styling gjennomføres etter nærmere avtale. 50 % av tilbudssummen faktureres ved oppstart. 50 % faktureres når styling og montering er ferdigstilt.</textarea>
         </div>
       </div>
 
@@ -339,7 +339,7 @@ textarea{resize:vertical;line-height:1.55}
         </div>
         <div class="ops-body">
           <label>Tekst i tilbudet</label>
-          <textarea id="txtPilot">Dette tilbudet er en introduksjonspris for første pilotprosjekt. Ved videre samarbeid kan NOVOOI tilby faste pakker og volumpriser.</textarea>
+          <textarea id="txtPilot" oninput="updateOpsText('cPilot','txtPilot',this.value)">Dette tilbudet er en introduksjonspris for første pilotprosjekt. Ved videre samarbeid kan NOVOOI tilby faste pakker og volumpriser.</textarea>
         </div>
       </div>
 
@@ -350,7 +350,7 @@ textarea{resize:vertical;line-height:1.55}
         </div>
         <div class="ops-body">
           <label>Tekst i tilbudet</label>
-          <textarea id="txtFors">Alle møbler og interiørprodukter er til enhver tid forsikret gjennom NOVOOI i hele leie- og styringsperioden.</textarea>
+          <textarea id="txtFors" oninput="updateOpsText('cFors','txtFors',this.value)">Alle møbler og interiørprodukter er til enhver tid forsikret gjennom NOVOOI i hele leie- og styringsperioden.</textarea>
         </div>
       </div>
 
@@ -361,7 +361,7 @@ textarea{resize:vertical;line-height:1.55}
         </div>
         <div class="ops-body">
           <label>Tekst i tilbudet</label>
-          <textarea id="txtDep">Det kreves et depositum tilsvarende 20 % av totalsum ved bestilling. Depositumet refunderes fullt ut dersom oppdraget gjennomføres som avtalt.</textarea>
+          <textarea id="txtDep" oninput="updateOpsText('cDep','txtDep',this.value)">Det kreves et depositum tilsvarende 20 % av totalsum ved bestilling. Depositumet refunderes fullt ut dersom oppdraget gjennomføres som avtalt.</textarea>
         </div>
       </div>
 
@@ -1138,6 +1138,16 @@ function syncEditableFields(){
     merknader: document.getElementById('fmerk')?.value,
   };
   Object.entries(freshMap).forEach(([k,v]) => { if(v!==undefined) genData.fd[k]=v; });
+  // Re-read live opsjon state from DOM toggles
+  const _opsMap = {
+    opsKjop:{c:'cKjop',t:'txtKjop'}, opsMark:{c:'cMark',t:'txtMark'},
+    opsBet:{c:'cBet',t:'txtBet'}, opsPilot:{c:'cPilot',t:'txtPilot'},
+    opsFors:{c:'cFors',t:'txtFors'}, opsDep:{c:'cDep',t:'txtDep'}
+  };
+  Object.entries(_opsMap).forEach(([id, {c, t}]) => {
+    genData.fd[c] = isOpsOn(id);
+    genData.fd[t] = getOpsText('txt' + id.replace('ops',''));
+  });
   // Sync ops text edited in preview back to fd
   document.querySelectorAll('[data-ops-field]').forEach(el => {
     const key = el.dataset.opsField;
@@ -1675,7 +1685,33 @@ function toggleOps(id) {
   const el = document.getElementById(id);
   if (!el) return;
   el.classList.toggle('on');
+  // Live update genData and re-render preview
+  if (genData) {
+    const keyMap = {
+      opsKjop:'cKjop', opsMark:'cMark', opsBet:'cBet',
+      opsPilot:'cPilot', opsFors:'cFors', opsDep:'cDep'
+    };
+    const txtMap = {
+      opsKjop:'txtKjop', opsMark:'txtMark', opsBet:'txtBet',
+      opsPilot:'txtPilot', opsFors:'txtFors', opsDep:'txtDep'
+    };
+    const shortId = id.replace(/^ops/, 'ops');  // e.g. 'opsKjop'
+    if (keyMap[shortId]) {
+      genData.fd[keyMap[shortId]] = isOpsOn(id);
+      genData.fd[txtMap[shortId]] = getOpsText('txt' + shortId.replace('ops',''));
+    }
+    renderPreview(genData.fd, genData.ai);
+  }
 }
+
+function updateOpsText(cKey, txtKey, val) {
+  if (!genData) return;
+  genData.fd[txtKey] = val;
+  // Don't re-render on every keystroke — just update the preview element directly
+  const el = document.querySelector(`[data-ops-field="${txtKey}"]`);
+  if (el) el.textContent = val;
+}
+
 function isOpsOn(id) {
   const el = document.getElementById(id);
   return el ? el.classList.contains('on') : false;
