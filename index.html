@@ -519,6 +519,7 @@ function saveToStorage() {
         price: r.querySelector('.lp')?.value || ''
       })),
       products: selectedProducts,
+      tags: Array.isArray(tags) ? tags : [],
       opsjoner: {
         opsKjop: isOpsOn('opsKjop'), txtKjop: document.getElementById('txtKjop')?.value,
         opsMark: isOpsOn('opsMark'), txtMark: document.getElementById('txtMark')?.value,
@@ -564,6 +565,12 @@ function loadFromStorage() {
     if (wrap && data.lines?.length) {
       wrap.innerHTML = '';
       data.lines.forEach(l => addLine(l.desc, l.qty, l.price));
+    }
+
+    // Restore merkevarer
+    if (Array.isArray(data.tags)) {
+      tags = data.tags;
+      renderTags();
     }
 
     // Restore products
@@ -726,7 +733,9 @@ function nyttTilbud() {
   // Clear lines
   document.getElementById('linesWrap').innerHTML = '';
   addLine(); addLine(); addLine();
-  // Clear products
+  // Clear merkevarer og produkter
+  tags = [];
+  renderTags();
   selectedProducts = [];
   renderSelectedProducts();
   // Turn off all opsjoner
@@ -753,6 +762,7 @@ function tog(h){h.classList.toggle("open");h.nextElementSibling.classList.toggle
 
 // ── PRODUCTS
 let selectedProducts = [];
+let tags = [];
 let manualImgData = null;
 
 // ── Tab switching
@@ -1116,7 +1126,6 @@ function renderSelectedProducts() {
 // ── END PRODUCTS
 
 
-documentdocument
 function addTag(e){
   if(e.key!=="Enter") return;
   const v=e.target.value.trim(); if(!v) return;
@@ -1169,7 +1178,7 @@ function getFD(){
     betfrist:document.getElementById("fbetfrist").value,
     rabatt:document.getElementById("frabatt").value,
     merknader:document.getElementById("fmerk").value,
-    brands:tags,
+    brands:Array.isArray(tags) ? tags : [],
     products:selectedProducts,
     // PDF visibility (true = hidden in PDF)
     phBeskrivelse: isChecked('phBeskrivelse'),
