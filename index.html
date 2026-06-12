@@ -461,6 +461,8 @@ textarea{resize:vertical;line-height:1.55}
         <label class="check"><input type="checkbox" id="phOpsjon"> Skjul Opsjon (kjøp av møbler)</label>
         <label class="check"><input type="checkbox" id="phBetaling"> Skjul Betalingsbetingelser</label>
         <label class="check"><input type="checkbox" id="phMarked"> Skjul Markedsføring</label>
+        <label class="check"><input type="checkbox" id="phMerknader"> Skjul Merknader</label>
+        <label class="check"><input type="checkbox" id="phTotal"> Skjul Totalpris</label>
 
 
       </div>
@@ -1140,7 +1142,10 @@ function parseKr(s){if(!s)return null;const n=parseFloat(s.replace(/[^0-9.,]/g,"
 
 
 function getFD(){
+  const isChecked = (id) => !!document.getElementById(id)?.checked;
   return{
+    kind:"service",
+    typeLabel:"Tilbud",
     nr:document.getElementById("fnr").value,
     dato:document.getElementById("fdato").value,
     gyldig:document.getElementById("fgyldig").value,
@@ -1167,14 +1172,14 @@ function getFD(){
     brands:tags,
     products:selectedProducts,
     // PDF visibility (true = hidden in PDF)
-    phBeskrivelse: document.getElementById('phBeskrivelse').checked,
-    phTjenester:   document.getElementById('phTjenester').checked,
-    phProdukter:   document.getElementById('phProdukter').checked,
-    phOpsjon:      document.getElementById('phOpsjon').checked,
-    phBetaling:    document.getElementById('phBetaling').checked,
-    phMarked:      document.getElementById('phMarked').checked,
-    phMerknader:   document.getElementById('phMerknader').checked,
-    phTotal:       document.getElementById('phTotal').checked,
+    phBeskrivelse: isChecked('phBeskrivelse'),
+    phTjenester:   isChecked('phTjenester'),
+    phProdukter:   isChecked('phProdukter'),
+    phOpsjon:      isChecked('phOpsjon'),
+    phBetaling:    isChecked('phBetaling'),
+    phMarked:      isChecked('phMarked'),
+    phMerknader:   isChecked('phMerknader'),
+    phTotal:       isChecked('phTotal'),
     discSvc:   {val: parseFloat(document.getElementById('discSvc').value)||0, type: document.getElementById('discSvcType').value},
     discProd:  {val: parseFloat(document.getElementById('discProd').value)||0, type: document.getElementById('discProdType').value},
     discTotal: {val: parseFloat(document.getElementById('discTotal').value)||0, type: document.getElementById('discTotalType').value},
@@ -1192,6 +1197,22 @@ async function callAPI(body){
   throw new Error("Cloudflare Worker URL ikke konfigurert. Se README.md for oppsett.");
 }
 
+
+function fallbackAI(fd){
+  const omfang = (fd.omfangPre || '')
+    .split('\n')
+    .map(s => s.trim())
+    .filter(Boolean);
+  return {
+    beskrivelse: (fd.brief || '').trim() || `Tilbud for ${fd.kunde || 'kunde'}.`,
+    omfang: omfang,
+    opsjon: fd.cKjop ? fd.txtKjop : null,
+    betaling: fd.cBet ? fd.txtBet : null,
+    markedsforing: fd.cMark ? fd.txtMark : null,
+    merknader: []
+  };
+}
+
 async function doGen(){
   const fd=getFD();
   if(!fd.kunde||!fd.brief){
@@ -1202,7 +1223,7 @@ async function doGen(){
   document.getElementById("pdfBtn").style.display="none";
   document.getElementById("output").innerHTML=`<div class="preview-wrap"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Lager tilbud for ${fd.kunde}…</span></div></div>`;
 
-  const linesText=fd.lines.map(l=>fd.kind==="product"
+  const linesText=fd.lines.map(l=>l.kind==="product"
     ?`- ${l.desc} | Ant:${l.qty} | Utsalg:${l.utsalg} | Leie:${l.leiepris} | Total:${l.total}`
     :`- ${l.desc}: ${l.price||"(ikke satt)"}`).join("\n");
 
@@ -1228,9 +1249,18 @@ Returner JSON:
     renderPreview(fd,ai);
     document.getElementById("pdfBtn").style.display="block";
   }catch(e){
-    document.getElementById("output").innerHTML=`<div class="err"><strong>Feil:</strong> ${e.message}</div>`;
+    const ai=fallbackAI(fd);
+    genData={fd,ai};
+    renderPreview(fd,ai);
+    document.getElementById("pdfBtn").style.display="block";
+    const warn=document.createElement('div');
+    warn.className='err';
+    warn.innerHTML='<strong>Merk:</strong> AI-tekst kunne ikke hentes, så tilbudet ble laget med teksten du fylte inn. Du kan fortsatt redigere forhåndsvisningen og laste ned PDF.';
+    document.getElementById('output').prepend(warn);
+    console.warn('AI/Worker-feil:', e);
   }
   btn.disabled=false;btn.textContent="Generer tilbud";
+  saveToStorage();
 }
 
 function calcPT(lines){let t=0;lines.forEach(l=>{const p=parseKr(l.total);if(p)t+=p;});return t;}
@@ -1330,7 +1360,7 @@ function renderPreview(fd,ai){
     merknader: fd.phMerknader,
     total: fd.phTotal,
   };
-  const kind=fd.kind;
+  const kind=fd.kind || "service";
 
   // ── Tjenester table ──
   let svcTotal=0;
@@ -1338,7 +1368,7 @@ function renderPreview(fd,ai){
   if(!ph.tjenester && kind==="service" && fd.lines.some(l=>l.desc)){
     let rows='';
     fd.lines.filter(l=>l.desc).forEach((l,i)=>{
-      const p=parseKr(l.price); if(p) svcTotal+=p;
+      const p=parseKr(l.price); const q=parseFloat(l.qty)||1; if(p) svcTotal+=p*q;
       rows+=`<tr>
         <td style="padding:9px;font-size:13px" contenteditable="true" class="e" data-svc-desc="${i}">${l.desc}</td>
         <td style="padding:9px;text-align:right;font-size:13px;min-width:80px" contenteditable="true" data-svc-price="${i}" class="e">${l.price||'—'}</td>
@@ -1572,6 +1602,7 @@ async function doPDF(){
     merknader:   fd.phMerknader,
     total:       fd.phTotal,
   };
+  const kind = fd.kind || "service";
 
   // ── MODULE: Beskrivelse + omfang
   if(!ph.beskrivelse){
@@ -1591,10 +1622,10 @@ async function doPDF(){
   }
 
   // ── MODULE: Tjenester
-  const hasServiceLines = !ph.tjenester && fd.kind==="service" && fd.lines && fd.lines.some(l=>l.desc);
+  const hasServiceLines = !ph.tjenester && kind==="service" && fd.lines && fd.lines.some(l=>l.desc);
   let svcTotal = 0;
   // Always calc total even if hidden, for grand total
-  if(fd.kind==="service") fd.lines.forEach(l=>{const p=parseKr(l.price);if(p)svcTotal+=p;});
+  if(kind==="service") fd.lines.forEach(l=>{const p=parseKr(l.price);const q=parseFloat(l.qty)||1;if(p)svcTotal+=p*q;});
 
   if(hasServiceLines){
     NP(20); SEC((ai.sec_tjenester||"TJENESTER").toUpperCase());
@@ -1711,7 +1742,7 @@ async function doPDF(){
   }
 
   // ── MODULE: Leie-spesifikasjon
-  if(fd.kind==="product" && fd.lines && fd.lines.some(l=>l.desc)){
+  if(kind==="product" && fd.lines && fd.lines.some(l=>l.desc)){
     NP(20); SEC("SPESIFIKASJON");
     const cw4=[cw*0.42,14,32,30,28];
     const cx=[ml,...[0,1,2,3].map(i=>cw4.slice(0,i+1).reduce((a,b)=>a+b,ml))];
@@ -1751,7 +1782,7 @@ async function doPDF(){
   }
 
   // ── MODULE: Totalpris
-  if(!ph.total && (hasServiceLines||hasProducts||(fd.kind==="service"&&svcTotal>0)||(fd.products&&fd.products.length&&prodTotal>0))){
+  if(!ph.total && (hasServiceLines||hasProducts||(kind==="service"&&svcTotal>0)||(fd.products&&fd.products.length&&prodTotal>0))){
     NP(20);
     const gt0=svcTotal+prodTotal;
     const dTot=fd.discTotal&&fd.discTotal.val;
