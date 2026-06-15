@@ -751,7 +751,7 @@ function nyttTilbud() {
   genData = null;
   updateLiveSum();
 }
-const LOGO = "data:image/png;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/4gHYSUNDX1BST0ZJTEUAAQEAAAHIAAAAAAQwAABtbnRyUkdCIFhZWiAH4AABAAEAAAAAAABhY3NwAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAQAA9tYAAQAAAADTLQAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAlkZXNjAAAA8AAAACRyWFlaAAABFAAAABRnWFlaAAABKAAAABRiWFlaAAABPAAAABR3dHB0AAABUAAAABRyVFJDAAABZAAAAChnVFJDAAABZAAAAChiVFJDAAABZAAAAChjcHJ0AAABjAAAADxtbHVjAAAAAAAAAAEAAAAMZW5VUwAAAAgAAAAcAHMAUgBHAEJYWVogAAAAAAAAb6IAADj1AAADkFhZWiAAAAAAAABimQAAt4UAABjaWFlaIAAAAAAAACSgAAAPhAAAts9YWVogAAAAAAAA9tYAAQAAAADTLXBhcmEAAAAAAAQAAAACZmYAAPKnAAANWQAAE9AAAApbAAAAAAAAAABtbHVjAAAAAAAAAAEAAAAMZW5VUwAAACAAAAAcAEcAbwBvAGcAbABlACAASQBuAGMALgAgADIAMAAxADb/2wBDAAUDBAQEAwUEBAQFBQUGBwwIBwcHBw8LCwkMEQ8SEhEPERETFhwXExQaFRERGCEYGh0dHx8fExciJCIeJBweHx7/2wBDAQUFBQcGBw4ICA4eFBEUHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh4eHh7/wAARCACsAwYDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAj/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFAEBAAAAAAAAAAAAAAAAAAAAAP/EABQRAQAAAAAAAAAAAAAAAAAAAAD/2gAMAwEAAhEDEQA/AIyAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAB//Z";
+const LOGO = "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMzg3IiBoZWlnaHQ9Ijg2IiB2aWV3Qm94PSIwIDAgMzg3IDg2IiBmaWxsPSJub25lIiB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciPgo8cGF0aCBkPSJNNjUuMTI0IDgxLjY1MTFDNjYuMzE5OSA4Mi4xOTQ3IDY3LjA4MDkgODIuNTIwOSA2Ny4wODA5IDgzLjM5MDZDNjcuMDgwOSA4NC4yNjA0IDY2LjQyODYgODQuNjk1MyA2NS4wMTUyIDg0LjU4NjZDNjMuMTY3IDg0LjQ3NzkgNTkuNjg3OSA4NC4yNjA0IDU0LjU3OCA4NC4yNjA0QzQ5LjQ2ODEgODQuMjYwNCA0NS45ODkgODQuNDc3OSA0NC4xNDA4IDg0LjU4NjZDNDIuNzI3NCA4NC42OTUzIDQyLjA3NTEgODQuMjYwNCA0Mi4wNzUxIDgzLjM5MDZDNDIuMDc1MSA4Mi41MjA5IDQyLjgzNjEgODIuMTk0NyA0NC4wMzIxIDgxLjY1MTFDNDYuMDk3OCA4MC44OSA0Ni4zMTUyIDc4LjYwNjggNDYuMzE1MiA3NC44MDE1VjQ3LjA3NzFDNDYuMzE1MiAzNi45NjU5IDQzLjU5NzIgMjkuMTM3OCAzNC4yNDcyIDI5LjEzNzhDMjQuNTcxIDI5LjEzNzggMjAuNzY1NyAzOC4yNzA1IDIwLjc2NTcgNDYuNTMzNVY3NC44MDE1QzIwLjc2NTcgNzguNjA2OCAyMS4wOTE5IDgwLjg5IDIzLjE1NzYgODEuNjUxMUMyNC4zNTM1IDgyLjE5NDcgMjUuMDA1OSA4Mi41MjA5IDI1LjAwNTkgODMuMzkwNkMyNS4wMDU5IDg0LjI2MDQgMjQuMzUzNSA4NC42OTUzIDIyLjk0MDIgODQuNTg2NkMyMS4yMDA2IDg0LjQ3NzkgMTcuNzIxNSA4NC4yNjA0IDEyLjYxMTcgODQuMjYwNEM3LjM5MzA0IDg0LjI2MDQgNC4wMjI2OCA4NC40Nzc5IDIuMTc0NDIgODQuNTg2NkMwLjc2MTA0OCA4NC42OTUzIDAuMTA4NzIxIDg0LjI2MDQgMC4xMDg3MjEgODMuMzkwNkMwLjEwODcyMSA4Mi41MjA5IDAuODY5NzY5IDgyLjE5NDcgMS45NTY5OCA4MS42NTExQzQuMDIyNjggODAuODkgNC4zNDg4NSA3OC42MDY4IDQuMzQ4ODUgNzQuODAxNVYzOC41OTY3QzQuMzQ4ODUgMzQuNzkxNCA0LjAyMjY4IDMyLjYxNjkgMS45NTY5OCAzMS43NDcyQzAuODY5NzY5IDMxLjMxMjMgMCAzMC44Nzc0IDAgMjkuODk4OUMwIDI5LjEzNzggMC41NDM2MDYgMjguNTk0MiAxLjUyMjEgMjguMzc2N0M0LjY3NTAxIDI3LjcyNDQgMTAuOTgwOCAyNi4wOTM1IDE3LjcyMTUgMjIuNjE0NEMxOC45MTc1IDIxLjk2MjEgMTkuNjc4NSAyMi4zOTcgMTkuNzg3MiAyMy43MDE2TDIwLjU0ODMgMzIuNTA4MkwyMC42NTcgMzMuNTk1NEMyMy40ODM4IDI3LjUwNjkgMjkuMTM3MyAyMS4yMDEgNDAuNDQ0MyAyMS4yMDFDNTYuMTAwMSAyMS4yMDEgNjIuODQwOCAyOS42ODE0IDYyLjg0MDggNDcuMDc3MVY3NC44MDE1QzYyLjg0MDggNzguNjA2OCA2My4wNTgzIDgwLjg5IDY1LjEyNCA4MS42NTExWiIgZmlsbD0iYmxhY2siLz4KPHBhdGggZD0iTTEwOC40IDIxLjIwMUMxMjcuNzUzIDIxLjIwMSAxNDAuMTQ3IDM1Ljc2OTkgMTQwLjE0NyA1My42MDA1QzE0MC4xNDcgNzEuNTM5OCAxMjcuNzUzIDg2IDEwOC40IDg2Qzg5LjA0NzggODYgNzYuNzYyMyA3MS41Mzk4IDc2Ljc2MjMgNTMuNjAwNUM3Ni44NzEgMzUuNzY5OSA4OS4wNDc4IDIxLjIwMSAxMDguNCAyMS4yMDFaTTEwMi45NjQgMjQuODk3NkM5Mi44NTMgMjYuODU0NiA5MS4xMTM1IDQxLjA5NzMgOTMuODMxNSA1Ni4xMDExQzk2LjQ0MDggNzEuMzIyNCAxMDMuODM0IDg0LjA0MyAxMTQuMDU0IDgyLjMwMzRDMTI0LjA1NiA4MC4zNDY0IDEyNS42ODcgNjYuMTAzNyAxMjMuMDc3IDUxLjA5OTlDMTIwLjQ2OCAzNS44Nzg2IDExMy4wNzUgMjMuMTU4IDEwMi45NjQgMjQuODk3NloiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0xOTUuNjkyIDE5Ljg5NjNDMjAzLjg0NiAyMC40Mzk5IDIwMy42MjkgMjkuNDY0IDIwMC4zNjcgMzcuOTQ0NEwxODIuNDI4IDgzLjQ5OTRDMTgyLjEwMiA4NC4zNjkxIDE4MS40NSA4NC45MTI4IDE4MC41OCA4NC45MTI4TDE3OC4yOTcgODQuODA0Vjg0LjkxMjhIMTcwLjc5NUMxNjkuODE3IDg0LjkxMjggMTY5LjI3MyA4NC40Nzc5IDE2OC45NDcgODMuNDk5NEwxNDkuODEyIDMyLjM5OTVDMTQ4LjA3MiAyNy43MjQ0IDE0Ny4yMDMgMjYuNTI4NCAxNDQuOTE5IDI1LjU0OTlDMTQzLjgzMiAyNS4wMDYzIDE0My4wNzEgMjQuNTcxNCAxNDMuMDcxIDIzLjcwMTZDMTQzLjA3MSAyMi45NDA2IDE0My42MTUgMjIuNTA1NyAxNDUuMTM3IDIyLjYxNDRDMTQ3LjMxMSAyMi43MjMxIDE1MC44OTkgMjIuOTQwNiAxNTYuNTUzIDIyLjk0MDZDMTYxLjY2MyAyMi45NDA2IDE2NC45MjQgMjIuNzIzMSAxNjYuODgxIDIyLjYxNDRDMTY4LjI5NCAyMi41MDU3IDE2OC44MzggMjIuOTQwNiAxNjguODM4IDIzLjcwMTZDMTY4LjgzOCAyNC42ODAyIDE2OC4xODYgMjUuMDA2MyAxNjcuMDk5IDI1LjY1ODdDMTY1LjY4NSAyNi42MzcyIDE2Ni4yMjkgMjguMzc2NyAxNjcuNDI1IDMyLjM5OTVMMTgxLjAxNSA3NC44MDE1TDE5Mi45NzQgNDEuODU4NEMxOTUuODAxIDM0LjEzOTEgMTkwLjAzOSAzMi45NDMxIDE4OS4xNjkgMjcuMzk4MkMxODguNTE3IDIzLjU5MjkgMTkxLjAxNyAxOS41NzAyIDE5NS42OTIgMTkuODk2M1oiIGZpbGw9ImJsYWNrIi8+CjxwYXRoIGQ9Ik0yNDIuODcgMjEuMjAxQzI2Mi4yMjIgMjEuMjAxIDI3NC42MTYgMzUuNzY5OSAyNzQuNjE2IDUzLjYwMDVDMjc0LjYxNiA3MS41Mzk4IDI2Mi4yMjIgODYgMjQyLjg3IDg2QzIyMy41MTcgODYgMjExLjIzMiA3MS41Mzk4IDIxMS4yMzIgNTMuNjAwNUMyMTEuMzQgMzUuNzY5OSAyMjMuNTE3IDIxLjIwMSAyNDIuODcgMjEuMjAxWk0yMzcuNDM0IDI0Ljg5NzZDMjI3LjMyMyAyNi44NTQ2IDIyNS41ODMgNDEuMDk3MyAyMjguMzAxIDU2LjEwMTFDMjMwLjkxIDcxLjMyMjQgMjM4LjMwMyA4NC4wNDMgMjQ4LjUyMyA4Mi4zMDM0QzI1OC41MjUgODAuMzQ2NCAyNjAuMTU2IDY2LjEwMzcgMjU3LjU0NyA1MS4wOTk5QzI1NC45MzggMzUuODc4NiAyNDcuNTQ1IDIzLjE1OCAyMzcuNDM0IDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzE4LjA2NyAyMS4yMDFDMzM3LjQyIDIxLjIwMSAzNDkuODE0IDM1Ljc2OTkgMzQ5LjgxNCA1My42MDA1QzM0OS44MTQgNzEuNTM5OCAzMzcuNDIgODYgMzE4LjA2NyA4NkMyOTguNzE1IDg2IDI4Ni40MjkgNzEuNTM5OCAyODYuNDI5IDUzLjYwMDVDMjg2LjUzOCAzNS43Njk5IDI5OC43MTUgMjEuMjAxIDMxOC4wNjcgMjEuMjAxWk0zMTIuNjMxIDI0Ljg5NzZDMzAyLjUyIDI2Ljg1NDYgMzAwLjc4MSA0MS4wOTczIDMwMy40OTkgNTYuMTAxMUMzMDYuMTA4IDcxLjMyMjQgMzEzLjUwMSA4NC4wNDMgMzIzLjcyMSA4Mi4zMDM0QzMzMy43MjMgODAuMzQ2NCAzMzUuMzU0IDY2LjEwMzcgMzMyLjc0NSA1MS4wOTk5QzMzMC4xMzUgMzUuODc4NiAzMjIuNzQyIDIzLjE1OCAzMTIuNjMxIDI0Ljg5NzZaIiBmaWxsPSJibGFjayIvPgo8cGF0aCBkPSJNMzczLjczNiAxNy43MjE5QzM2Ny43NTYgMTcuNzIxOSAzNjIuOTczIDEzLjgwNzggMzYyLjk3MyA4LjkxNTNDMzYyLjk3MyAzLjkxNDAzIDM2Ny43NTYgMCAzNzMuNzM2IDBDMzc5LjYwNyAwIDM4NC40OTkgMy45MTQwMyAzODQuNDk5IDguOTE1M0MzODQuNDk5IDEzLjgwNzggMzc5LjYwNyAxNy43MjE5IDM3My43MzYgMTcuNzIxOVpNMzg1LjA0MyA4MS42NTExQzM4Ni4yMzkgODIuMTk0NyAzODcgODIuNTIwOSAzODcgODMuMzkwNkMzODcgODQuMjYwNCAzODYuMzQ4IDg0LjY5NTMgMzg0LjkzNCA4NC41ODY2QzM4Mi45NzcgODQuNDc3OSAzNzkuNzE2IDg0LjI2MDQgMzc0LjQ5NyA4NC4yNjA0QzM2OS4zODcgODQuMjYwNCAzNjUuOTA4IDg0LjQ3NzkgMzY0LjA2IDg0LjU4NjZDMzYyLjY0NiA4NC42OTUzIDM2MS45OTQgODQuMjYwNCAzNjEuOTk0IDgzLjM5MDZDMzYxLjk5NCA4Mi41MjA5IDM2Mi43NTUgODIuMTk0NyAzNjMuOTUxIDgxLjY1MTFDMzY2LjAxNyA4MC44OSAzNjYuMjM0IDc4LjYwNjggMzY2LjIzNCA3NC44MDE1VjM4LjcwNTRDMzY2LjIzNCAzNC45MDAxIDM2Ni4wMTcgMzIuNzI1NyAzNjMuOTUxIDMxLjg1NTlDMzYyLjg2NCAzMS40MjEgMzYxLjk5NCAzMC45ODYxIDM2MS45OTQgMzAuMDA3NkMzNjEuOTk0IDI5LjEzNzggMzYyLjY0NiAyOC41OTQyIDM2My45NTEgMjguMTU5M0MzNjYuODg3IDI3LjYxNTcgMzc0LjI4IDI1Ljg3NjEgMzgwLjY5NCAyMi42MTQ0QzM4MS44OSAyMi4wNzA4IDM4Mi43NiAyMi41MDU3IDM4Mi43NiAyMy43MDE2Vjc0LjgwMTVDMzgyLjc2IDc4LjYwNjggMzgyLjk3NyA4MC44OSAzODUuMDQzIDgxLjY1MTFaIiBmaWxsPSJibGFjayIvPgo8L3N2Zz4K";
 
 // ── CONFIG
 // Sett inn din Cloudflare Worker URL her:
@@ -1584,7 +1584,7 @@ async function doPDF(){
 
   // ── Logo + tilbudsnr
   if(window._logoPNG){
-    doc.addImage(window._logoPNG,"PNG",ml,y,40,9);
+    doc.addImage(window._logoPNG,"PNG",ml,y,44,9.8);
   } else {
     doc.setFontSize(26);doc.setFont("helvetica","bold");doc.setTextColor(17,17,17);
     doc.text("novooi",ml,y+8);
@@ -1886,138 +1886,24 @@ async function doPDF(){
 function convertLogoToPNG(){
   return new Promise(resolve=>{
     const img = new Image();
+    img.crossOrigin = 'anonymous';
     img.onload = ()=>{
-      const scale = 2; // PNG already high-res
-      const canvas = document.createElement('canvas');
-      canvas.width = img.naturalWidth * scale;
-      canvas.height = img.naturalHeight * scale;
-      const ctx = canvas.getContext('2d');
-      ctx.scale(scale, scale);
-      ctx.drawImage(img, 0, 0);
-      window._logoPNG = canvas.toDataURL('image/png');
+      try {
+        const canvas = document.createElement('canvas');
+        canvas.width = 387 * 3;
+        canvas.height = 86 * 3;
+        const ctx = canvas.getContext('2d');
+        ctx.scale(3, 3);
+        ctx.drawImage(img, 0, 0);
+        window._logoPNG = canvas.toDataURL('image/png');
+      } catch(err) {
+        window._logoPNG = null;
+      }
       resolve();
     };
-    img.onerror = ()=>resolve(); // silent fallback
+    img.onerror = () => { window._logoPNG = null; resolve(); };
     img.src = LOGO;
   });
-}
-convertLogoToPNG();
-
-
-// Live sync: when key form fields change, update genData.fd immediately
-// so the preview always reflects the current form state
-function toggleOps(id) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.classList.toggle('on');
-  // Live update genData and re-render preview
-  if (genData) {
-    const keyMap = {
-      opsKjop:'cKjop', opsMark:'cMark', opsBet:'cBet',
-      opsPilot:'cPilot', opsFors:'cFors', opsDep:'cDep'
-    };
-    const txtMap = {
-      opsKjop:'txtKjop', opsMark:'txtMark', opsBet:'txtBet',
-      opsPilot:'txtPilot', opsFors:'txtFors', opsDep:'txtDep'
-    };
-    if (keyMap[id]) {
-      genData.fd[keyMap[id]] = isOpsOn(id);
-      genData.fd[txtMap[id]] = getOpsText('txt' + id.slice(3)); // 'opsKjop' → 'txtKjop'
-    }
-    renderPreview(genData.fd, genData.ai);
-  }
-}
-
-function updateOpsText(cKey, txtKey, val) {
-  if (!genData) return;
-  genData.fd[txtKey] = val;
-  // Don't re-render on every keystroke — just update the preview element directly
-  const el = document.querySelector(`[data-ops-field="${txtKey}"]`);
-  if (el) el.textContent = val;
-}
-
-function isOpsOn(id) {
-  const el = document.getElementById(id);
-  return el ? el.classList.contains('on') : false;
-}
-function getOpsText(id) {
-  const el = document.getElementById(id);
-  if (!el) return '';
-  // Handle both: id on the ops-item container OR on the textarea itself
-  if (el.tagName === 'TEXTAREA') return el.value.trim();
-  return el.querySelector('textarea')?.value.trim() || '';
-}
-
-(function(){
-  // ── INIT ──────────────────────────────────────────────────────────────
-  const _now = new Date();
-  const _fmt  = d => d.toLocaleDateString('nb-NO',{day:'numeric',month:'long',year:'numeric'});
-  const _exp  = new Date(_now); _exp.setDate(_exp.getDate()+30);
-
-  // Always set date fields on fresh load
-  document.getElementById('fdato').value  = _fmt(_now);
-  document.getElementById('fgyldig').value = _fmt(_exp);
-
-  // Default 3 empty service lines
-  if(!document.getElementById('linesWrap').children.length){
-    addLine(); addLine(); addLine();
-  }
-
-  // Load saved draft (overrides defaults including dates)
-  const loaded = loadFromStorage();
-
-  // Set tilbudsnr after storage load — use saved nr or generate new
-  if(!document.getElementById('fnr').value){
-    document.getElementById('fnr').value = nextTilbudsnr();
-  }
-
-  updateLiveSum();
-
-  // Wire liveSum to product operations
-  const origRSP = renderSelectedProducts;
-  // Already hooked above via setTimeout
-
-  const liveFields = [
-    ['fnr','nr'],['fdato','dato'],['fgyldig','gyldig'],['fsaksb','saksb'],
-    ['fkunde','kunde'],['fkontakt','kontakt'],['fprosjekt','prosjekt'],
-    ['fadresse','adresse'],['fbrief','brief'],['fomfang','omfangPre'],
-    ['fstorrelse','storrelse'],['ftid','tid'],['futlan','futlan'],
-    ['fmerk','merknader'],
-  ];
-  liveFields.forEach(([elId, fdKey]) => {
-    const el = document.getElementById(elId);
-    if(!el) return;
-    el.addEventListener('input', () => {
-      if(!genData) return;
-      genData.fd[fdKey] = el.value;
-      // Re-render just the header elements that change immediately
-      // Live-update beskrivelse from brief
-      if(elId === 'fbrief'){
-        const bEl = document.querySelector('[data-ai-field="beskrivelse"]');
-        if(bEl && !bEl._userEdited) bEl.textContent = el.value;
-        if(genData) genData.ai.beskrivelse = el.value;
-      }
-      if(['fnr','fdato','fgyldig','fkunde','fkontakt','fprosjekt'].includes(elId)){
-        const titleEl = document.querySelector('[data-fd-field="typeLabel"]');
-        if(titleEl && !titleEl._userEdited) titleEl.textContent = (genData.fd.prosjekt||genData.fd.typeLabel||'').toUpperCase();
-        const nrEl = document.querySelector('[data-fd-field="nr"]');
-        if(nrEl && !nrEl._userEdited) nrEl.textContent = 'Tilbudsnr. '+(genData.fd.nr||'');
-        const kundeEl = document.querySelector('[data-fd-field="kunde"]');
-        if(kundeEl && !kundeEl._userEdited) kundeEl.textContent = genData.fd.kunde||'';
-        const datoEl = document.querySelector('[data-fd-field="dato"]');
-        if(datoEl && !datoEl._userEdited) datoEl.textContent = genData.fd.dato||'';
-        const gyldigEl = document.querySelector('[data-fd-field="gyldig"]');
-        if(gyldigEl && !gyldigEl._userEdited) gyldigEl.textContent = genData.fd.gyldig||'';
-      }
-    });
-  });
-  // Mark fields as user-edited when manually typed in preview
-  document.addEventListener('input', (e) => {
-    if(e.target.dataset && e.target.dataset.fdField) e.target._userEdited = true;
-    if(e.target.dataset && e.target.dataset.aiField) e.target._userEdited = true;
-  });
-
-})();
-</script>
+}</script>
 </body>
 </html>
