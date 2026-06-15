@@ -1904,6 +1904,106 @@ function convertLogoToPNG(){
     img.onerror = () => { window._logoPNG = null; resolve(); };
     img.src = LOGO;
   });
-}</script>
+}
+convertLogoToPNG();
+
+function toggleOps(id) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.classList.toggle('on');
+  if (genData) {
+    const keyMap = {
+      opsKjop:'cKjop', opsMark:'cMark', opsBet:'cBet',
+      opsPilot:'cPilot', opsFors:'cFors', opsDep:'cDep'
+    };
+    const txtMap = {
+      opsKjop:'txtKjop', opsMark:'txtMark', opsBet:'txtBet',
+      opsPilot:'txtPilot', opsFors:'txtFors', opsDep:'txtDep'
+    };
+    if (keyMap[id]) {
+      genData.fd[keyMap[id]] = isOpsOn(id);
+      genData.fd[txtMap[id]] = getOpsText('txt' + id.slice(3));
+    }
+    renderPreview(genData.fd, genData.ai);
+  }
+}
+
+function updateOpsText(cKey, txtKey, val) {
+  if (!genData) return;
+  genData.fd[txtKey] = val;
+  const el = document.querySelector(`[data-ops-field="${txtKey}"]`);
+  if (el) el.textContent = val;
+}
+
+function isOpsOn(id) {
+  const el = document.getElementById(id);
+  return el ? el.classList.contains('on') : false;
+}
+
+function getOpsText(id) {
+  const el = document.getElementById(id);
+  if (!el) return '';
+  if (el.tagName === 'TEXTAREA') return el.value.trim();
+  return el.querySelector('textarea')?.value.trim() || '';
+}
+
+(function(){
+  const _now = new Date();
+  const _fmt  = d => d.toLocaleDateString('nb-NO',{day:'numeric',month:'long',year:'numeric'});
+  const _exp  = new Date(_now); _exp.setDate(_exp.getDate()+30);
+
+  document.getElementById('fdato').value  = _fmt(_now);
+  document.getElementById('fgyldig').value = _fmt(_exp);
+
+  if(!document.getElementById('linesWrap').children.length){
+    addLine(); addLine(); addLine();
+  }
+
+  const loaded = loadFromStorage();
+
+  if(!document.getElementById('fnr').value){
+    document.getElementById('fnr').value = nextTilbudsnr();
+  }
+
+  updateLiveSum();
+
+  const liveFields = [
+    ['fnr','nr'],['fdato','dato'],['fgyldig','gyldig'],['fsaksb','saksb'],
+    ['fkunde','kunde'],['fkontakt','kontakt'],['fprosjekt','prosjekt'],
+    ['fadresse','adresse'],['fbrief','brief'],['fomfang','omfangPre'],
+    ['fstorrelse','storrelse'],['ftid','tid'],['futlan','futlan'],
+    ['fmerk','merknader'],
+  ];
+  liveFields.forEach(([elId, fdKey]) => {
+    const el = document.getElementById(elId);
+    if(!el) return;
+    el.addEventListener('input', () => {
+      if(!genData) return;
+      genData.fd[fdKey] = el.value;
+      if(elId === 'fbrief'){
+        const bEl = document.querySelector('[data-ai-field="beskrivelse"]');
+        if(bEl && !bEl._userEdited) bEl.textContent = el.value;
+        if(genData) genData.ai.beskrivelse = el.value;
+      }
+      if(['fnr','fdato','fgyldig','fkunde','fkontakt','fprosjekt'].includes(elId)){
+        const titleEl = document.querySelector('[data-fd-field="typeLabel"]');
+        if(titleEl && !titleEl._userEdited) titleEl.textContent = (genData.fd.prosjekt||genData.fd.typeLabel||'').toUpperCase();
+        const nrEl = document.querySelector('[data-fd-field="nr"]');
+        if(nrEl && !nrEl._userEdited) nrEl.textContent = 'Tilbudsnr. '+(genData.fd.nr||'');
+        const kundeEl = document.querySelector('[data-fd-field="kunde"]');
+        if(kundeEl && !kundeEl._userEdited) kundeEl.textContent = genData.fd.kunde||'';
+        const datoEl = document.querySelector('[data-fd-field="dato"]');
+        if(datoEl && !datoEl._userEdited) datoEl.textContent = genData.fd.dato||'';
+        const gyldigEl = document.querySelector('[data-fd-field="gyldig"]');
+        if(gyldigEl && !gyldigEl._userEdited) gyldigEl.textContent = genData.fd.gyldig||'';
+      }
+    });
+  });
+  document.addEventListener('input', (e) => {
+    if(e.target.dataset && e.target.dataset.fdField) e.target._userEdited = true;
+    if(e.target.dataset && e.target.dataset.aiField) e.target._userEdited = true;
+  });
+})();
+</script>
 </body>
 </html>
