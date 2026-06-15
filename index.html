@@ -5,15 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>NOVOOI Tilbudsagent</title>
 <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 32 32%27> <rect width=%2732%27 height=%2732%27 rx=%276%27 fill=%27%23111%27/> <text x=%2716%27 y=%2724%27 font-family=%27Georgia,serif%27 font-size=%2730%27 font-weight=%27700%27 fill=%27white%27 text-anchor=%27middle%27 opacity=%270.14%27>n</text> <line x1=%275%27 y1=%279%27 x2=%2727%27 y2=%279%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27/> <line x1=%275%27 y1=%2715%27 x2=%2718%27 y2=%2715%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27 opacity=%270.38%27/> <line x1=%275%27 y1=%2721%27 x2=%2727%27 y2=%2721%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27/> <line x1=%275%27 y1=%2727%27 x2=%2718%27 y2=%2727%27 stroke=%27white%27 stroke-width=%272%27 stroke-linecap=%27round%27 opacity=%270.38%27/></svg>">
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js">
-
-// Update live summary when global discount fields or PDF visibility toggles change
-['discSvc','discSvcType','discProd','discProdType','discTotal','discTotalType'].forEach(id => {
-  document.addEventListener('input', e => { if(e.target && e.target.id === id) updateLiveSum(); });
-  document.addEventListener('change', e => { if(e.target && e.target.id === id) updateLiveSum(); });
-});
-
-</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#fafaf8;color:#111;min-height:100vh}
@@ -202,25 +194,6 @@ textarea{resize:vertical;line-height:1.55}
 .ops-item.on .ops-body{display:block}
 .ops-body textarea{font-size:13px;min-height:64px;line-height:1.55;resize:vertical}
 .ops-body label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:5px;display:block}
-
-
-/* ── UX improvements: PDF visibility, status, validation and live price summary ── */
-.status-box{display:none;margin:.85rem 0 0;padding:10px 13px;border-radius:5px;border:1px solid #eee;background:#fafaf8;font-size:13px;line-height:1.45;color:#666}
-.status-box.on{display:block}
-.status-box.ok{border-color:#d8ead8;background:#f4fbf4;color:#2a7a2a}
-.status-box.warn{border-color:#f4e2ba;background:#fffaf0;color:#8a5a00}
-.status-box.err{border-color:#f3c8c8;background:#fff5f5;color:#c00}
-.field-error{border-color:#e24b4a!important;box-shadow:0 0 0 2px rgba(226,75,74,.08)}
-.live-summary{max-width:560px;margin:0 auto 14px;background:#fff;border:1px solid #e8e8e4;border-radius:6px;padding:13px 15px;text-align:left}
-.live-summary-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:9px;text-align:center}
-.live-summary-row{display:flex;justify-content:space-between;gap:12px;padding:4px 0;font-size:13px;color:#555;border-bottom:1px solid #f4f4f0}
-.live-summary-row:last-child{border-bottom:none}
-.live-summary-row.discount{color:#2a7a2a}
-.live-summary-row.total{font-size:15px;font-weight:800;color:#111;border-top:1.5px solid #111;margin-top:5px;padding-top:8px}
-.live-summary-row.muted{color:#aaa;font-size:12px}
-.btn-pdf:disabled{border-color:#ccc;color:#aaa;cursor:default;background:#fafaf8}
-@media(max-width:700px){.g2,.g3,.g4,.manual-grid{grid-template-columns:1fr!important}.line-svc{grid-template-columns:1fr 44px 92px 60px 28px}.live-summary{margin-left:0;margin-right:0}}
-
 </style>
 </head>
 <body>
@@ -365,14 +338,10 @@ textarea{resize:vertical;line-height:1.55}
       </div>
 
       <div style="border-top:1px solid #f0f0ec;margin-top:14px;padding-top:14px">
-        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:6px">Prisrabatter i PDF</div>
-        <div style="font-size:12px;color:#777;line-height:1.55;background:#fafaf8;border:1px solid #eee;border-radius:5px;padding:9px 11px;margin-bottom:10px">
-          <strong>Slik beregnes rabattene:</strong> Tjenesterabatt trekkes fra summen av tjenestelinjene. Produktrabatt trekkes fra samlet produktsum <strong>etter</strong> eventuelle rabatter på enkeltprodukter. Totalrabatt trekkes til slutt fra totalsummen etter tjeneste- og produktrabatt.
-        </div>
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:10px">Prisrabatter i PDF</div>
         <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px">
           <div style="background:#fafaf8;border:1px solid #eee;border-radius:5px;padding:10px 12px">
-            <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:4px">Tjenester</div>
-            <div style="font-size:10.5px;color:#aaa;line-height:1.35;margin-bottom:8px">Trekkes fra summen av tjenestelinjene.</div>
+            <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:8px">Tjenester</div>
             <div style="display:flex;gap:6px;align-items:center">
               <input type="text" id="discSvc" placeholder="0" style="width:52px;font-size:14px;font-weight:600;padding:6px 8px;border:1.5px solid #ddd;border-radius:4px;text-align:center">
               <select id="discSvcType" style="flex:1;font-size:13px;padding:6px 6px;border:1.5px solid #ddd;border-radius:4px;background:#fff;font-family:inherit;color:#555">
@@ -381,8 +350,7 @@ textarea{resize:vertical;line-height:1.55}
             </div>
           </div>
           <div style="background:#fafaf8;border:1px solid #eee;border-radius:5px;padding:10px 12px">
-            <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:4px">Produkter</div>
-            <div style="font-size:10.5px;color:#aaa;line-height:1.35;margin-bottom:8px">Trekkes fra produktsum etter produktnivå-rabatter.</div>
+            <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:8px">Produkter</div>
             <div style="display:flex;gap:6px;align-items:center">
               <input type="text" id="discProd" placeholder="0" style="width:52px;font-size:14px;font-weight:600;padding:6px 8px;border:1.5px solid #ddd;border-radius:4px;text-align:center">
               <select id="discProdType" style="flex:1;font-size:13px;padding:6px 6px;border:1.5px solid #ddd;border-radius:4px;background:#fff;font-family:inherit;color:#555">
@@ -391,8 +359,7 @@ textarea{resize:vertical;line-height:1.55}
             </div>
           </div>
           <div style="background:#fafaf8;border:1px solid #eee;border-radius:5px;padding:10px 12px">
-            <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:4px">Totalsum</div>
-            <div style="font-size:10.5px;color:#aaa;line-height:1.35;margin-bottom:8px">Trekkes helt til slutt fra samlet sum.</div>
+            <div style="font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:8px">Totalsum</div>
             <div style="display:flex;gap:6px;align-items:center">
               <input type="text" id="discTotal" placeholder="0" style="width:52px;font-size:14px;font-weight:600;padding:6px 8px;border:1.5px solid #ddd;border-radius:4px;text-align:center">
               <select id="discTotalType" style="flex:1;font-size:13px;padding:6px 6px;border:1.5px solid #ddd;border-radius:4px;background:#fff;font-family:inherit;color:#555">
@@ -401,11 +368,35 @@ textarea{resize:vertical;line-height:1.55}
             </div>
           </div>
         </div>
-        <div style="font-size:11px;color:#999;margin-top:8px;line-height:1.5">Rabatter vises som grønne linjer i forhåndsvisning og PDF. Rekkefølge: produktnivå-rabatt → produktrabatt → tjenesterabatt → totalrabatt.</div>
+        <div style="font-size:11px;color:#bbb;margin-top:8px">Rabatter vises som grønne linjer i forhåndsvisning og PDF</div>
       </div>
 
     </div>
   </div>
+
+<div class="card">
+    <div class="card-head open" onclick="tog(this)"><h2>Merkevarer og produktkategorier</h2><span class="arr">&#9660;</span></div>
+    <div class="card-body">
+      <div class="field"><label>Merkevarer (trykk Enter for å legge til)</label>
+        <div class="tag-row" id="brandTags" onclick="document.getElementById('brandInp').focus()">
+          <input class="tag-inp" id="brandInp" type="text" placeholder="Skriv merke og trykk Enter..." onkeydown="addTag(event)">
+        </div>
+      </div>
+      <div class="field" style="margin-top:.75rem"><label>Produktkategorier</label>
+        <div class="pills" id="cPills">
+          <div class="pill on" data-c="Møbler">Møbler</div>
+          <div class="pill on" data-c="Belysning">Belysning</div>
+          <div class="pill on" data-c="Tekstiler">Tekstiler</div>
+          <div class="pill on" data-c="Dekor">Dekor</div>
+          <div class="pill" data-c="Kunst">Kunst</div>
+          <div class="pill" data-c="Puter og tepper">Puter / tepper</div>
+          <div class="pill" data-c="Planter">Planter</div>
+          <div class="pill" data-c="Kjøkkenutstyr">Kjøkkenutstyr</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
 
   <div class="card">
     <div class="card-head open" onclick="tog(this)"><h2>Produkter</h2><span class="arr">&#9660;</span></div>
@@ -453,23 +444,48 @@ textarea{resize:vertical;line-height:1.55}
 <div class="card">
     <div class="card-head" onclick="tog(this)"><h2>Merknader <span style="font-size:10px;font-weight:400;color:#ccc;margin-left:4px">— vises kun hvis du skriver noe</span></h2><span class="arr">&#9660;</span></div>
     <div class="card-body hidden">
-      <div class="pdf-visibility"><span class="txt">PDF-visning</span><label class="check"><input type="checkbox" id="phMerknader"> Skjul merknader i PDF</label></div>
       <div class="field"><label>Tilleggsmerknader (én per linje — vises som bullet-punkter)</label>
         <textarea id="fmerk" rows="4" placeholder="Møblene leveres og hentes av NOVOOI&#10;Møblene er forsikret gjennom NOVOOI i leieperioden&#10;Tilbudet er gyldig i 30 dager fra utstedelsesdato"></textarea>
       </div>    </div>
   </div>
-  <div class="live-summary" id="liveSummaryBox">
-    <div class="live-summary-title">Live prisoppsummering</div>
-    <div id="liveSummaryRows">
-      <div class="live-summary-row muted"><span>Legg inn tjenester eller produkter</span><span>—</span></div>
+
+
+  <div class="card">
+    <div class="card-head open" onclick="tog(this)"><h2>PDF — skjul seksjoner</h2><span class="arr">&#9660;</span></div>
+    <div class="card-body">
+      <div style="font-size:12px;color:#aaa;margin-bottom:10px">Huk av seksjoner du <strong>ikke</strong> vil ha med i PDF-eksporten</div>
+      <div style="margin-bottom:14px;padding-bottom:14px;border-bottom:1px solid #f0f0ec">
+        <div style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin-bottom:8px">MVA</div>
+        <div style="display:flex;gap:8px">
+          <button id="btnEksMva" onclick="setMva('eks')"
+            style="flex:1;padding:8px;border:1.5px solid #111;border-radius:4px;background:#111;color:#fff;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer">
+            Eks. mva
+          </button>
+          <button id="btnInkMva" onclick="setMva('ink')"
+            style="flex:1;padding:8px;border:1.5px solid #ddd;border-radius:4px;background:#fff;color:#555;font-size:12px;font-weight:600;font-family:inherit;cursor:pointer">
+            Inkl. mva (25%)
+          </button>
+        </div>
+      </div>
+      <div class="checks" style="flex-direction:column;gap:8px">
+        <label class="check"><input type="checkbox" id="phBeskrivelse"> Skjul Beskrivelse og Omfang</label>
+        <label class="check"><input type="checkbox" id="phTjenester"> Skjul Tjenester</label>
+        <label class="check"><input type="checkbox" id="phProdukter"> Skjul Produkter</label>
+        <label class="check"><input type="checkbox" id=
+        <label class="check"><input type="checkbox" id="phMerknader"> Skjul Merknader</label>
+        <label class="check"><input type="checkbox" id="phTotal"> Skjul Totalpris-boks</label>
+      </div>
     </div>
-    <div id="liveSumDisplay" style="display:none">—</div>
+  </div>
+
+  <div style="text-align:center;margin-bottom:6px">
+    <span style="font-size:11px;color:#aaa;letter-spacing:.04em;text-transform:uppercase">Estimert totalsum</span>
+    <div id="liveSumDisplay" style="font-size:22px;font-weight:700;color:#ccc;letter-spacing:.01em;margin-top:2px">—</div>
   </div>
   <div class="btn-row">
-    <button class="btn-gen" id="genBtn" onclick="doGen()">Generer forhåndsvisning</button>
-    <button class="btn-pdf" id="pdfBtn" onclick="doPDF()" disabled>&#11015; Last ned PDF</button>
+    <button class="btn-gen" id="genBtn" onclick="doGen()">Generer tilbud</button>
+    <button class="btn-pdf" id="pdfBtn" onclick="doPDF()" style="display:none">&#11015; Last ned PDF</button>
   </div>
-  <div id="statusBox" class="status-box" aria-live="polite"></div>
   <div id="output"></div>
 
 </div>
@@ -528,6 +544,7 @@ function saveToStorage() {
         phBetaling:    document.getElementById('phBetaling')?.checked,
         phMarked:      document.getElementById('phMarked')?.checked,
         phMerknader:   document.getElementById('phMerknader')?.checked,
+        phTotal:       document.getElementById('phTotal')?.checked,
       },
       genData: genData ? {
         ai: genData.ai,
@@ -557,7 +574,6 @@ function loadFromStorage() {
       wrap.innerHTML = '';
       data.lines.forEach(l => addLine(l.desc, l.qty, l.price));
     }
-
 
     // Restore products
     if (data.products?.length) {
@@ -592,7 +608,7 @@ function loadFromStorage() {
       const fd = getFD();
       genData = { fd, ai: data.genData.ai };
       renderPreview(fd, data.genData.ai);
-      { const _pdfBtn=document.getElementById('pdfBtn'); if(_pdfBtn){ _pdfBtn.style.display=''; _pdfBtn.disabled=false; } }
+      document.getElementById('pdfBtn').style.display = 'block';
     }
 
     updateLiveSum();
@@ -635,60 +651,28 @@ function nextTilbudsnr() {
 
 // ── LIVE PRISSUM ──────────────────────────────────────────────────────────
 function updateLiveSum() {
-  let svcGross = 0;
+  // Service lines
+  let svcSum = 0;
   document.querySelectorAll('#linesWrap .line-svc').forEach(r => {
     const qty   = parseFloat(r.querySelector('.lq')?.value) || 1;
     const price = parseKr(r.querySelector('.lp')?.value) || 0;
-    svcGross += qty * price;
+    svcSum += qty * price;
   });
-
-  let prodAfterItemDiscounts = 0;
+  // Products (with per-product discount)
+  let prodSum = 0;
   selectedProducts.forEach(p => {
     const unit = parseKr(p.price) || 0;
     const dv   = p.discVal || 0;
     const dt   = p.discType || 'pct';
     const after= dv ? (dt==='pct' ? unit*(1-dv/100) : Math.max(0,unit-dv)) : unit;
-    prodAfterItemDiscounts += after * (p.qty || 1);
+    prodSum += after * (p.qty || 1);
   });
-
-  const readDisc = (valId, typeId) => ({
-    val: parseFloat(document.getElementById(valId)?.value) || 0,
-    type: document.getElementById(typeId)?.value || 'pct'
-  });
-  const dSvc = readDisc('discSvc','discSvcType');
-  const dProd = readDisc('discProd','discProdType');
-  const dTotal = readDisc('discTotal','discTotalType');
-
-  const svcAfter = applyDisc(svcGross, dSvc);
-  const prodAfter = applyDisc(prodAfterItemDiscounts, dProd);
-  const subtotalBeforeTotalDisc = svcAfter + prodAfter;
-  const totalExMva = applyDisc(subtotalBeforeTotalDisc, dTotal);
-  const mva = totalExMva * 0.25;
-  const totalIncMva = totalExMva + mva;
-
-  const svcDiscount = Math.max(0, svcGross - svcAfter);
-  const prodDiscount = Math.max(0, prodAfterItemDiscounts - prodAfter);
-  const totalDiscount = Math.max(0, subtotalBeforeTotalDisc - totalExMva);
-
-  const rows = [];
-  if(svcGross > 0) rows.push(`<div class="live-summary-row"><span>Tjenester før rabatt</span><span>${fmtR(svcGross)}</span></div>`);
-  if(svcDiscount > 0) rows.push(`<div class="live-summary-row discount"><span>Tjenesterabatt ${discLabel(dSvc)}</span><span>-${fmtR(svcDiscount)}</span></div>`);
-  if(prodAfterItemDiscounts > 0) rows.push(`<div class="live-summary-row"><span>Produkter etter produktnivå-rabatter</span><span>${fmtR(prodAfterItemDiscounts)}</span></div>`);
-  if(prodDiscount > 0) rows.push(`<div class="live-summary-row discount"><span>Produktrabatt ${discLabel(dProd)}</span><span>-${fmtR(prodDiscount)}</span></div>`);
-  if(totalDiscount > 0) rows.push(`<div class="live-summary-row discount"><span>Totalrabatt ${discLabel(dTotal)}</span><span>-${fmtR(totalDiscount)}</span></div>`);
-
-  if(totalExMva > 0){
-    rows.push(`<div class="live-summary-row total"><span>Sum eks. mva</span><span>${fmtR(totalExMva)}</span></div>`);
-    rows.push(`<div class="live-summary-row muted"><span>Mva 25 %</span><span>${fmtR(mva)}</span></div>`);
-    rows.push(`<div class="live-summary-row muted"><span>Sum inkl. mva</span><span>${fmtR(totalIncMva)}</span></div>`);
-  } else {
-    rows.push(`<div class="live-summary-row muted"><span>Legg inn tjenester eller produkter</span><span>—</span></div>`);
-  }
-
-  const rowsEl = document.getElementById('liveSummaryRows');
-  if(rowsEl) rowsEl.innerHTML = rows.join('');
+  const total = svcSum + prodSum;
   const el = document.getElementById('liveSumDisplay');
-  if (el) el.textContent = totalExMva > 0 ? fmtR(totalExMva) + ' eks. mva' : '—';
+  if (el) {
+    el.textContent = total > 0 ? fmtR(total) + ' eks. mva' : '—';
+    el.style.color = total > 0 ? '#111' : '#ccc';
+  }
 }
 
 
@@ -760,7 +744,7 @@ function nyttTilbud() {
   });
   // Clear output
   document.getElementById('output').innerHTML = '';
-  { const _pdfBtn=document.getElementById('pdfBtn'); if(_pdfBtn){ _pdfBtn.style.display=''; _pdfBtn.disabled=true; } }
+  document.getElementById('pdfBtn').style.display = 'none';
   genData = null;
   updateLiveSum();
 }
@@ -1053,8 +1037,6 @@ function changeQty(id, delta) {
   const totEl = card.querySelector('.pcard-qty-tot');
   if (valEl) valEl.textContent = p.qty;
   if (totEl) totEl.textContent = '= ' + fmtR(total);
-  updateLiveSum();
-  scheduleSave();
 }
 
 function updateProdDisc(id, val, type) {
@@ -1078,8 +1060,6 @@ function updateProdDisc(id, val, type) {
   const resEl  = card.querySelector('.pcard-disc-res');
   if (totEl) totEl.textContent = '= ' + fmtR(total);
   if (resEl) { resEl.textContent = dlbl; resEl.style.display = dv ? '' : 'none'; }
-  updateLiveSum();
-  scheduleSave();
 }
 
 // ── Render selected product cards
@@ -1145,6 +1125,25 @@ function renderSelectedProducts() {
 // ── END PRODUCTS
 
 
+documentdocument
+function addTag(e){
+  if(e.key!=="Enter") return;
+  const v=e.target.value.trim(); if(!v) return;
+  tags.push(v); renderTags(); e.target.value="";
+}
+function removeTag(i){tags.splice(i,1);renderTags();}
+function renderTags(){
+  const r=document.getElementById("brandTags"); r.innerHTML="";
+  tags.forEach((b,i)=>{
+    const t=document.createElement("div"); t.className="tag";
+    t.innerHTML=b+`<button onclick="removeTag(${i})">&#215;</button>`;
+    r.appendChild(t);
+  });
+  const inp=document.createElement("input");
+  inp.className="tag-inp"; inp.id="brandInp"; inp.type="text";
+  inp.placeholder="Skriv merke og trykk Enter..."; inp.onkeydown=addTag;
+  r.appendChild(inp);
+}
 
 function fmtR(n){if(!n&&n!==0)return"—";return"kr "+Math.round(parseFloat(n)).toLocaleString("nb-NO");}
 function fmt(n){if(!n&&n!==0)return"—";return"kr "+parseFloat(n).toLocaleString("nb-NO",{minimumFractionDigits:2,maximumFractionDigits:2});}
@@ -1152,10 +1151,7 @@ function parseKr(s){if(!s)return null;const n=parseFloat(s.replace(/[^0-9.,]/g,"
 
 
 function getFD(){
-  const isChecked = (id) => !!document.getElementById(id)?.checked;
   return{
-    kind:"service",
-    typeLabel:"Tilbud",
     nr:document.getElementById("fnr").value,
     dato:document.getElementById("fdato").value,
     gyldig:document.getElementById("fgyldig").value,
@@ -1179,17 +1175,17 @@ function getFD(){
     betfrist:document.getElementById("fbetfrist").value,
     rabatt:document.getElementById("frabatt").value,
     merknader:document.getElementById("fmerk").value,
-    brands:[],
+    brands:tags,
     products:selectedProducts,
     // PDF visibility (true = hidden in PDF)
-    phBeskrivelse: isChecked('phBeskrivelse'),
-    phTjenester:   isChecked('phTjenester'),
-    phProdukter:   isChecked('phProdukter'),
-    phOpsjon:      isChecked('phOpsjon'),
-    phBetaling:    isChecked('phBetaling'),
-    phMarked:      isChecked('phMarked'),
-    phMerknader:   isChecked('phMerknader'),
-    phTotal:       false,
+    phBeskrivelse: document.getElementById('phBeskrivelse').checked,
+    phTjenester:   document.getElementById('phTjenester').checked,
+    phProdukter:   document.getElementById('phProdukter').checked,
+    phOpsjon:      document.getElementById('phOpsjon').checked,
+    phBetaling:    document.getElementById('phBetaling').checked,
+    phMarked:      document.getElementById('phMarked').checked,
+    phMerknader:   document.getElementById('phMerknader').checked,
+    phTotal:       document.getElementById('phTotal').checked,
     discSvc:   {val: parseFloat(document.getElementById('discSvc').value)||0, type: document.getElementById('discSvcType').value},
     discProd:  {val: parseFloat(document.getElementById('discProd').value)||0, type: document.getElementById('discProdType').value},
     discTotal: {val: parseFloat(document.getElementById('discTotal').value)||0, type: document.getElementById('discTotalType').value},
@@ -1207,88 +1203,45 @@ async function callAPI(body){
   throw new Error("Cloudflare Worker URL ikke konfigurert. Se README.md for oppsett.");
 }
 
-
-
-function escapeHtml(v){
-  return String(v ?? '').replace(/[&<>'"]/g, ch => ({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[ch] || ch));
-}
-
-function setStatus(message, type='warn'){
-  const el = document.getElementById('statusBox');
-  if(!el) return;
-  el.className = 'status-box on ' + (type || 'warn');
-  el.innerHTML = message;
-}
-function clearStatus(){
-  const el = document.getElementById('statusBox');
-  if(!el) return;
-  el.className = 'status-box';
-  el.innerHTML = '';
-}
-function clearFieldErrors(){
-  document.querySelectorAll('.field-error').forEach(el => el.classList.remove('field-error'));
-}
-function markField(id){
-  const el = document.getElementById(id);
-  if(el) el.classList.add('field-error');
-}
-function validateBeforeGenerate(fd){
-  clearFieldErrors();
-  const errors = [];
-  if(!String(fd.kunde || '').trim()) { errors.push('Kunde / selskap mangler.'); markField('fkunde'); }
-  if(!String(fd.prosjekt || '').trim()) { errors.push('Prosjektnavn mangler.'); markField('fprosjekt'); }
-  const hasText = !!String(fd.brief || '').trim() || !!String(fd.omfangPre || '').trim();
-  const hasLines = fd.lines && fd.lines.length;
-  const hasProducts = fd.products && fd.products.length;
-  if(!hasText && !hasLines && !hasProducts){
-    errors.push('Legg inn prosjektbeskrivelse, minst én prislinje eller minst ett produkt.');
-    markField('fbrief');
-  }
-  return errors;
-}
-function fallbackAI(fd){
-  const omfang = (fd.omfangPre || '')
-    .split('\n')
-    .map(s => s.trim())
-    .filter(Boolean);
-  return {
-    beskrivelse: (fd.brief || '').trim() || `Tilbud for ${fd.kunde || 'kunde'}.`,
-    omfang: omfang,
-    opsjon: fd.cKjop ? fd.txtKjop : null,
-    betaling: fd.cBet ? fd.txtBet : null,
-    markedsforing: fd.cMark ? fd.txtMark : null,
-    merknader: []
-  };
-}
-
 async function doGen(){
+  const fd=getFD();
+  if(!fd.kunde||!fd.brief){
+    document.getElementById("output").innerHTML='<div class="err">Fyll inn kunde og prosjektbeskrivelse.</div>';return;
+  }
   const btn=document.getElementById("genBtn");
-  const pdfBtn=document.getElementById("pdfBtn");
-  try{
-    clearStatus();
-    const fd=getFD();
-    const validationErrors = validateBeforeGenerate(fd);
-    if(validationErrors.length){
-      setStatus('<strong>Kan ikke generere forhåndsvisning ennå:</strong><br>' + validationErrors.map(escapeHtml).join('<br>'), 'err');
-      return;
-    }
-    if(btn){ btn.disabled=true; btn.textContent="Genererer forhåndsvisning…"; }
-    if(pdfBtn){ pdfBtn.disabled=true; }
-    setStatus('Lager forhåndsvisning…', 'warn');
+  btn.disabled=true;btn.textContent="Genererer…";
+  document.getElementById("pdfBtn").style.display="none";
+  document.getElementById("output").innerHTML=`<div class="preview-wrap"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Lager tilbud for ${fd.kunde}…</span></div></div>`;
 
-    // Generer forhåndsvisning lokalt med én gang. Ingen AI/Worker må svare først.
-    const ai=fallbackAI(fd);
+  const linesText=fd.lines.map(l=>fd.kind==="product"
+    ?`- ${l.desc} | Ant:${l.qty} | Utsalg:${l.utsalg} | Leie:${l.leiepris} | Total:${l.total}`
+    :`- ${l.desc}: ${l.price||"(ikke satt)"}`).join("\n");
+
+  const prompt=`Du er tilbudsansvarlig for NOVOOI – norsk premium designstudio med over 120 norske merkevarer. Svar BARE med gyldig JSON, ingen markdown.
+
+Type: ${fd.typeLabel}
+Kunde: ${fd.kunde}${fd.kontakt?" – "+fd.kontakt:""}
+Prosjekt: ${fd.prosjekt||fd.kunde}${fd.adresse?" · "+fd.adresse:""}
+${fd.storrelse?"Størrelse: "+fd.storrelse:""}${fd.tid?" | Tidsplan: "+fd.tid:""}${fd.futlan?" | Utlån: "+fd.futlan:""}
+${fd.brands.length?"Merkevarer: "+fd.brands.join(", "):""}
+Brief: ${fd.brief}
+${fd.omfangPre ? 'Forhåndsutfylt omfang (bruk disse punktene eksakt, ikke generer nye):\n'+fd.omfangPre : ''}
+${fd.rabatt?"Handelsvilkår: "+fd.rabatt:""}
+
+Returner JSON:
+{"beskrivelse":"2-3 setninger om oppdraget","omfang":[],"opsjon":"tekst eller null","betaling":"tekst eller null","markedsforing":"tekst eller null","merknader":[]}`;
+
+  try{
+    const d=await callAPI({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]});
+    let txt=(d.content||[{text:""}]).map(x=>x.text).join("").replace(/```json|```/g,"").trim();
+    const ai=JSON.parse(txt);
     genData={fd,ai};
     renderPreview(fd,ai);
-    if(pdfBtn){ pdfBtn.style.display=''; pdfBtn.disabled=false; }
-    setStatus('Forhåndsvisning klar. Du kan redigere teksten direkte i forhåndsvisningen eller laste ned PDF.', 'ok');
-    saveToStorage();
+    document.getElementById("pdfBtn").style.display="block";
   }catch(e){
-    console.error('doGen-feil:', e);
-    setStatus('<strong>Feil ved generering:</strong> '+escapeHtml(e.message || e), 'err');
-  }finally{
-    if(btn){ btn.disabled=false; btn.textContent="Generer forhåndsvisning"; }
+    document.getElementById("output").innerHTML=`<div class="err"><strong>Feil:</strong> ${e.message}</div>`;
   }
+  btn.disabled=false;btn.textContent="Generer tilbud";
 }
 
 function calcPT(lines){let t=0;lines.forEach(l=>{const p=parseKr(l.total);if(p)t+=p;});return t;}
@@ -1386,9 +1339,9 @@ function renderPreview(fd,ai){
     produkter: fd.phProdukter, opsjon: fd.phOpsjon,
     betaling: fd.phBetaling, marked: fd.phMarked,
     merknader: fd.phMerknader,
-    total: false,
+    total: fd.phTotal,
   };
-  const kind=fd.kind || "service";
+  const kind=fd.kind;
 
   // ── Tjenester table ──
   let svcTotal=0;
@@ -1396,7 +1349,7 @@ function renderPreview(fd,ai){
   if(!ph.tjenester && kind==="service" && fd.lines.some(l=>l.desc)){
     let rows='';
     fd.lines.filter(l=>l.desc).forEach((l,i)=>{
-      const p=parseKr(l.price); const q=parseFloat(l.qty)||1; if(p) svcTotal+=p*q;
+      const p=parseKr(l.price); if(p) svcTotal+=p;
       rows+=`<tr>
         <td style="padding:9px;font-size:13px" contenteditable="true" class="e" data-svc-desc="${i}">${l.desc}</td>
         <td style="padding:9px;text-align:right;font-size:13px;min-width:80px" contenteditable="true" data-svc-price="${i}" class="e">${l.price||'—'}</td>
@@ -1472,7 +1425,10 @@ function renderPreview(fd,ai){
     const dTot = fd.discTotal&&fd.discTotal.val;
     if(gt>0) totalHTML=`
     ${dTot?`<div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#2a7a2a"><span>Totalrabatt <span class="disc-tag">${discLabel(fd.discTotal)}</span></span><span>-${fmtR(gt0-gt)}</span></div>`:''}
-    <div class="prev-total-box" style="margin-top:4px"><span>TOTALT EKS. MVA</span><span>${fmtR(gt)}</span></div>`;
+    ${_mvaMode==='ink'?`
+    <div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#666"><span>MVA (25%)</span><span>${fmtR(gt*0.25)}</span></div>
+    <div class="prev-total-box" style="margin-top:4px"><span>TOTALT INKL. MVA</span><span>${fmtR(gt*1.25)}</span></div>
+    `:`<div class="prev-total-box" style="margin-top:4px"><span>TOTALT EKS. MVA</span><span>${fmtR(gt)}</span></div>`}`;
   }
 
   // ── Merknader ──
@@ -1526,41 +1482,50 @@ function renderPreview(fd,ai){
 </div>`;
 }
 
+
+// ── MVA TOGGLE ───────────────────────────────────────────────────────────
+let _mvaMode = 'eks'; // 'eks' or 'ink'
+
+function setMva(mode) {
+  _mvaMode = mode;
+  const btnEks = document.getElementById('btnEksMva');
+  const btnInk = document.getElementById('btnInkMva');
+  if (btnEks && btnInk) {
+    if (mode === 'eks') {
+      btnEks.style.background = '#111'; btnEks.style.color = '#fff'; btnEks.style.borderColor = '#111';
+      btnInk.style.background = '#fff'; btnInk.style.color = '#555'; btnInk.style.borderColor = '#ddd';
+    } else {
+      btnInk.style.background = '#111'; btnInk.style.color = '#fff'; btnInk.style.borderColor = '#111';
+      btnEks.style.background = '#fff'; btnEks.style.color = '#555'; btnEks.style.borderColor = '#ddd';
+    }
+  }
+  // Re-render preview if we have data
+  if (genData) renderPreview(genData.fd, genData.ai);
+}
+
 async function doPDF(){
-  try{
-  if(!genData){
-    setStatus('Generer forhåndsvisning før du laster ned PDF.', 'err');
-    return;
-  }
-  if(!window.jspdf || !window.jspdf.jsPDF){
-    setStatus('<strong>PDF-biblioteket ble ikke lastet.</strong> Sjekk internett/CDN eller last siden på nytt.', 'err');
-    return;
-  }
+  if(!genData) return;
   syncEditableFields();
   const {fd,ai}=genData;
 
   // Pre-fetch product images as base64 via Worker (bypasses CORS)
   const btn = document.getElementById('pdfBtn');
-  const origText = btn ? btn.textContent : '';
-  setStatus('Lager PDF…', 'warn');
-  if(fd.products && fd.products.length && WORKER_URL && !WORKER_URL.includes('din-worker')){
-    if(btn){ btn.textContent = '⏳ Laster bilder…'; btn.disabled = true; }
+  const origText = btn.textContent;
+  if(fd.products && fd.products.length){
+    btn.textContent = '⏳ Laster bilder…'; btn.disabled = true;
     await Promise.all(fd.products.map(async p=>{
-      if(!p.image || p.image.startsWith('data:')) return;
+      if(!p.image || p.image.startsWith('data:')) return; // already base64 or empty
       try{
-        const ctrl = new AbortController();
-        const t = setTimeout(() => ctrl.abort(), 2500);
-        const res = await fetch(WORKER_URL + '/img?url=' + encodeURIComponent(p.image), {signal: ctrl.signal});
-        clearTimeout(t);
+        const res = await fetch(WORKER_URL + '/img?url=' + encodeURIComponent(p.image));
         if(res.ok){
           const d = await res.json();
-          if(d.data) p.image = d.data;
+          if(d.data) p.image = d.data; // replace URL with base64 data URI
         }
-      }catch(e){ /* behold original; PDF lager tom bildeplass hvis bildet ikke kan lastes */ }
+      }catch(e){ /* keep original, will fail silently in PDF */ }
     }));
-    if(btn) btn.disabled = false;
+    btn.disabled = false;
   }
-  if(btn) btn.textContent = origText;
+  btn.textContent = origText;
   const {jsPDF}=window.jspdf;
   const W=210, ml=20, mr=20, cw=W-ml-mr;  // symmetric 20mm margins
   const doc=new jsPDF({unit:"mm",format:"a4"});
@@ -1640,9 +1605,8 @@ async function doPDF(){
     betaling:    fd.phBetaling,
     marked:      fd.phMarked,
     merknader:   fd.phMerknader,
-    total:       false,
+    total:       fd.phTotal,
   };
-  const kind = fd.kind || "service";
 
   // ── MODULE: Beskrivelse + omfang
   if(!ph.beskrivelse){
@@ -1662,10 +1626,10 @@ async function doPDF(){
   }
 
   // ── MODULE: Tjenester
-  const hasServiceLines = !ph.tjenester && kind==="service" && fd.lines && fd.lines.some(l=>l.desc);
+  const hasServiceLines = !ph.tjenester && fd.kind==="service" && fd.lines && fd.lines.some(l=>l.desc);
   let svcTotal = 0;
   // Always calc total even if hidden, for grand total
-  if(kind==="service") fd.lines.forEach(l=>{const p=parseKr(l.price);const q=parseFloat(l.qty)||1;if(p)svcTotal+=p*q;});
+  if(fd.kind==="service") fd.lines.forEach(l=>{const p=parseKr(l.price);if(p)svcTotal+=p;});
 
   if(hasServiceLines){
     NP(20); SEC((ai.sec_tjenester||"TJENESTER").toUpperCase());
@@ -1782,7 +1746,7 @@ async function doPDF(){
   }
 
   // ── MODULE: Leie-spesifikasjon
-  if(kind==="product" && fd.lines && fd.lines.some(l=>l.desc)){
+  if(fd.kind==="product" && fd.lines && fd.lines.some(l=>l.desc)){
     NP(20); SEC("SPESIFIKASJON");
     const cw4=[cw*0.42,14,32,30,28];
     const cx=[ml,...[0,1,2,3].map(i=>cw4.slice(0,i+1).reduce((a,b)=>a+b,ml))];
@@ -1822,7 +1786,7 @@ async function doPDF(){
   }
 
   // ── MODULE: Totalpris
-  if(!ph.total && (hasServiceLines||hasProducts||(kind==="service"&&svcTotal>0)||(fd.products&&fd.products.length&&prodTotal>0))){
+  if(!ph.total && (hasServiceLines||hasProducts||(fd.kind==="service"&&svcTotal>0)||(fd.products&&fd.products.length&&prodTotal>0))){
     NP(20);
     const gt0=svcTotal+prodTotal;
     const dTot=fd.discTotal&&fd.discTotal.val;
@@ -1833,10 +1797,21 @@ async function doPDF(){
       TR("-"+fmtR(gt0-gt),priceX,y,FS,"normal",[80,160,80]);
       y+=7;
     }
+    if(_mvaMode==='ink'){
+    // Show mva line + inkl total
+    T("MVA (25%)",ml,y,FS,"normal",[100,100,100]);
+    TR(fmtR(gt*0.25),priceX,y,FS,"normal",[100,100,100]);
+    y+=7;
+    doc.setFillColor(17,17,17);doc.rect(ml,y,cw,14,"F");
+    doc.setFontSize(13);doc.setFont("helvetica","bold");doc.setTextColor(255);
+    doc.text("TOTALT INKL. MVA",ml+5,y+9.5);
+    doc.text(fmtR(gt*1.25),priceX-3,y+9.5,{align:"right"});
+  } else {
     doc.setFillColor(17,17,17);doc.rect(ml,y,cw,14,"F");
     doc.setFontSize(13);doc.setFont("helvetica","bold");doc.setTextColor(255);
     doc.text("TOTALT EKS. MVA",ml+5,y+9.5);
     doc.text(fmtR(gt),priceX-3,y+9.5,{align:"right"});
+  }
     doc.setTextColor(17); y+=22;
   }
 
@@ -1888,13 +1863,6 @@ async function doPDF(){
   _drawPageFooter(_pageNum);
 
   doc.save("NOVOOI_Tilbud_"+fd.kunde.replace(/[^a-zA-Z0-9]/g,"_")+"_"+fd.nr+".pdf");
-  }catch(e){
-    console.error('doPDF-feil:', e);
-    const out=document.getElementById("output");
-    if(out) out.insertAdjacentHTML("afterbegin", '<div class="err"><strong>Feil ved PDF:</strong> '+escapeHtml(e.message || e)+'</div>');
-    const btn=document.getElementById("pdfBtn");
-    if(btn){ btn.disabled=false; btn.textContent="⬇ Last ned PDF"; }
-  }
 }
 
 
@@ -2033,32 +2001,7 @@ function getOpsText(id) {
     if(e.target.dataset && e.target.dataset.aiField) e.target._userEdited = true;
   });
 
-
-  // Ekstra sikkerhet: koble knappene via event listeners også, ikke bare inline onclick.
-  const genBtn = document.getElementById('genBtn');
-  if(genBtn){ genBtn.onclick = null; genBtn.addEventListener('click', (e)=>{ e.preventDefault(); doGen(); }); }
-  const pdfBtn = document.getElementById('pdfBtn');
-  if(pdfBtn){ pdfBtn.onclick = null; pdfBtn.addEventListener('click', (e)=>{ e.preventDefault(); doPDF(); }); }
-
-  window.addEventListener('error', (e)=>{
-    const out=document.getElementById('output');
-    if(out) out.insertAdjacentHTML('afterbegin','<div class="err"><strong>JavaScript-feil:</strong> '+escapeHtml(e.message || 'Ukjent feil')+'</div>');
-  });
-  window.addEventListener('unhandledrejection', (e)=>{
-    const out=document.getElementById('output');
-    const msg=e.reason && (e.reason.message || e.reason) || 'Ukjent feil';
-    if(out) out.insertAdjacentHTML('afterbegin','<div class="err"><strong>Feil:</strong> '+escapeHtml(msg)+'</div>');
-  });
-
 })();
-
-
-// Update live summary when global discount fields or PDF visibility toggles change
-['discSvc','discSvcType','discProd','discProdType','discTotal','discTotalType'].forEach(id => {
-  document.addEventListener('input', e => { if(e.target && e.target.id === id) updateLiveSum(); });
-  document.addEventListener('change', e => { if(e.target && e.target.id === id) updateLiveSum(); });
-});
-
 </script>
 </body>
 </html>
