@@ -762,7 +762,10 @@ function tog(h){h.classList.toggle("open");h.nextElementSibling.classList.toggle
 
 // ── PRODUCTS
 let _mvaMode = 'eks'; // 'eks' or 'ink' — must be global
+let genData;
 let selectedProducts = [];
+let tags = []; // merkevare-tags
+
 let manualImgData = null;
 
 // ── Tab switching
