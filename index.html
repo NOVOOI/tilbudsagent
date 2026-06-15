@@ -472,6 +472,9 @@ textarea{resize:vertical;line-height:1.55}
         <label class="check"><input type="checkbox" id="phTjenester"> Skjul Tjenester</label>
         <label class="check"><input type="checkbox" id="phProdukter"> Skjul Produkter</label>
         <label class="check"><input type="checkbox" id=
+        <label class="check"><input type="checkbox" id="phOpsjon"> Skjul Opsjon (kjøp av møbler)</label>
+        <label class="check"><input type="checkbox" id="phBetaling"> Skjul Betalingsbetingelser</label>
+        <label class="check"><input type="checkbox" id="phMarked"> Skjul Markedsføring</label>
         <label class="check"><input type="checkbox" id="phMerknader"> Skjul Merknader</label>
         <label class="check"><input type="checkbox" id="phTotal"> Skjul Totalpris-boks</label>
       </div>
@@ -1179,20 +1182,22 @@ function getFD(){
     betfrist:document.getElementById("fbetfrist").value,
     rabatt:document.getElementById("frabatt").value,
     merknader:document.getElementById("fmerk").value,
+    typeLabel: document.getElementById('fprosjekt')?.value || 'Tilbud',
+    kind: 'service',
     brands:tags,
     products:selectedProducts,
     // PDF visibility (true = hidden in PDF)
-    phBeskrivelse: document.getElementById('phBeskrivelse').checked,
-    phTjenester:   document.getElementById('phTjenester').checked,
-    phProdukter:   document.getElementById('phProdukter').checked,
-    phOpsjon:      document.getElementById('phOpsjon').checked,
-    phBetaling:    document.getElementById('phBetaling').checked,
-    phMarked:      document.getElementById('phMarked').checked,
-    phMerknader:   document.getElementById('phMerknader').checked,
-    phTotal:       document.getElementById('phTotal').checked,
-    discSvc:   {val: parseFloat(document.getElementById('discSvc').value)||0, type: document.getElementById('discSvcType').value},
-    discProd:  {val: parseFloat(document.getElementById('discProd').value)||0, type: document.getElementById('discProdType').value},
-    discTotal: {val: parseFloat(document.getElementById('discTotal').value)||0, type: document.getElementById('discTotalType').value},
+    phBeskrivelse: document.getElementById('phBeskrivelse')?.checked||false,
+    phTjenester:   document.getElementById('phTjenester')?.checked||false,
+    phProdukter:   document.getElementById('phProdukter')?.checked||false,
+    phOpsjon:      document.getElementById('phOpsjon')?.checked||false,
+    phBetaling:    document.getElementById('phBetaling')?.checked||false,
+    phMarked:      document.getElementById('phMarked')?.checked||false,
+    phMerknader:   document.getElementById('phMerknader')?.checked||false,
+    phTotal:       document.getElementById('phTotal')?.checked||false,
+    discSvc:   {val: parseFloat(document.getElementById('discSvc')?.value)||0, type: document.getElementById('discSvcType')?.value||'pct'},
+    discProd:  {val: parseFloat(document.getElementById('discProd')?.value)||0, type: document.getElementById('discProdType')?.value||'pct'},
+    discTotal: {val: parseFloat(document.getElementById('discTotal')?.value)||0, type: document.getElementById('discTotalType')?.value||'pct'},
   };
 }
 
@@ -1208,7 +1213,14 @@ async function callAPI(body){
 }
 
 async function doGen(){
-  const fd=getFD();
+  let fd;
+  try {
+    fd = getFD();
+  } catch(err) {
+    document.getElementById("output").innerHTML=`<div class="err"><strong>getFD krasjet:</strong> ${err.message}</div>`;
+    console.error('getFD error:', err);
+    return;
+  }
   if(!fd.kunde||!fd.brief){
     document.getElementById("output").innerHTML='<div class="err">Fyll inn kunde og prosjektbeskrivelse.</div>';return;
   }
