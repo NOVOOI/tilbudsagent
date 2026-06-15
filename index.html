@@ -761,6 +761,7 @@ function tog(h){h.classList.toggle("open");h.nextElementSibling.classList.toggle
 
 
 // ── PRODUCTS
+let _mvaMode = 'eks'; // 'eks' or 'ink' — must be global
 let selectedProducts = [];
 let manualImgData = null;
 
@@ -1232,7 +1233,7 @@ Returner JSON:
 {"beskrivelse":"2-3 setninger om oppdraget","omfang":[],"opsjon":"tekst eller null","betaling":"tekst eller null","markedsforing":"tekst eller null","merknader":[]}`;
 
   try{
-    const d=await callAPI({model:"claude-sonnet-4-20250514",max_tokens:1200,messages:[{role:"user",content:prompt}]});
+    const d=await callAPI({model:"claude-sonnet-4-6",max_tokens:1200,messages:[{role:"user",content:prompt}]});
     let txt=(d.content||[{text:""}]).map(x=>x.text).join("").replace(/```json|```/g,"").trim();
     const ai=JSON.parse(txt);
     genData={fd,ai};
@@ -1484,7 +1485,7 @@ function renderPreview(fd,ai){
 
 
 // ── MVA TOGGLE ───────────────────────────────────────────────────────────
-let _mvaMode = 'eks'; // 'eks' or 'ink'
+
 
 function setMva(mode) {
   _mvaMode = mode;
