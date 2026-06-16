@@ -1469,7 +1469,7 @@ function renderPreview(fd,ai){
       <div><div class="mk">Dato</div><div class="mv e" contenteditable="true" data-fd-field="dato">${fd.dato}</div></div>
       <div><div class="mk">Gyldig til</div><div class="mv e" contenteditable="true" data-fd-field="gyldig">${fd.gyldig}</div></div>
     </div>
-    <hr class="prev-rule">
+    
     <div class="prev-h1 e" contenteditable="true" data-fd-field="typeLabel">${(fd.prosjekt||fd.typeLabel).toUpperCase()}</div>
     <!-- ingress removed -->
     ${!ph.beskrivelse ? `
@@ -1606,8 +1606,7 @@ async function doPDF(){
     [[fd.gyldig,"normal"]]
   ].forEach((lines,i)=>lines.forEach((l,j)=>{if(l[0])T(l[0],mc[i],y+j*4.5,9,l[1]);}));
   y+=16;
-  // Rule with breathing room top and bottom
-  HR(y,0.6); y+=14;
+  y+=6;  // space after meta header (no rule)
 
   // ── Tittel + ingress
   T((fd.prosjekt ? fd.prosjekt : fd.typeLabel).toUpperCase(),ml,y,19,"bold"); y+=8;
