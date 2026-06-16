@@ -1439,8 +1439,9 @@ function renderPreview(fd,ai){
     if(gt>0) totalHTML=`
     ${dTot?`<div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#2a7a2a"><span>Totalrabatt <span class="disc-tag">${discLabel(fd.discTotal)}</span></span><span>-${fmtR(gt0-gt)}</span></div>`:''}
     ${_mvaMode==='ink'?`
-    <div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#666"><span>MVA (25%)</span><span>${fmtR(gt*0.25)}</span></div>
-    <div class="prev-total-box" style="margin-top:4px"><span>TOTALT INKL. MVA</span><span>${fmtR(gt*1.25)}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#666"><span>Eks. mva</span><span>${fmtR(gt/1.25)}</span></div>
+    <div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#666"><span>MVA (25%)</span><span>${fmtR(gt-gt/1.25)}</span></div>
+    <div class="prev-total-box" style="margin-top:4px"><span>TOTALT INKL. MVA</span><span>${fmtR(gt)}</span></div>
     `:`<div class="prev-total-box" style="margin-top:4px"><span>TOTALT EKS. MVA</span><span>${fmtR(gt)}</span></div>`}`;
   }
 
@@ -1812,14 +1813,17 @@ async function doPDF(){
       y+=7;
     }
     if(_mvaMode==='ink'){
-    // Show mva line + inkl total
+    // Entered prices are inkl. mva → eks = gt/1.25, mva = gt - gt/1.25
+    T("Eks. mva",ml,y,FS,"normal",[100,100,100]);
+    TR(fmtR(gt/1.25),priceX,y,FS,"normal",[100,100,100]);
+    y+=6;
     T("MVA (25%)",ml,y,FS,"normal",[100,100,100]);
-    TR(fmtR(gt*0.25),priceX,y,FS,"normal",[100,100,100]);
+    TR(fmtR(gt-gt/1.25),priceX,y,FS,"normal",[100,100,100]);
     y+=7;
     doc.setFillColor(17,17,17);doc.rect(ml,y,cw,14,"F");
     doc.setFontSize(13);doc.setFont("helvetica","bold");doc.setTextColor(255);
     doc.text("TOTALT INKL. MVA",ml+5,y+9.5);
-    doc.text(fmtR(gt*1.25),priceX-3,y+9.5,{align:"right"});
+    doc.text(fmtR(gt),priceX-3,y+9.5,{align:"right"});
   } else {
     doc.setFillColor(17,17,17);doc.rect(ml,y,cw,14,"F");
     doc.setFontSize(13);doc.setFont("helvetica","bold");doc.setTextColor(255);
