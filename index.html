@@ -1347,6 +1347,8 @@ function syncEditableFields(){
 }
 
 function renderPreview(fd,ai){
+  const _mvaf = _mvaMode==='eks' ? (1/1.25) : 1;
+  const _mvalbl = _mvaMode==='eks' ? 'eks. mva' : 'inkl. mva';
   const ph = {
     beskrivelse: fd.phBeskrivelse, tjenester: fd.phTjenester,
     produkter: fd.phProdukter, opsjon: fd.phOpsjon,
@@ -1378,7 +1380,7 @@ function renderPreview(fd,ai){
     </table>
     ${dSvc?`<div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#2a7a2a"><span>Rabatt <span class="disc-tag">${discLabel(fd.discSvc)}</span></span><span>-${fmtR(svcTotal-svcAfter)}</span></div>`:''}
     <div style="display:flex;justify-content:space-between;padding:8px 9px;border-top:1.5px solid #111;font-weight:700;font-size:13px">
-      <span>Tjenestepris eks. mva</span><span>${fmtR(svcAfter)}</span>
+      <span>Tjenestepris ${_mvalbl}</span><span>${fmtR(svcAfter*_mvaf)}</span>
     </div>`;
   }
 
@@ -1407,9 +1409,9 @@ function renderPreview(fd,ai){
           <div style="font-size:11px;color:#888;margin-top:3px">Antall: ${qty}</div>
         </td>
         <td style="padding:9px;text-align:right;vertical-align:top">
-          <div style="font-size:12px;color:#999">${fmtR(unit)} × ${qty}</div>
+          <div style="font-size:12px;color:#999">${fmtR(unit*_mvaf)} × ${qty}</div>
           <div style="font-size:13px;font-weight:600;color:#111;margin-top:2px" contenteditable="true"
-            data-prod-price="${p.id}" class="e prev-editable">${fmtR(tot)}</div>
+            data-prod-price="${p.id}" class="e prev-editable">${fmtR(tot*_mvaf)}</div>
           ${disc.val?`<div style="font-size:11px;color:#2a7a2a;margin-top:2px">${discLbl} → ${fmtR(afterD*qty)}</div>`:''}
         </td>
       </tr>`;
@@ -1424,7 +1426,7 @@ function renderPreview(fd,ai){
     </table>
     ${dProd?`<div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#2a7a2a"><span>Rabatt <span class="disc-tag">${discLabel(fd.discProd)}</span></span><span>-${fmtR(prodTotal-prodAfter)}</span></div>`:''}
     <div style="display:flex;justify-content:space-between;padding:8px 9px;border-top:1.5px solid #111;font-weight:700;font-size:13px">
-      <span>Produktpris eks. mva</span><span>${fmtR(prodAfter)}</span>
+      <span>Produktpris ${_mvalbl}</span><span>${fmtR(prodAfter*_mvaf)}</span>
     </div>`;
   }
 
@@ -1437,11 +1439,11 @@ function renderPreview(fd,ai){
     const gt = fd.discTotal&&fd.discTotal.val ? applyDisc(gt0,fd.discTotal) : gt0;
     const dTot = fd.discTotal&&fd.discTotal.val;
     if(gt>0) totalHTML=`
-    ${dTot?`<div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#2a7a2a"><span>Totalrabatt <span class="disc-tag">${discLabel(fd.discTotal)}</span></span><span>-${fmtR(gt0-gt)}</span></div>`:''}
-    ${_mvaMode==='ink'?`
-    <div class="prev-total-box" style="margin-top:4px"><span>TOTALT INKL. MVA</span><span>${fmtR(gt)}</span></div>
-    `:`<div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#666"><span>MVA (25%)</span><span>-${fmtR(gt-gt/1.25)}</span></div>
-    <div class="prev-total-box" style="margin-top:4px"><span>TOTALT EKS. MVA</span><span>${fmtR(gt/1.25)}</span></div>`}`;
+    ${dTot?`<div style="display:flex;justify-content:space-between;padding:6px 9px;font-size:12px;color:#2a7a2a"><span>Totalrabatt <span class="disc-tag">${discLabel(fd.discTotal)}</span></span><span>-${fmtR((gt0-gt)*_mvaf)}</span></div>`:''}
+    <div class="prev-total-box" style="margin-top:4px">
+      <span>TOTALT ${_mvaMode==='eks'?'EKS. MVA':'INKL. MVA'}</span>
+      <span>${fmtR(gt*_mvaf)}</span>
+    </div>`;
   }
 
   // ── Merknader ──
@@ -1540,6 +1542,7 @@ async function doPDF(){
   }
   btn.textContent = origText;
   const {jsPDF}=window.jspdf;
+  const mvaF = _mvaMode==='eks' ? (1/1.25) : 1; // price multiplier
   const W=210, ml=20, mr=20, cw=W-ml-mr;  // symmetric 20mm margins
   const doc=new jsPDF({unit:"mm",format:"a4"});
   const FS=10;
@@ -1682,7 +1685,7 @@ async function doPDF(){
       TR("-"+fmtR(svcTotal-svcAfterDisc),priceX,y,FS,"normal",[80,160,80]);
       y+=6;
     }
-    T("Tjenestepris eks. mva",ml,y,FS,"bold",[17,17,17]);
+    T(_mvaMode==='eks'?"Tjenestepris eks. mva":"Tjenestepris inkl. mva",ml,y,FS,"bold",[17,17,17]);
     TR(fmtR(svcAfterDisc),priceX,y,FS,"bold",[17,17,17]);
     svcTotal=svcAfterDisc;
     y+=12;
@@ -1692,7 +1695,7 @@ async function doPDF(){
   const hasProducts = !ph.produkter && fd.products && fd.products.length > 0;
   let prodTotal = 0;
   // Always calc for grand total
-  if(fd.products) fd.products.forEach(p=>{const n=parseKr(p.price)||0;const dv=p.discVal||0,dt=p.discType||'pct';const aft=dv?(dt==='pct'?n*(1-dv/100):Math.max(0,n-dv)):n;prodTotal+=aft*(p.qty||1);});
+  if(fd.products) fd.products.forEach(p=>{const n=(parseKr(p.price)||0)*mvaF;const dv=p.discVal||0,dt=p.discType||'pct';const aft=dv?(dt==='pct'?n*(1-dv/100):Math.max(0,n-dv)):n;prodTotal+=aft*(p.qty||1);});
 
   if(hasProducts){
     NP(20); SEC((ai.sec_produkter||"PRODUKTER").toUpperCase());
@@ -1704,7 +1707,7 @@ async function doPDF(){
 
     fd.products.forEach(p=>{
       const imgSz=22;
-      const pQty=p.qty||1, pUnit=parseKr(p.price)||0, pTotal=pUnit*pQty;
+      const pQty=p.qty||1, pUnit=(parseKr(p.price)||0)*mvaF, pTotal=pUnit*pQty;
       const rowH=Math.max(imgSz+8, 32);
       NP(rowH+4);
       doc.setDrawColor(225,225,225);doc.setLineWidth(0.12);
@@ -1753,7 +1756,7 @@ async function doPDF(){
       TR("-"+fmtR(prodTotal-prodAfterDisc),priceX,y,FS,"normal",[80,160,80]);
       y+=6;
     }
-    T("Produktpris eks. mva",ml,y,FS,"bold",[17,17,17]);
+    T(_mvaMode==='eks'?"Produktpris eks. mva":"Produktpris inkl. mva",ml,y,FS,"bold",[17,17,17]);
     TR(fmtR(prodAfterDisc),priceX,y,FS,"bold",[17,17,17]);
     prodTotal=prodAfterDisc;
     y+=12;
@@ -1818,10 +1821,7 @@ async function doPDF(){
     doc.text("TOTALT INKL. MVA",ml+5,y+9.5);
     doc.text(fmtR(gt),priceX-3,y+9.5,{align:"right"});
   } else {
-    // Prices are inkl. mva — eks. mva = gt/1.25
-    T("MVA (25%)",ml,y,FS,"normal",[100,100,100]);
-    TR("-"+fmtR(gt-gt/1.25),priceX,y,FS,"normal",[100,100,100]);
-    y+=7;
+    // Prices inkl. mva — show gt/1.25 as eks. total, no separate MVA line
     doc.setFillColor(17,17,17);doc.rect(ml,y,cw,14,"F");
     doc.setFontSize(13);doc.setFont("helvetica","bold");doc.setTextColor(255);
     doc.text("TOTALT EKS. MVA",ml+5,y+9.5);
