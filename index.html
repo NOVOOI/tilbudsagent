@@ -1370,7 +1370,8 @@ function renderPreview(fd,ai){
   if(!ph.tjenester && kind==="service" && fd.lines.some(l=>l.desc)){
     let rows='';
     fd.lines.filter(l=>l.desc).forEach((l,i)=>{
-      const p=(parseKr(l.price)||0)*_mvaF_svc; if(p) svcTotal+=p;
+      const qty=parseFloat(l.qty)||1;
+      const p=(parseKr(l.price)||0)*_mvaF_svc*qty; if(p) svcTotal+=p;
       rows+=`<tr>
         <td style="padding:9px;font-size:13px" contenteditable="true" class="e" data-svc-desc="${i}">${l.desc}</td>
         <td style="padding:9px;text-align:right;font-size:13px;min-width:80px" contenteditable="true" data-svc-price="${i}" class="e">${l.price||'—'}</td>
@@ -1653,7 +1654,11 @@ async function doPDF(){
   const hasServiceLines = !ph.tjenester && fd.kind==="service" && fd.lines && fd.lines.some(l=>l.desc);
   let svcTotal = 0;
   // Always calc total even if hidden, for grand total
-  if(fd.kind==="service") fd.lines.forEach(l=>{const p=parseKr(l.price);if(p)svcTotal+=p;});
+  if(fd.kind==="service") fd.lines.forEach(l=>{
+    const qty = parseFloat(l.qty)||1;
+    const p=(parseKr(l.price)||0)*mvaF_svc*qty;
+    if(p)svcTotal+=p;
+  });
 
   if(hasServiceLines){
     NP(20); SEC((ai.sec_tjenester||"TJENESTER").toUpperCase());
@@ -1661,13 +1666,13 @@ async function doPDF(){
     HR(y-1,0.2,[210,210,210]);
     doc.setFontSize(7.5);doc.setFont("helvetica","bold");doc.setTextColor(150);
     doc.text("Beskrivelse",ml,y+3);
-    doc.text("Pris eks. mva",priceX,y+3,{align:"right"});
+    doc.text("Pris "+_mvalbl,priceX,y+3,{align:"right"});
     y+=6; HR(y,0.2,[210,210,210]);
     // Rows
     fd.lines.filter(l=>l.desc).forEach(l=>{
       NP(12);
       const qty = parseFloat(l.qty)||1;
-      const unit = parseKr(l.price)||0;
+      const unit = (parseKr(l.price)||0)*mvaF_svc;
       const tot  = qty * unit;
       const descW = cw*0.65;
       const ls=doc.splitTextToSize(l.desc,descW);
@@ -1828,11 +1833,11 @@ async function doPDF(){
     doc.text("TOTALT INKL. MVA",ml+5,y+9.5);
     doc.text(fmtR(gt),priceX-3,y+9.5,{align:"right"});
   } else {
-    // Prices inkl. mva — show gt/1.25 as eks. total, no separate MVA line
+    // Services are already entered eks. mva; products are converted above.
     doc.setFillColor(17,17,17);doc.rect(ml,y,cw,14,"F");
     doc.setFontSize(13);doc.setFont("helvetica","bold");doc.setTextColor(255);
     doc.text("TOTALT EKS. MVA",ml+5,y+9.5);
-    doc.text(fmtR(gt/1.25),priceX-3,y+9.5,{align:"right"});
+    doc.text(fmtR(gt),priceX-3,y+9.5,{align:"right"});
   }
     doc.setTextColor(17); y+=22;
   }
