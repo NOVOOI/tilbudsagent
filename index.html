@@ -1350,7 +1350,10 @@ function syncEditableFields(){
 }
 
 function renderPreview(fd,ai){
-  const _mvaf = _mvaMode==='eks' ? (1/1.25) : 1;
+  // Services: user enters eks. mva price → multiply by 1.25 for inkl.
+  const _mvaF_svc  = _mvaMode==='ink' ? 1.25 : 1;
+  // Products: WooCommerce prices = inkl. mva → divide by 1.25 for eks.
+  const _mvaF_prod = _mvaMode==='eks' ? (1/1.25) : 1;
   const _mvalbl = _mvaMode==='eks' ? 'eks. mva' : 'inkl. mva';
   const ph = {
     beskrivelse: fd.phBeskrivelse, tjenester: fd.phTjenester,
@@ -1367,7 +1370,7 @@ function renderPreview(fd,ai){
   if(!ph.tjenester && kind==="service" && fd.lines.some(l=>l.desc)){
     let rows='';
     fd.lines.filter(l=>l.desc).forEach((l,i)=>{
-      const p=(parseKr(l.price)||0)*_mvaf; if(p) svcTotal+=p;
+      const p=(parseKr(l.price)||0)*_mvaF_svc; if(p) svcTotal+=p;
       rows+=`<tr>
         <td style="padding:9px;font-size:13px" contenteditable="true" class="e" data-svc-desc="${i}">${l.desc}</td>
         <td style="padding:9px;text-align:right;font-size:13px;min-width:80px" contenteditable="true" data-svc-price="${i}" class="e">${l.price||'—'}</td>
@@ -1394,7 +1397,7 @@ function renderPreview(fd,ai){
   if(hasProds){
     let rows='';
     fd.products.forEach(p=>{
-      const qty=p.qty||1, unit=(parseKr(p.price)||0)*_mvaf;
+      const qty=p.qty||1, unit=(parseKr(p.price)||0)*_mvaF_prod;
       const disc={val:p.discVal||0,type:p.discType||'pct'};
       const afterD=disc.val?(disc.type==='pct'?unit*(1-disc.val/100):Math.max(0,unit-disc.val)):unit;
       const tot=afterD*qty;
@@ -1545,7 +1548,9 @@ async function doPDF(){
   }
   btn.textContent = origText;
   const {jsPDF}=window.jspdf;
-  const mvaF = _mvaMode==='eks' ? (1/1.25) : 1; // price multiplier
+  const mvaF_svc  = _mvaMode==='ink' ? 1.25 : 1;
+  const mvaF_prod = _mvaMode==='eks' ? (1/1.25) : 1;
+  const _mvalbl    = _mvaMode==='eks' ? 'eks. mva' : 'inkl. mva';
   const W=210, ml=20, mr=20, cw=W-ml-mr;  // symmetric 20mm margins
   const doc=new jsPDF({unit:"mm",format:"a4"});
   const FS=10;
@@ -1687,7 +1692,7 @@ async function doPDF(){
       TR("-"+fmtR(svcTotal-svcAfterDisc),priceX,y,FS,"normal",[80,160,80]);
       y+=6;
     }
-    T(_mvaMode==='eks'?"Tjenestepris eks. mva":"Tjenestepris inkl. mva",ml,y,FS,"bold",[17,17,17]);
+    T("Tjenestepris "+_mvalbl,ml,y,FS,"bold",[17,17,17]);
     TR(fmtR(svcAfterDisc),priceX,y,FS,"bold",[17,17,17]);
     svcTotal=svcAfterDisc;
     y+=12;
@@ -1697,7 +1702,7 @@ async function doPDF(){
   const hasProducts = !ph.produkter && fd.products && fd.products.length > 0;
   let prodTotal = 0;
   // Always calc for grand total
-  if(fd.products) fd.products.forEach(p=>{const n=(parseKr(p.price)||0)*mvaF;const dv=p.discVal||0,dt=p.discType||'pct';const aft=dv?(dt==='pct'?n*(1-dv/100):Math.max(0,n-dv)):n;prodTotal+=aft*(p.qty||1);});
+  if(fd.products) fd.products.forEach(p=>{const n=(parseKr(p.price)||0)*mvaF_prod;const dv=p.discVal||0,dt=p.discType||'pct';const aft=dv?(dt==='pct'?n*(1-dv/100):Math.max(0,n-dv)):n;prodTotal+=aft*(p.qty||1);});
 
   if(hasProducts){
     NP(20); SEC((ai.sec_produkter||"PRODUKTER").toUpperCase());
@@ -1709,7 +1714,7 @@ async function doPDF(){
 
     fd.products.forEach(p=>{
       const imgSz=22;
-      const pQty=p.qty||1, pUnit=(parseKr(p.price)||0)*mvaF, pTotal=pUnit*pQty;
+      const pQty=p.qty||1, pUnit=(parseKr(p.price)||0)*mvaF_prod, pTotal=pUnit*pQty;
       const rowH=Math.max(imgSz+8, 32);
       NP(rowH+4);
       doc.setDrawColor(225,225,225);doc.setLineWidth(0.12);
@@ -1758,7 +1763,7 @@ async function doPDF(){
       TR("-"+fmtR(prodTotal-prodAfterDisc),priceX,y,FS,"normal",[80,160,80]);
       y+=6;
     }
-    T(_mvaMode==='eks'?"Produktpris eks. mva":"Produktpris inkl. mva",ml,y,FS,"bold",[17,17,17]);
+    T("Produktpris "+_mvalbl,ml,y,FS,"bold",[17,17,17]);
     TR(fmtR(prodAfterDisc),priceX,y,FS,"bold",[17,17,17]);
     prodTotal=prodAfterDisc;
     y+=12;
