@@ -1334,7 +1334,19 @@ function syncEditableFields(){
   document.querySelectorAll('[data-prod-price]').forEach(el => {
     const id = el.dataset.prodPrice;
     const p = genData.fd.products.find(x=>String(x.id)===id);
-    if(p) p.price = el.innerText.trim();
+    if(p) {
+      const shownTotal = parseKr(el.innerText);
+      if(shownTotal !== null) {
+        const qty = p.qty || 1;
+        const dv = p.discVal || 0;
+        const dt = p.discType || 'pct';
+        let shownUnit = shownTotal / qty;
+        if(dv) shownUnit = dt === 'pct'
+          ? shownUnit / (1 - dv / 100)
+          : shownUnit + dv;
+        p.price = String(_mvaMode === 'eks' ? shownUnit * 1.25 : shownUnit);
+      }
+    }
   });
   document.querySelectorAll('[data-prod-field]').forEach(el => {
     const parts = el.dataset.prodField.split('_');
