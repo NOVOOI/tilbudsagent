@@ -1276,7 +1276,7 @@ function syncEditableFields(){
   if(!genData) return;
   // Pull fresh values from form for fd fields (unless user edited in preview)
   const freshMap = {
-    nr: document.getElementById('fnr')?.value,
+    nr: (document.getElementById('fnr')?.value||'').replace(/^Tilbudsnr\.\s*/i,''),
     dato: document.getElementById('fdato')?.value,
     gyldig: document.getElementById('fgyldig')?.value,
     saksb: document.getElementById('fsaksb')?.value,
@@ -1316,7 +1316,10 @@ function syncEditableFields(){
   // fd fields (nr, dates, kunde, typeLabel, fra)
   document.querySelectorAll('[data-fd-field]').forEach(el => {
     const key = el.dataset.fdField;
-    genData.fd[key] = el.innerText.trim();
+    let val = el.innerText.trim();
+    // Strip "Tilbudsnr. " prefix if accidentally included
+    if(key === 'nr') val = val.replace(/^Tilbudsnr\.\s*/i, '');
+    genData.fd[key] = val;
   });
   // Service line descriptions + prices
   document.querySelectorAll('[data-svc-desc]').forEach(el => {
@@ -1978,6 +1981,9 @@ function getOpsText(id) {
   document.addEventListener('input', (e) => {
     if(e.target.dataset && e.target.dataset.fdField) e.target._userEdited = true;
     if(e.target.dataset && e.target.dataset.aiField) e.target._userEdited = true;
+  });
+})();
+.target.dataset.aiField) e.target._userEdited = true;
   });
 })();
 </script>
