@@ -146,15 +146,11 @@ textarea{resize:vertical;line-height:1.55}
 /* ── SELECTED PRODUCTS GRID ─────────────────────────────── */
 .sel-header{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888;margin:14px 0 8px}
 
-/* THE GRID — uses CSS custom property so JS can control col count */
 .sel-grid{
-  --cols: 5;
   display: grid;
-  grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
   gap: 8px;
 }
-@media (max-width: 900px){ .sel-grid{ --cols: 3; } }
-@media (max-width: 560px){ .sel-grid{ --cols: 2; } }
 
 /* ── PRODUCT CARD ───────────────────────────────────────── */
 .pcard{background:#fff;border:1px solid #e8e8e4;border-radius:5px;overflow:hidden;position:relative;display:flex;flex-direction:column}
