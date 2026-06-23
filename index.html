@@ -648,10 +648,20 @@ function importBackup(file) {
   reader.readAsText(file);
 }
 
+function formHasContent() {
+  const kunde  = document.getElementById('fkunde')?.value?.trim();
+  const brief  = document.getElementById('fbrief')?.value?.trim();
+  return !!(kunde || brief || selectedProducts.length || genData);
+}
+
 function loadHistoryEntry(nr) {
   const hist = getHistory();
   const data = hist[nr];
   if (!data) return;
+  if (formHasContent()) {
+    const label = (data.kunde || 'ukjent kunde') + ' · nr. ' + nr;
+    if (!confirm('Last inn «' + label + '»?\n\nDet nåværende tilbudet er lagret i historikken og kan hentes tilbake.')) return;
+  }
   closeHistoryModal();
   // Apply after modal is removed so all underlying DOM elements are interactable
   setTimeout(() => {
@@ -683,6 +693,12 @@ function openHistoryModal() {
     </div>`;
   modal.appendChild(header);
 
+  const searchEl = document.createElement('div');
+  searchEl.innerHTML = `<input id="histSearch" type="text" placeholder="Søk kunde, prosjekt, tilbudsnr..."
+    style="width:100%;border:1px solid #ddd;border-radius:4px;padding:8px 11px;font-size:13px;margin-bottom:10px;font-family:inherit;box-sizing:border-box"
+    oninput="renderHistoryList(this.value)">`;
+  modal.appendChild(searchEl);
+
   const listEl = document.createElement('div');
   listEl.id = 'historyList';
   modal.appendChild(listEl);
@@ -696,14 +712,24 @@ function closeHistoryModal() {
   document.getElementById('historyOverlay')?.remove();
 }
 
-function renderHistoryList() {
+function renderHistoryList(query) {
+  if (query === undefined) query = document.getElementById('histSearch')?.value || '';
+  const q = query.trim().toLowerCase();
   const listEl = document.getElementById('historyList');
   if (!listEl) return;
   const hist = getHistory();
-  const entries = Object.entries(hist).sort((a, b) => (b[1].savedAt||0) - (a[1].savedAt||0));
+  let entries = Object.entries(hist).sort((a, b) => (b[1].savedAt||0) - (a[1].savedAt||0));
+
+  if (q) {
+    entries = entries.filter(([nr, d]) =>
+      nr.toLowerCase().includes(q) ||
+      (d.kunde||'').toLowerCase().includes(q) ||
+      (d.prosjekt||'').toLowerCase().includes(q)
+    );
+  }
 
   if (!entries.length) {
-    listEl.innerHTML = '<div style="text-align:center;padding:2rem;color:#aaa;font-size:13px">Ingen lagrede tilbud ennå.</div>';
+    listEl.innerHTML = `<div style="text-align:center;padding:2rem;color:#aaa;font-size:13px">${q ? 'Ingen treff for «'+query+'».' : 'Ingen lagrede tilbud ennå.'}</div>`;
     return;
   }
 

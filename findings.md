@@ -14,6 +14,22 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 **File:** `index.html` — `.sel-grid` CSS block (around line 150)
 
+### Feature: Search/filter in "Mine tilbud"
+
+**What:** A search input at the top of the history modal filters entries in real-time by kunde, prosjekt, or tilbudsnr. Shows "Ingen treff for «...»" when nothing matches. Filter is preserved when deleting or importing entries (renderHistoryList reads the value from the DOM when called without arguments).
+
+**File:** `index.html` — `renderHistoryList()` query param + filter logic (~line 715), search input added in `openHistoryModal()` (~line 697)
+
+---
+
+### Feature: Confirmation before loading from history
+
+**What:** `loadHistoryEntry()` calls `formHasContent()` before applying a history entry. If the current form has a kunde, brief, products, or a generated preview, a confirm dialog appears naming the entry being loaded and reassuring the user their current work is already saved in history.
+
+**File:** `index.html` — `formHasContent()` + `loadHistoryEntry()` (~line 651)
+
+---
+
 ### Feature: Export / import backup of all quotes
 
 **What:** "Last ned backup" downloads the full history as a dated JSON file (`novooi-tilbud-backup-YYYY-MM-DD.json`). "Importer" reads a JSON backup file and merges it into existing history (imported entries overwrite on matching `fnr`). Both buttons live in the "Mine tilbud" modal header.
