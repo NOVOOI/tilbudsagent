@@ -14,6 +14,16 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 **File:** `index.html` — `.sel-grid` CSS block (around line 150)
 
+### Fix: Selected products not saved to history
+
+**Problem:** Adding/removing products and changing quantities mutate `selectedProducts` in memory but never triggered a save. The global `scheduleSave` listener only fires on DOM `input`/`change` events — clicking the add, remove, and qty buttons doesn't fire either. So history entries were saved without the selected products.
+
+**Fix:** Added `scheduleSave()` calls at the end of `pushProduct`, `removeProduct`, and `changeQty`.
+
+**File:** `index.html` — `pushProduct`, `removeProduct`, `changeQty` functions (~line 1131)
+
+**Pattern to watch:** Any function that mutates `selectedProducts` directly (not via an input event) must call `scheduleSave()` explicitly.
+
 ---
 
 ## Architecture notes (as of 2026-06-23)

@@ -1134,17 +1134,20 @@ function pushProduct(p) {
   p.discType= p.discType|| 'pct';
   selectedProducts.push(p);
   renderSelectedProducts();
+  scheduleSave();
 }
 
 function removeProduct(id) {
   selectedProducts = selectedProducts.filter(p => String(p.id) !== String(id));
   renderSelectedProducts();
+  scheduleSave();
 }
 
 function changeQty(id, delta) {
   const p = selectedProducts.find(x => String(x.id) === String(id));
   if (!p) return;
   p.qty = Math.max(1, (p.qty || 1) + delta);
+  scheduleSave();
   // Update only the qty display and total — no full re-render
   const dv    = p.discVal || 0;
   const dt    = p.discType || 'pct';
