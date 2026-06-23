@@ -14,6 +14,26 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 **File:** `index.html` — `.sel-grid` CSS block (around line 150)
 
+### Fix: Merkevare-tags not saved to or restored from history
+
+**Problem:** The `tags` array (merkevarer) was never included in the `saveToStorage()` data object. Loading any quote from history always resulted in empty brand tags, regardless of what was originally entered.
+
+**Fix:** Added `tags: tags` to the saved data object in `saveToStorage()`. In `applyStoredData()`, restored tags from `data.tags` with a fallback to `data.genData?.fd?.brands` for older saves that didn't have the field. Calls `renderTags()` after restoring.
+
+**Files:** `index.html` — `saveToStorage()` (~line 534), `applyStoredData()` (~line 692)
+
+---
+
+### Fix: Preview edits lost on reload unless PDF was exported
+
+**Problem:** `syncEditableFields()` — which writes `contenteditable` preview changes back into `genData` — was only called from `doPDF()`. If a user edited the preview text but didn't export a PDF, those edits were lost on any page reload or when switching between quotes.
+
+**Fix:** Added `syncEditableFields()` as the first line of `saveToStorage()`, so preview edits are always flushed into `genData` before the save snapshot is taken. Since `saveToStorage` is called on every debounced input event and explicitly after generation, this covers all save paths.
+
+**Files:** `index.html` — `saveToStorage()` (~line 501)
+
+---
+
 ### Fix: Generated quote does not replace old entry in history
 
 **Problem:** `doGen()` generated AI text and rendered the preview, but never called `saveToStorage()`. The only saves triggered were from DOM `input`/`change` events on form fields. If the user clicked "Generer tilbud" without touching another field afterwards, the new version was never written to history — so the old entry with the same `fnr` remained unchanged.

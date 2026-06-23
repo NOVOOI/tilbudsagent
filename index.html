@@ -498,6 +498,7 @@ const LS_KEY = 'novooi_tilbud_draft';
 const LS_NR_KEY = 'novooi_tilbudsnr_seq';
 
 function saveToStorage() {
+  syncEditableFields(); // persist any preview edits into genData before saving
   try {
     const data = {
       ts: Date.now(),
@@ -530,6 +531,7 @@ function saveToStorage() {
         price: r.querySelector('.lp')?.value || ''
       })),
       products: selectedProducts,
+      tags: tags,
       opsjoner: {
         opsKjop: isOpsOn('opsKjop'), txtKjop: document.getElementById('txtKjop')?.value,
         opsMark: isOpsOn('opsMark'), txtMark: document.getElementById('txtMark')?.value,
@@ -685,6 +687,12 @@ function applyStoredData(data) {
   selectedProducts = (data.products && data.products.length) ? data.products
                     : (data.genData?.fd?.products || []);
   renderSelectedProducts();
+
+  // Tags (merkevarer)
+  tags = Array.isArray(data.tags) ? data.tags
+       : Array.isArray(data.genData?.fd?.brands) ? data.genData.fd.brands
+       : [];
+  renderTags();
 
   // Opsjoner
   if (data.opsjoner) {
