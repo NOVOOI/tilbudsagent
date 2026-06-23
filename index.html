@@ -1370,6 +1370,7 @@ Returner JSON:
     genData={fd,ai};
     renderPreview(fd,ai);
     document.getElementById("pdfBtn").style.display="block";
+    saveToStorage();
   }catch(e){
     document.getElementById("output").innerHTML=`<div class="err"><strong>Feil:</strong> ${e.message}</div>`;
   }

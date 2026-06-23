@@ -14,6 +14,18 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 **File:** `index.html` — `.sel-grid` CSS block (around line 150)
 
+### Fix: Generated quote does not replace old entry in history
+
+**Problem:** `doGen()` generated AI text and rendered the preview, but never called `saveToStorage()`. The only saves triggered were from DOM `input`/`change` events on form fields. If the user clicked "Generer tilbud" without touching another field afterwards, the new version was never written to history — so the old entry with the same `fnr` remained unchanged.
+
+**Fix:** Added `saveToStorage()` immediately after successful generation in `doGen()` (right after `renderPreview` and showing the PDF button).
+
+**File:** `index.html` — `doGen()` success block (~line 1372)
+
+**Note:** `saveToHistory` is keyed by `fnr`. Calling `saveToStorage()` after generation guarantees the new version (including AI content) overwrites any existing entry with the same quote number.
+
+---
+
 ### Fix: Selected products not saved to history
 
 **Problem:** Adding/removing products and changing quantities mutate `selectedProducts` in memory but never triggered a save. The global `scheduleSave` listener only fires on DOM `input`/`change` events — clicking the add, remove, and qty buttons doesn't fire either. So history entries were saved without the selected products.
