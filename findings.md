@@ -14,6 +14,24 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 **File:** `index.html` — `.sel-grid` CSS block (around line 150)
 
+### Feature: Export / import backup of all quotes
+
+**What:** "Last ned backup" downloads the full history as a dated JSON file (`novooi-tilbud-backup-YYYY-MM-DD.json`). "Importer" reads a JSON backup file and merges it into existing history (imported entries overwrite on matching `fnr`). Both buttons live in the "Mine tilbud" modal header.
+
+**Why:** All quote history is stored in `localStorage`, which browsers can clear. Without a backup mechanism, data loss is permanent.
+
+**File:** `index.html` — `exportBackup()`, `importBackup()` (~line 615), modal header in `openHistoryModal()` (~line 679)
+
+---
+
+### Feature: Duplicate quote from history
+
+**What:** Each row in "Mine tilbud" has a "Dupliser" button. Clicking it loads the quote into the form with a fresh auto-incremented tilbudsnr, clears the generated preview, and auto-saves — creating a new independent entry ready to edit.
+
+**File:** `index.html` — `duplicateHistoryEntry()` (~line 597), `renderHistoryList()` (~line 724)
+
+---
+
 ### Fix: Merkevare-tags not saved to or restored from history
 
 **Problem:** The `tags` array (merkevarer) was never included in the `saveToStorage()` data object. Loading any quote from history always resulted in empty brand tags, regardless of what was originally entered.

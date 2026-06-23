@@ -594,6 +594,60 @@ function deleteFromHistory(nr) {
   renderHistoryList();
 }
 
+function duplicateHistoryEntry(nr) {
+  const hist = getHistory();
+  const data = hist[nr];
+  if (!data) return;
+  closeHistoryModal();
+  setTimeout(() => {
+    applyStoredData(data);
+    const newNr = nextTilbudsnr();
+    document.getElementById('fnr').value = newNr;
+    // Clear preview — this is a new quote, not a continuation
+    document.getElementById('output').innerHTML = '';
+    document.getElementById('pdfBtn').style.display = 'none';
+    genData = null;
+    saveToStorage();
+    scrollTo(0, 0);
+  }, 0);
+}
+
+function exportBackup() {
+  const hist = getHistory();
+  const json = JSON.stringify(hist, null, 2);
+  const blob = new Blob([json], {type: 'application/json'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  const today = new Date().toISOString().slice(0, 10);
+  a.download = 'novooi-tilbud-backup-' + today + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importBackup(file) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (typeof imported !== 'object' || Array.isArray(imported)) {
+        alert('Ugyldig backup-fil — forventet et JSON-objekt.');
+        return;
+      }
+      const existing = getHistory();
+      const merged = { ...existing, ...imported };
+      localStorage.setItem(LS_HIST_KEY, JSON.stringify(merged));
+      renderHistoryList();
+      const count = Object.keys(imported).length;
+      alert(count + ' tilbud importert.');
+    } catch(err) {
+      alert('Kunne ikke lese backup-filen: ' + err.message);
+    }
+  };
+  reader.readAsText(file);
+}
+
 function loadHistoryEntry(nr) {
   const hist = getHistory();
   const data = hist[nr];
@@ -621,7 +675,12 @@ function openHistoryModal() {
   const header = document.createElement('div');
   header.style.cssText = 'display:flex;justify-content:space-between;align-items:center;margin-bottom:1rem;border-bottom:1px solid #eee;padding-bottom:.8rem';
   header.innerHTML = `<div style="font-size:15px;font-weight:700;letter-spacing:.02em">Mine tilbud</div>
-    <button onclick="closeHistoryModal()" style="background:none;border:none;font-size:20px;color:#aaa;cursor:pointer;line-height:1">&times;</button>`;
+    <div style="display:flex;align-items:center;gap:8px">
+      <button onclick="exportBackup()" style="font-size:11px;color:#888;background:none;border:1px solid #e5e5e0;border-radius:20px;padding:4px 12px;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;font-family:inherit" title="Last ned alle tilbud som JSON">Last ned backup</button>
+      <button onclick="document.getElementById('importFileInput').click()" style="font-size:11px;color:#888;background:none;border:1px solid #e5e5e0;border-radius:20px;padding:4px 12px;cursor:pointer;letter-spacing:.04em;text-transform:uppercase;font-family:inherit" title="Importer backup fra JSON-fil">Importer</button>
+      <input type="file" id="importFileInput" accept=".json" style="display:none" onchange="importBackup(this.files[0]);this.value=''">
+      <button onclick="closeHistoryModal()" style="background:none;border:none;font-size:20px;color:#aaa;cursor:pointer;line-height:1">&times;</button>
+    </div>`;
   modal.appendChild(header);
 
   const listEl = document.createElement('div');
@@ -661,8 +720,12 @@ function renderHistoryList() {
         <div style="font-size:11px;color:#999;margin-top:2px">${prosjekt ? prosjekt+' · ' : ''}Tilbudsnr. ${nr}</div>
         <div style="font-size:10px;color:#ccc;margin-top:2px">Lagret ${dateStr}</div>
       </div>
-      <button onclick="event.stopPropagation();if(confirm('Slette tilbud ${nr}?'))deleteFromHistory('${nr}')"
-        style="background:none;border:none;color:#ccc;font-size:16px;cursor:pointer;padding:4px 8px;flex-shrink:0" title="Slett">&times;</button>
+      <div style="display:flex;gap:4px;flex-shrink:0">
+        <button onclick="event.stopPropagation();duplicateHistoryEntry('${nr}')"
+          style="background:none;border:1px solid #e5e5e0;border-radius:4px;color:#888;font-size:11px;cursor:pointer;padding:4px 8px;font-family:inherit;letter-spacing:.04em;text-transform:uppercase" title="Dupliser">Dupliser</button>
+        <button onclick="event.stopPropagation();if(confirm('Slette tilbud ${nr}?'))deleteFromHistory('${nr}')"
+          style="background:none;border:none;color:#ccc;font-size:16px;cursor:pointer;padding:4px 8px" title="Slett">&times;</button>
+      </div>
     </div>`;
   }).join('');
 }
