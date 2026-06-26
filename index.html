@@ -36,10 +36,7 @@ textarea{resize:vertical;line-height:1.55}
 .pill:hover:not(.on){border-color:#888;color:#111}
 .lines-wrap{display:flex;flex-direction:column;gap:5px}
 .line-svc{display:grid;grid-template-columns:1fr 52px 120px 72px 28px;gap:7px;align-items:center}
-.line-prod{display:grid;grid-template-columns:2fr 44px 96px 96px 96px 28px;gap:6px;align-items:start}
-.line-svc input,.line-prod input{margin:0;font-size:13px;padding:7px 9px}
-.line-prod textarea{margin:0;font-size:13px;padding:7px 9px;min-height:62px;resize:vertical}
-.col-lbl{font-size:10px;color:#bbb;text-transform:uppercase;letter-spacing:.05em;padding-bottom:2px}
+.line-svc input{margin:0;font-size:13px;padding:7px 9px}
 .add-btn{display:flex;align-items:center;gap:6px;background:none;border:1px dashed #ccc;border-radius:4px;padding:7px 12px;font-size:13px;color:#aaa;cursor:pointer;width:100%;margin-top:6px;font-family:inherit}
 .add-btn:hover{border-color:#888;color:#555}
 .del-btn{background:none;border:none;cursor:pointer;color:#ccc;font-size:20px;line-height:1;padding:0;font-family:inherit;align-self:center}
@@ -71,9 +68,7 @@ textarea{resize:vertical;line-height:1.55}
 .prev-meta{display:grid;grid-template-columns:repeat(4,1fr);font-size:11px;padding-bottom:1rem;margin-bottom:1rem;border-bottom:1px solid #eee}
 .prev-meta .mk{color:#bbb;text-transform:uppercase;letter-spacing:.06em;font-size:10px;margin-bottom:3px}
 .prev-meta .mv{font-weight:600;font-size:11px;line-height:1.55}
-.prev-rule{border:none;border-top:2px solid #111;margin:0 0 1.25rem}
 .prev-h1{font-size:1.4rem;font-weight:800;letter-spacing:.03em;text-transform:uppercase;margin-bottom:.2rem}
-.prev-ingress{font-size:14px;color:#666;margin-bottom:1.25rem}
 .prev-sec{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#444;margin:1.1rem 0 .4rem}
 .prev-txt{font-size:13px;line-height:1.65;color:#333;margin-bottom:.6rem}
 .prev-list{padding-left:1rem;font-size:13px;line-height:1.7;color:#333}
@@ -877,9 +872,7 @@ function updateLiveSum() {
   let prodSum = 0;
   selectedProducts.forEach(p => {
     const unit = parseKr(p.price) || 0;
-    const dv   = p.discVal || 0;
-    const dt   = p.discType || 'pct';
-    const after= dv ? (dt==='pct' ? unit*(1-dv/100) : Math.max(0,unit-dv)) : unit;
+    const after = applyDisc(unit, {val: p.discVal||0, type: p.discType||'pct'});
     prodSum += after * (p.qty || 1);
   });
   const total = svcSum + prodSum;
@@ -942,10 +935,9 @@ function nyttTilbud() {
   });
   // Reset dates
   const now = new Date();
-  const fmt = d => d.toLocaleDateString('nb-NO',{day:'numeric',month:'long',year:'numeric'});
-  document.getElementById('fdato').value  = fmt(now);
+  document.getElementById('fdato').value  = fmtDate(now);
   const exp = new Date(now); exp.setDate(exp.getDate()+30);
-  document.getElementById('fgyldig').value = fmt(exp);
+  document.getElementById('fgyldig').value = fmtDate(exp);
   // Reset tilbudsnr
   document.getElementById('fnr').value = nextTilbudsnr();
   // Clear lines
@@ -954,6 +946,9 @@ function nyttTilbud() {
   // Clear products
   selectedProducts = [];
   renderSelectedProducts();
+  // Clear tags
+  tags = [];
+  renderTags();
   // Turn off all opsjoner
   ['opsKjop','opsMark','opsBet','opsPilot','opsFors','opsDep'].forEach(id => {
     document.getElementById(id)?.classList.remove('on');
@@ -1246,10 +1241,9 @@ function changeQty(id, delta) {
   p.qty = Math.max(1, (p.qty || 1) + delta);
   scheduleSave();
   // Update only the qty display and total — no full re-render
-  const dv    = p.discVal || 0;
-  const dt    = p.discType || 'pct';
   const unit  = parseKr(p.price) || 0;
-  const after = dv ? (dt === 'pct' ? unit * (1 - dv/100) : Math.max(0, unit - dv)) : unit;
+  const disc  = {val: p.discVal||0, type: p.discType||'pct'};
+  const after = applyDisc(unit, disc);
   const total = after * p.qty;
   const card  = document.querySelector(`.pcard[data-pid="${String(id)}"]`);
   if (!card) return;
@@ -1266,12 +1260,11 @@ function updateProdDisc(id, val, type) {
   p.discType = type || 'pct';
   // Update only the affected display elements — do NOT re-render the whole grid
   // (re-rendering destroys focus and scrolls the page)
-  const dv    = p.discVal;
-  const dt    = p.discType;
   const unit  = parseKr(p.price) || 0;
-  const after = dv ? (dt === 'pct' ? unit * (1 - dv/100) : Math.max(0, unit - dv)) : unit;
+  const disc  = {val: p.discVal, type: p.discType};
+  const after = applyDisc(unit, disc);
   const total = after * (p.qty || 1);
-  const dlbl  = dv ? (dt === 'pct' ? `-${dv}%` : `-kr ${dv.toLocaleString('nb-NO')}`) : '';
+  const dlbl  = discLabel(disc);
 
   // Find the card for this product and update just its total + discount label
   const card = document.querySelector(`.pcard[data-pid="${String(id)}"]`);
@@ -1303,11 +1296,10 @@ function renderSelectedProducts() {
     const id    = String(p.id);
     const qty   = p.qty   || 1;
     const unit  = parseKr(p.price) || 0;
-    const dv    = p.discVal  || 0;
-    const dt    = p.discType || 'pct';
-    const after = dv ? (dt === 'pct' ? unit * (1 - dv/100) : Math.max(0, unit - dv)) : unit;
+    const disc  = {val: p.discVal||0, type: p.discType||'pct'};
+    const after = applyDisc(unit, disc);
     const total = after * qty;
-    const dlbl  = dv ? (dt === 'pct' ? `-${dv}%` : `-kr ${dv.toLocaleString('nb-NO')}`) : '';
+    const dlbl  = discLabel(disc);
 
     return `<div class="pcard sel" data-pid="${String(p.id).replace(/"/g, '&quot;')}">
       ${p.image
@@ -1345,7 +1337,6 @@ function renderSelectedProducts() {
 // ── END PRODUCTS
 
 
-documentdocument
 function addTag(e){
   if(e.key!=="Enter") return;
   const v=e.target.value.trim(); if(!v) return;
@@ -1356,7 +1347,10 @@ function renderTags(){
   const r=document.getElementById("brandTags"); r.innerHTML="";
   tags.forEach((b,i)=>{
     const t=document.createElement("div"); t.className="tag";
-    t.innerHTML=b+`<button onclick="removeTag(${i})">&#215;</button>`;
+    t.appendChild(document.createTextNode(b));
+    const btn=document.createElement("button");
+    btn.textContent="×"; btn.onclick=()=>removeTag(i);
+    t.appendChild(btn);
     r.appendChild(t);
   });
   const inp=document.createElement("input");
@@ -1366,7 +1360,7 @@ function renderTags(){
 }
 
 function fmtR(n){if(!n&&n!==0)return"—";return"kr "+Math.round(parseFloat(n)).toLocaleString("nb-NO");}
-function fmt(n){if(!n&&n!==0)return"—";return"kr "+parseFloat(n).toLocaleString("nb-NO",{minimumFractionDigits:2,maximumFractionDigits:2});}
+function fmtDate(d){return d.toLocaleDateString('nb-NO',{day:'numeric',month:'long',year:'numeric'});}
 function parseKr(s){if(!s)return null;const n=parseFloat(s.replace(/[^0-9.,]/g,"").replace(",","."));return isNaN(n)?null:n;}
 
 
@@ -1616,9 +1610,9 @@ function renderPreview(fd,ai){
     fd.products.forEach(p=>{
       const qty=p.qty||1, unit=(parseKr(p.price)||0)*_mvaF_prod;
       const disc={val:p.discVal||0,type:p.discType||'pct'};
-      const afterD=disc.val?(disc.type==='pct'?unit*(1-disc.val/100):Math.max(0,unit-disc.val)):unit;
+      const afterD=applyDisc(unit,disc);
       const tot=afterD*qty;
-      const discLbl=disc.val?(disc.type==='pct'?`-${disc.val}%`:`-kr ${disc.val.toLocaleString('nb-NO')}`):'';
+      const discLbl=discLabel(disc);
       prodTotal+=tot;
       rows+=`<tr>
         <td style="padding:9px;width:52px">
@@ -1919,7 +1913,7 @@ async function doPDF(){
   const hasProducts = !ph.produkter && fd.products && fd.products.length > 0;
   let prodTotal = 0;
   // Always calc for grand total
-  if(fd.products) fd.products.forEach(p=>{const n=(parseKr(p.price)||0)*mvaF_prod;const dv=p.discVal||0,dt=p.discType||'pct';const aft=dv?(dt==='pct'?n*(1-dv/100):Math.max(0,n-dv)):n;prodTotal+=aft*(p.qty||1);});
+  if(fd.products) fd.products.forEach(p=>{const n=(parseKr(p.price)||0)*mvaF_prod;const aft=applyDisc(n,{val:p.discVal||0,type:p.discType||'pct'});prodTotal+=aft*(p.qty||1);});
 
   if(hasProducts){
     NP(20); SEC((ai.sec_produkter||"PRODUKTER").toUpperCase());
@@ -2142,11 +2136,10 @@ function getOpsText(id) {
 
 (function(){
   const _now = new Date();
-  const _fmt  = d => d.toLocaleDateString('nb-NO',{day:'numeric',month:'long',year:'numeric'});
   const _exp  = new Date(_now); _exp.setDate(_exp.getDate()+30);
 
-  document.getElementById('fdato').value  = _fmt(_now);
-  document.getElementById('fgyldig').value = _fmt(_exp);
+  document.getElementById('fdato').value  = fmtDate(_now);
+  document.getElementById('fgyldig').value = fmtDate(_exp);
 
   if(!document.getElementById('linesWrap').children.length){
     addLine(); addLine(); addLine();

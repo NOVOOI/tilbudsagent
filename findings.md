@@ -14,6 +14,26 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 **File:** `index.html` — `.sel-grid` CSS block (around line 150)
 
+### Cleanup: Full code audit — dead code, duplicates, XSS, bugs (2026-06-24)
+
+**Bug — `nyttTilbud()` did not reset tags:** `tags = []` + `renderTags()` never called on new quote. Brand tags from previous quote carried over. Fixed in `nyttTilbud()`.
+
+**Dead CSS removed:** `.line-prod`, `.col-lbl`, `.prev-rule`, `.prev-ingress` — none of these classes were referenced anywhere in HTML or JS.
+
+**Dead function removed:** Global `fmt(n)` (2-decimal kr formatter, line ~1369) was never called. Both call sites in `nyttTilbud` and the init IIFE used local shadow lambdas.
+
+**Duplicate date formatter removed:** `nyttTilbud` and the init IIFE each declared an identical local date formatter lambda. Replaced both with a shared `fmtDate(d)` helper added alongside `fmtR`.
+
+**Stale artifact removed:** `documentdocument` typo (~line 1348).
+
+**Duplicate discount calculation consolidated:** The inline pattern `dv?(dt==='pct'?unit*(1-dv/100):Math.max(0,unit-dv)):unit` appeared in 5 places (`updateLiveSum`, `renderSelectedProducts`, `changeQty`, `updateProdDisc`, `renderPreview`, `doPDF`). All replaced with the existing `applyDisc(unit, {val, type})` helper. Discount label string likewise replaced with `discLabel(disc)` in `renderSelectedProducts` and `updateProdDisc`.
+
+**XSS — `renderTags`:** `t.innerHTML = b + ...` where `b` is user-typed brand name. Replaced with `document.createTextNode(b)` + DOM-constructed button.
+
+**Pattern to watch:** Any new place that computes a per-product discount must use `applyDisc(unit, {val, type})` — never inline.
+
+---
+
 ### Feature: Search/filter in "Mine tilbud"
 
 **What:** A search input at the top of the history modal filters entries in real-time by kunde, prosjekt, or tilbudsnr. Shows "Ingen treff for «...»" when nothing matches. Filter is preserved when deleting or importing entries (renderHistoryList reads the value from the DOM when called without arguments).
