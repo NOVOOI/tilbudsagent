@@ -875,7 +875,14 @@ function updateLiveSum() {
     const after = applyDisc(unit, {val: p.discVal||0, type: p.discType||'pct'});
     prodSum += after * (p.qty || 1);
   });
-  const total = svcSum + prodSum;
+  // Apply global section discounts
+  const gDiscSvc   = {val: parseFloat(document.getElementById('discSvc')?.value)||0,   type: document.getElementById('discSvcType')?.value||'pct'};
+  const gDiscProd  = {val: parseFloat(document.getElementById('discProd')?.value)||0,  type: document.getElementById('discProdType')?.value||'pct'};
+  const gDiscTotal = {val: parseFloat(document.getElementById('discTotal')?.value)||0, type: document.getElementById('discTotalType')?.value||'pct'};
+  const svcAfter   = gDiscSvc.val  ? applyDisc(svcSum,  gDiscSvc)  : svcSum;
+  const prodAfter  = gDiscProd.val ? applyDisc(prodSum, gDiscProd) : prodSum;
+  let total = svcAfter + prodAfter;
+  if (gDiscTotal.val) total = applyDisc(total, gDiscTotal);
   const el = document.getElementById('liveSumDisplay');
   if (el) {
     el.textContent = total > 0 ? fmtR(total) + ' eks. mva' : '—';
@@ -1320,14 +1327,14 @@ function renderSelectedProducts() {
         </div>
         <div class="pcard-disc">
           <label>Rabatt:</label>
-          <input class="pcard-disc-inp" type="text" value="${dv || ''}" placeholder="0"
+          <input class="pcard-disc-inp" type="text" value="${disc.val || ''}" placeholder="0"
             oninput="updateProdDisc('${id}',this.value,this.nextElementSibling.value)">
           <select class="pcard-disc-sel"
             onchange="updateProdDisc('${id}',this.previousElementSibling.value,this.value)">
-            <option value="pct" ${dt==='pct'?'selected':''}>%</option>
-            <option value="kr"  ${dt==='kr' ?'selected':''}>kr</option>
+            <option value="pct" ${disc.type==='pct'?'selected':''}>%</option>
+            <option value="kr"  ${disc.type==='kr' ?'selected':''}>kr</option>
           </select>
-          <span class="pcard-disc-res" style="${dv?'':`display:none`}">${dlbl}</span>
+          <span class="pcard-disc-res" style="${disc.val?'':`display:none`}">${dlbl}</span>
         </div>
       </div>
       <button class="pcard-remove" onclick="removeProduct('${id}')" title="Fjern">&#215;</button>
@@ -1558,6 +1565,13 @@ function syncEditableFields(){
   document.querySelectorAll('[data-sec-title]').forEach(el => {
     genData.ai['sec_'+el.dataset.secTitle] = el.innerText.trim();
   });
+  // Sync global discount fields from DOM so PDF always reflects current form values
+  ['discSvc','discProd','discTotal'].forEach(id => {
+    genData.fd[id] = {
+      val:  parseFloat(document.getElementById(id)?.value)||0,
+      type: document.getElementById(id+'Type')?.value||'pct'
+    };
+  });
 }
 
 function renderPreview(fd,ai){
@@ -1732,7 +1746,7 @@ function setMva(mode) {
     }
   }
   // Re-render preview if we have data
-  if (genData) renderPreview(genData.fd, genData.ai);
+  if (genData) { syncEditableFields(); renderPreview(genData.fd, genData.ai); }
 }
 
 async function doPDF(){

@@ -4,6 +4,34 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 ---
 
+## 2026-07-23
+
+### Fix: Discount system — three bugs causing global discounts to appear broken
+
+**Root cause of reported "total discount broke the agent" bug:** Three separate issues caused the discount system to malfunction.
+
+**Bug 1 — Per-product discount UI always empty (introduced by code audit):**
+The code audit consolidated inline discount math to use `applyDisc()` and renamed `const dv`/`const dt` to `const disc = {val, type}`. But the template string in `renderSelectedProducts` still referenced `dv` and `dt`, which were now undefined. Result: the discount input was always blank, the type dropdown always defaulted to `%`, and the discount badge was always hidden — even for products that had a discount saved.
+
+Fix: replaced `dv` → `disc.val` and `dt` → `disc.type` in the three template references (value attribute, option selected check, badge visibility).
+
+**Bug 2 — Live sum ignored global discounts:**
+`updateLiveSum` summed service lines + per-product discounted prices but never read or applied the three global discount inputs (`discSvc`, `discProd`, `discTotal`). The live sum shown while filling the form was always the pre-global-discount total — making it look like the global discounts had no effect (likely the main reason the team member thought global discounts "didn't work" and resorted to per-product discounts).
+
+Fix: after computing `svcSum` and `prodSum`, `updateLiveSum` now reads all three global discount fields from the DOM and applies them (`svcAfter`, `prodAfter`, then total discount) before displaying.
+
+**Bug 3 — PDF/preview used stale discount values from last generation:**
+`syncEditableFields()` (called at the start of both `saveToStorage` and `doPDF`) synced form fields, ops toggles, and AI text back into `genData.fd`, but silently skipped the global discount inputs. If the user changed a global discount after clicking "Generer tilbud" without regenerating, `genData.fd.discSvc` etc. still held the values from the last generation. The PDF would show the old discount; the MVA-toggle re-render would also use stale values.
+
+Fix 1: `syncEditableFields` now also syncs `discSvc`, `discProd`, `discTotal` into `genData.fd` as `{val, type}` objects.
+Fix 2: `setMva` (MVA toggle) now calls `syncEditableFields()` before re-rendering the preview, ensuring the re-render always uses current form values.
+
+**Files:** `index.html` — `renderSelectedProducts` (~line 1323), `updateLiveSum` (~line 875), `syncEditableFields` (~line 1561), `setMva` (~line 1735)
+
+**Pattern to watch:** Any code path that reads `genData.fd.discSvc/discProd/discTotal` must ensure `syncEditableFields()` was called first, OR re-read directly from DOM. Never assume `genData.fd` has the current discount values without a prior sync.
+
+---
+
 ## 2026-06-23
 
 ### Fix: Selected products grid stuck on 3 columns
