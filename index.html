@@ -730,21 +730,22 @@ function renderHistoryList(query) {
 
   listEl.innerHTML = entries.map(([nr, d]) => {
     const dateStr = d.savedAt ? new Date(d.savedAt).toLocaleDateString('nb-NO', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
-    const kunde = d.kunde || '(uten kunde)';
-    const prosjekt = d.prosjekt || '';
+    const kunde = esc(d.kunde || '(uten kunde)');
+    const prosjekt = esc(d.prosjekt || '');
+    const nrSafe = JSON.stringify(nr); // safely quoted for JS onclick attributes
     return `<div class="hist-row" style="display:flex;align-items:center;gap:12px;padding:11px;border:1px solid #eee;border-radius:5px;margin-bottom:6px;cursor:pointer;transition:all .12s"
       onmouseover="this.style.borderColor='#111';this.style.background='#fafaf8'"
       onmouseout="this.style.borderColor='#eee';this.style.background='#fff'"
-      onclick="loadHistoryEntry('${nr}')">
+      onclick="loadHistoryEntry(${nrSafe})">
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:600;color:#111">${kunde}</div>
-        <div style="font-size:11px;color:#999;margin-top:2px">${prosjekt ? prosjekt+' · ' : ''}Tilbudsnr. ${nr}</div>
+        <div style="font-size:11px;color:#999;margin-top:2px">${prosjekt ? prosjekt+' · ' : ''}Tilbudsnr. ${esc(nr)}</div>
         <div style="font-size:10px;color:#ccc;margin-top:2px">Lagret ${dateStr}</div>
       </div>
       <div style="display:flex;gap:4px;flex-shrink:0">
-        <button onclick="event.stopPropagation();duplicateHistoryEntry('${nr}')"
+        <button onclick="event.stopPropagation();duplicateHistoryEntry(${nrSafe})"
           style="background:none;border:1px solid #e5e5e0;border-radius:4px;color:#888;font-size:11px;cursor:pointer;padding:4px 8px;font-family:inherit;letter-spacing:.04em;text-transform:uppercase" title="Dupliser">Dupliser</button>
-        <button onclick="event.stopPropagation();if(confirm('Slette tilbud ${nr}?'))deleteFromHistory('${nr}')"
+        <button onclick="event.stopPropagation();if(confirm('Slette tilbud ${esc(nr)}?'))deleteFromHistory(${nrSafe})"
           style="background:none;border:none;color:#ccc;font-size:16px;cursor:pointer;padding:4px 8px" title="Slett">&times;</button>
       </div>
     </div>`;
@@ -1279,7 +1280,7 @@ function updateProdDisc(id, val, type) {
   const totEl  = card.querySelector('.pcard-qty-tot');
   const resEl  = card.querySelector('.pcard-disc-res');
   if (totEl) totEl.textContent = '= ' + fmtR(total);
-  if (resEl) { resEl.textContent = dlbl; resEl.style.display = dv ? '' : 'none'; }
+  if (resEl) { resEl.textContent = dlbl; resEl.style.display = disc.val ? '' : 'none'; }
 }
 
 // ── Render selected product cards
@@ -1369,6 +1370,7 @@ function renderTags(){
 function fmtR(n){if(!n&&n!==0)return"—";return"kr "+Math.round(parseFloat(n)).toLocaleString("nb-NO");}
 function fmtDate(d){return d.toLocaleDateString('nb-NO',{day:'numeric',month:'long',year:'numeric'});}
 function parseKr(s){if(!s)return null;const n=parseFloat(s.replace(/[^0-9.,]/g,"").replace(",","."));return isNaN(n)?null:n;}
+function esc(s){return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
 
 
 function getFD(){
@@ -1441,7 +1443,7 @@ async function doGen(){
   const btn=document.getElementById("genBtn");
   btn.disabled=true;btn.textContent="Genererer…";
   document.getElementById("pdfBtn").style.display="none";
-  document.getElementById("output").innerHTML=`<div class="preview-wrap"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Lager tilbud for ${fd.kunde}…</span></div></div>`;
+  document.getElementById("output").innerHTML=`<div class="preview-wrap"><div class="dot-loader"><div class="dot"></div><div class="dot"></div><div class="dot"></div><span>Lager tilbud for ${esc(fd.kunde)}…</span></div></div>`;
 
   const linesText=fd.lines.map(l=>fd.kind==="product"
     ?`- ${l.desc} | Ant:${l.qty} | Utsalg:${l.utsalg} | Leie:${l.leiepris} | Total:${l.total}`

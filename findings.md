@@ -4,6 +4,43 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 ---
 
+## 2026-07-23 (second bug hunt)
+
+### Fix: Discount badge always hidden when typing per-product discount (updateProdDisc `dv` bug)
+
+**Root cause:** The code audit (2026-06-24) renamed `dv`/`dt` to `disc.val`/`disc.type` in `renderSelectedProducts`, but the same pattern in `updateProdDisc` was only partially fixed. The last line still referenced the undefined `dv`:
+```js
+resEl.style.display = dv ? '' : 'none'; // dv is undefined → always false → badge always hidden
+```
+
+**Result:** After typing a discount amount into the per-product discount input, the discount result label (e.g. "-10%") was always hidden — even when a non-zero discount was active. The discount math itself was correct (the total updated properly), but there was no visual confirmation.
+
+**Fix:** `dv` → `disc.val` in the display toggle line.
+
+**File:** `index.html` — `updateProdDisc()` (~line 1283)
+
+**Pattern:** Any place that toggles element visibility based on whether a discount is active must use `disc.val`, not bare `dv`.
+
+---
+
+### Fix: XSS in history list and loading spinner
+
+**Three injection points fixed:**
+
+**1 — `renderHistoryList` onclick attributes:** `loadHistoryEntry('${nr}')`, `duplicateHistoryEntry('${nr}')`, and `deleteFromHistory('${nr}')` all interpolated the raw tilbudsnr into onclick attribute strings. A tilbudsnr containing a single quote (e.g. `2026-001'`) would break out of the JS string context. Fixed with `JSON.stringify(nr)` which produces a properly quoted string: `loadHistoryEntry("2026-001")`.
+
+**2 — `renderHistoryList` display text:** `${kunde}` and `${prosjekt}` were interpolated raw into `innerHTML`. Fixed with a new `esc(s)` HTML-escape helper applied to all three user-supplied values (`kunde`, `prosjekt`, `nr`).
+
+**3 — `doGen` loading spinner:** `Lager tilbud for ${fd.kunde}…` in the spinner innerHTML. Customer name is user-typed, so a name like `<script>` would have rendered as HTML. Fixed with `esc(fd.kunde)`.
+
+**Added helper:** `function esc(s)` — standard 4-char HTML entity escape (`&`, `<`, `>`, `"`). Placed alongside `fmtR`/`fmtDate`/`parseKr` at ~line 1373.
+
+**Files:** `index.html` — `renderHistoryList()` (~line 731), `doGen()` (~line 1446), `esc()` helper (~line 1373)
+
+**Pattern:** Any user-supplied string (form fields, localStorage data) interpolated into `innerHTML` must go through `esc()`. Strings used in onclick attributes must be made JS-safe via `JSON.stringify()`.
+
+---
+
 ## 2026-07-23
 
 ### Fix: Discount system — three bugs causing global discounts to appear broken
