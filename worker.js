@@ -90,6 +90,25 @@ export default {
       } catch (e) { return json({ error: e.message }, 500); }
     }
 
+    // ── Debug: list raw products + brand search result ───────────────────
+    if (url.pathname === "/woo/debug") {
+      if (request.method !== "GET") return json({ error: "GET only" }, 405);
+      const q = url.searchParams.get("q") || "";
+      const auth = btoa(`${env.WOO_CONSUMER_KEY}:${env.WOO_CONSUMER_SECRET}`);
+      const headers = { "Authorization": `Basic ${auth}`, "Content-Type": "application/json" };
+      const results = {};
+      // 1. Raw name search with status=any
+      const nameRes = await fetch(`${WOO_BASE}/products?search=${encodeURIComponent(q)}&per_page=10&status=any`, { headers }).catch(e => ({ ok: false, text: () => e.message }));
+      results.nameSearch = { status: nameRes.status, body: await nameRes.text().then(t => { try { return JSON.parse(t).map(p => ({ id: p.id, name: p.name, status: p.status, sku: p.sku })); } catch(e) { return t.slice(0,300); } }) };
+      // 2. Brand search
+      const brandRes = await fetch(`${WOO_BASE}/products/brands?search=${encodeURIComponent(q)}&per_page=10`, { headers }).catch(e => ({ ok: false, text: () => e.message }));
+      results.brandSearch = { status: brandRes.status, body: await brandRes.text().then(t => { try { return JSON.parse(t); } catch(e) { return t.slice(0,300); } }) };
+      // 3. First 10 products (no filter) to confirm API works
+      const sampleRes = await fetch(`${WOO_BASE}/products?per_page=5&status=publish&_fields=id,name,status,sku`, { headers }).catch(e => ({ ok: false, text: () => e.message }));
+      results.sampleProducts = { status: sampleRes.status, body: await sampleRes.text().then(t => { try { return JSON.parse(t); } catch(e) { return t.slice(0,300); } }) };
+      return json(results);
+    }
+
     // ── WooCommerce product search ────────────────────────────────────────
     if (url.pathname === "/woo") {
       if (request.method !== "GET") return json({ error: "GET only" }, 405);
@@ -106,7 +125,8 @@ export default {
 
       try {
         // Run name search and brand lookup in parallel
-        const nameUrl  = `${WOO_BASE}/products?search=${encodeURIComponent(q)}&per_page=${perPage}&status=publish&orderby=popularity&order=desc`;
+        // Note: status=any so we don't miss products with non-standard statuses
+        const nameUrl  = `${WOO_BASE}/products?search=${encodeURIComponent(q)}&per_page=${perPage}&status=any&orderby=popularity&order=desc`;
         const brandUrl = `${WOO_BASE}/products/brands?search=${encodeURIComponent(q)}&per_page=5`;
 
         const [nameRes, brandRes] = await Promise.all([
@@ -126,7 +146,7 @@ export default {
           const brands = await brandRes.json().catch(() => []);
           if (Array.isArray(brands) && brands.length > 0) {
             const brandIds = brands.map(b => b.id).join(",");
-            const byBrandUrl = `${WOO_BASE}/products?brand=${encodeURIComponent(brandIds)}&per_page=${perPage}&status=publish&orderby=popularity&order=desc`;
+            const byBrandUrl = `${WOO_BASE}/products?brand=${encodeURIComponent(brandIds)}&per_page=${perPage}&status=any&orderby=popularity&order=desc`;
             const byBrandRes = await fetch(byBrandUrl, { headers }).catch(() => null);
             if (byBrandRes && byBrandRes.ok) {
               const byBrandProducts = await byBrandRes.json().catch(() => []);
