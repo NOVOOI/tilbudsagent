@@ -4,6 +4,24 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 ---
 
+## 2026-07-29
+
+### Fix: Brand search not working (e.g. "&Tradition" returns no results)
+
+**Problem:** WooCommerce's `search` parameter only searches product name and description — not brand/taxonomy fields. Products from `&Tradition` have names like "Mater" and "Mega Bulb" that don't contain the word "tradition", so they never appeared in results. Searching for "&tradition" or "tradition" both returned zero hits.
+
+**Fix:** The Worker's `/woo` route now runs two parallel requests:
+1. Existing name search: `?search=q`
+2. Brand taxonomy lookup: `GET /wc/v3/products/brands?search=q` → if brands found, fetch `?brand=<id>` products
+
+Results are merged and deduplicated (brand hits appear first). The brand endpoint call is wrapped in `.catch(() => null)` so it fails silently on older WooCommerce without brands plugin.
+
+**File:** `worker.js` — `/woo` route
+
+**Note:** The `/products/brands` endpoint requires WooCommerce 9.0+ (native brands) or a brands plugin (e.g. Perfect WooCommerce Brands). The `brand=` filter parameter on the products endpoint is also WooCommerce 9.0+. If the site runs an older version, this falls back gracefully to name-only search.
+
+---
+
 ## 2026-07-23 (second bug hunt)
 
 ### Fix: Discount badge always hidden when typing per-product discount (updateProdDisc `dv` bug)
