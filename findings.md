@@ -6,7 +6,23 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 ## 2026-07-29
 
-### Fix: Brand search not working (e.g. "&Tradition" returns no results)
+### Investigation: &Tradition products not appearing in search
+
+**Conclusion: not a bug in tilbudsagenten — data missing in WooCommerce.**
+
+Debug via `/woo/debug?q=pavilion` (X-WP-Total header) confirmed WooCommerce only has **3 Pavilion products** across all statuses, all in `draft`. The other 9 expected products do not exist in WooCommerce at all.
+
+**Action needed (in WooCommerce admin, not in code):**
+1. Import the 9 missing Pavilion products
+2. Publish the 3 existing draft products
+
+The brand search route (`/products/brands`) returned empty — WooCommerce on this site does not have an active brands plugin endpoint, so brand-based lookup is a no-op (falls back silently to name search).
+
+Worker reverted to `status=publish` after `status=any` experiment confirmed drafts are not wanted in search results.
+
+---
+
+### Fix: Brand search not appearing in search
 
 **Problem:** WooCommerce's `search` parameter only searches product name and description — not brand/taxonomy fields. Products from `&Tradition` have names like "Mater" and "Mega Bulb" that don't contain the word "tradition", so they never appeared in results. Searching for "&tradition" or "tradition" both returned zero hits.
 

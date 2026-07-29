@@ -90,40 +90,7 @@ export default {
       } catch (e) { return json({ error: e.message }, 500); }
     }
 
-    // ── Debug: exhaustive product search diagnosis ───────────────────────
-    if (url.pathname === "/woo/debug") {
-      if (request.method !== "GET") return json({ error: "GET only" }, 405);
-      const q = url.searchParams.get("q") || "";
-      const auth = btoa(`${env.WOO_CONSUMER_KEY}:${env.WOO_CONSUMER_SECRET}`);
-      const headers = { "Authorization": `Basic ${auth}`, "Content-Type": "application/json" };
-      const results = {};
-
-      const slim = t => { try { return JSON.parse(t).map(p => ({ id: p.id, name: p.name, status: p.status, sku: p.sku, catalog_visibility: p.catalog_visibility })); } catch(e) { return t.slice(0,400); } };
-
-      // 1. Search status=any, no ordering (bare vanilla query)
-      const r1 = await fetch(`${WOO_BASE}/products?search=${encodeURIComponent(q)}&per_page=50&status=any&_fields=id,name,status,sku,catalog_visibility`, { headers });
-      const t1 = await r1.text();
-      results.search_status_any = { httpStatus: r1.status, total: r1.headers.get('X-WP-Total'), products: slim(t1) };
-
-      // 2. Search status=publish only
-      const r2 = await fetch(`${WOO_BASE}/products?search=${encodeURIComponent(q)}&per_page=50&status=publish&_fields=id,name,status,sku,catalog_visibility`, { headers });
-      const t2 = await r2.text();
-      results.search_status_publish = { httpStatus: r2.status, total: r2.headers.get('X-WP-Total'), products: slim(t2) };
-
-      // 3. Search status=private (some imports use this)
-      const r3 = await fetch(`${WOO_BASE}/products?search=${encodeURIComponent(q)}&per_page=50&status=private&_fields=id,name,status,sku,catalog_visibility`, { headers });
-      const t3 = await r3.text();
-      results.search_status_private = { httpStatus: r3.status, total: r3.headers.get('X-WP-Total'), products: slim(t3) };
-
-      // 4. search=any with catalog_visibility=hidden (hidden from shop but still in API)
-      const r4 = await fetch(`${WOO_BASE}/products?search=${encodeURIComponent(q)}&per_page=50&status=any&catalog_visibility=hidden&_fields=id,name,status,sku,catalog_visibility`, { headers });
-      const t4 = await r4.text();
-      results.search_catalog_hidden = { httpStatus: r4.status, total: r4.headers.get('X-WP-Total'), products: slim(t4) };
-
-      return json(results);
-    }
-
-    // ── WooCommerce product search ────────────────────────────────────────
+// ── WooCommerce product search ────────────────────────────────────────
     if (url.pathname === "/woo") {
       if (request.method !== "GET") return json({ error: "GET only" }, 405);
 
@@ -139,8 +106,8 @@ export default {
 
       try {
         // Run name search and brand lookup in parallel
-        // Note: status=any so we don't miss products with non-standard statuses
-        const nameUrl  = `${WOO_BASE}/products?search=${encodeURIComponent(q)}&per_page=${perPage}&status=any&orderby=popularity&order=desc`;
+        // Note: status=publish so we don't miss products with non-standard statuses
+        const nameUrl  = `${WOO_BASE}/products?search=${encodeURIComponent(q)}&per_page=${perPage}&status=publish&orderby=popularity&order=desc`;
         const brandUrl = `${WOO_BASE}/products/brands?search=${encodeURIComponent(q)}&per_page=5`;
 
         const [nameRes, brandRes] = await Promise.all([
@@ -160,7 +127,7 @@ export default {
           const brands = await brandRes.json().catch(() => []);
           if (Array.isArray(brands) && brands.length > 0) {
             const brandIds = brands.map(b => b.id).join(",");
-            const byBrandUrl = `${WOO_BASE}/products?brand=${encodeURIComponent(brandIds)}&per_page=${perPage}&status=any&orderby=popularity&order=desc`;
+            const byBrandUrl = `${WOO_BASE}/products?brand=${encodeURIComponent(brandIds)}&per_page=${perPage}&status=publish&orderby=popularity&order=desc`;
             const byBrandRes = await fetch(byBrandUrl, { headers }).catch(() => null);
             if (byBrandRes && byBrandRes.ok) {
               const byBrandProducts = await byBrandRes.json().catch(() => []);
