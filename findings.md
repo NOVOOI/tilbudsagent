@@ -4,6 +4,25 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 ---
 
+## 2026-07-29 (latest)
+
+### Fix: "Mine tilbud" — load, delete, and duplicate buttons completely broken
+
+**Root cause:** The previous XSS fix (2026-07-23) replaced raw `nr` interpolation in onclick attrs with `JSON.stringify(nr)`. `JSON.stringify("2026-001")` produces `"2026-001"` (with surrounding double quotes). Inserting that into a double-quoted HTML attribute like `onclick="loadHistoryEntry("2026-001")"` breaks attribute parsing — the browser sees the attribute value end at the first inner `"`. All three onclick handlers (`loadHistoryEntry`, `duplicateHistoryEntry`, `deleteFromHistory`) silently did nothing.
+
+**Fix:** Replaced `JSON.stringify(nr)` with a single-quote escape:
+```js
+const nrJs = nr.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+onclick="loadHistoryEntry('${nrJs}')"
+```
+Single quotes inside a double-quoted HTML attribute are safe. The escape handles the unlikely-but-possible case of a tilbudsnr containing a backslash or single quote.
+
+**File:** `index.html` — `renderHistoryList()` (~line 735)
+
+**Pattern:** When interpolating a string into an `onclick="..."` attribute (double-quoted), wrap the JS string literal in single quotes — `onclick="fn('${val}')"` — and escape any backslashes and single quotes in `val` first. Do NOT use `JSON.stringify` for this: it adds double quotes that immediately break the HTML attribute.
+
+---
+
 ## 2026-07-29
 
 ### Investigation: &Tradition products not appearing in search
