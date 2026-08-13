@@ -204,11 +204,18 @@ textarea{resize:vertical;line-height:1.55}
 .pcard-move-btn{background:none;border:1px solid #e5e5e0;border-radius:3px;color:#ccc;font-size:10px;cursor:pointer;padding:2px 7px;font-family:inherit;line-height:1.4;transition:all .1s}
 .pcard-move-btn:hover{border-color:#111;color:#111}
 /* ── HISTORY STATUS ─────────────────────────────────────── */
-.hist-status{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:none;cursor:pointer;font-family:inherit;flex-shrink:0;appearance:none;-webkit-appearance:none}
-.hist-status-utkast{background:#f0f0ee;color:#888}
-.hist-status-sendt{background:#e8f0ff;color:#2255cc}
-.hist-status-godkjent{background:#e8faf0;color:#1a7a3a}
-.hist-status-tapt{background:#fff0f0;color:#cc2222}
+.hist-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;cursor:pointer;transition:transform .12s}
+.hist-dot:hover{transform:scale(1.4)}
+.hist-dot-utkast{background:#ccc}
+.hist-dot-sendt{background:#5580ee}
+.hist-dot-godkjent{background:#2a7a3a}
+.hist-dot-tapt{background:#cc3333}
+.hist-badge{display:inline-block;font-size:9px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:8px;margin-left:5px;vertical-align:middle;cursor:pointer;user-select:none}
+.hist-badge:hover{opacity:.75}
+.hist-badge-utkast{background:#f0f0ee;color:#999}
+.hist-badge-sendt{background:#e8f0ff;color:#2255cc}
+.hist-badge-godkjent{background:#e8faf0;color:#1a7a3a}
+.hist-badge-tapt{background:#fff0f0;color:#cc2222}
 /* ── PREV SECTION ROW ───────────────────────────────────── */
 .prev-prod-table .prev-sec-row td{padding:8px 9px 4px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;border-top:1px solid #eee;background:#fafaf8;text-align:left}
 .prev-prod-table .prev-sec-sub td{padding:5px 9px;font-size:11px;color:#888;border-bottom:2px solid #ddd;font-style:italic;font-weight:400;text-align:left}
@@ -773,30 +780,27 @@ function renderHistoryList(query) {
     return;
   }
 
-  const statusClass = { utkast:'hist-status-utkast', sendt:'hist-status-sendt', godkjent:'hist-status-godkjent', tapt:'hist-status-tapt' };
+  const statusLabel = { utkast:'Utkast', sendt:'Sendt', godkjent:'Godkjent', tapt:'Tapt' };
   listEl.innerHTML = entries.map(([nr, d]) => {
     const dateStr = d.savedAt ? new Date(d.savedAt).toLocaleDateString('nb-NO', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
     const kunde   = esc(d.kunde || '(uten kunde)');
     const prosjekt = esc(d.prosjekt || '');
     const nrJs   = nr.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
     const status  = d.status || 'utkast';
-    const sCls    = statusClass[status] || 'hist-status-utkast';
+    const sLabel  = statusLabel[status] || 'Utkast';
     return `<div class="hist-row" style="display:flex;align-items:center;gap:10px;padding:11px;border:1px solid #eee;border-radius:5px;margin-bottom:6px;cursor:pointer;transition:all .12s"
       onmouseover="this.style.borderColor='#111';this.style.background='#fafaf8'"
       onmouseout="this.style.borderColor='#eee';this.style.background='#fff'"
       onclick="loadHistoryEntry('${nrJs}')">
+      <div class="hist-dot hist-dot-${status}" onclick="event.stopPropagation();cycleHistoryStatus('${nrJs}')" title="Klikk for å endre status"></div>
       <div style="flex:1;min-width:0">
         <div style="font-size:13px;font-weight:600;color:#111">${kunde}</div>
-        <div style="font-size:11px;color:#999;margin-top:2px">${prosjekt ? prosjekt+' · ' : ''}Tilbudsnr. ${esc(nr)}</div>
+        <div style="font-size:11px;color:#999;margin-top:2px">
+          ${prosjekt ? prosjekt+' · ' : ''}Tilbudsnr. ${esc(nr)}
+          <span class="hist-badge hist-badge-${status}" onclick="event.stopPropagation();cycleHistoryStatus('${nrJs}')">${sLabel}</span>
+        </div>
         <div style="font-size:10px;color:#ccc;margin-top:2px">Lagret ${dateStr}</div>
       </div>
-      <select class="hist-status ${sCls}" onclick="event.stopPropagation()"
-        onchange="updateHistoryStatus('${nrJs}',this.value)">
-        <option value="utkast" ${status==='utkast'?'selected':''}>Utkast</option>
-        <option value="sendt"  ${status==='sendt'?'selected':''}>Sendt</option>
-        <option value="godkjent" ${status==='godkjent'?'selected':''}>Godkjent</option>
-        <option value="tapt"   ${status==='tapt'?'selected':''}>Tapt</option>
-      </select>
       <div style="display:flex;gap:4px;flex-shrink:0">
         <button onclick="event.stopPropagation();duplicateHistoryEntry('${nrJs}')"
           style="background:none;border:1px solid #e5e5e0;border-radius:4px;color:#888;font-size:11px;cursor:pointer;padding:4px 8px;font-family:inherit;letter-spacing:.04em;text-transform:uppercase" title="Dupliser">Dupliser</button>
@@ -805,6 +809,16 @@ function renderHistoryList(query) {
       </div>
     </div>`;
   }).join('');
+}
+
+function cycleHistoryStatus(nr) {
+  const hist = getHistory();
+  if (!hist[nr]) return;
+  const order = ['utkast', 'sendt', 'godkjent', 'tapt'];
+  const cur = hist[nr].status || 'utkast';
+  hist[nr].status = order[(order.indexOf(cur) + 1) % order.length];
+  localStorage.setItem(LS_HIST_KEY, JSON.stringify(hist));
+  renderHistoryList();
 }
 
 // Apply a stored data object (from history or current draft) to the whole UI
