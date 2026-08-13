@@ -187,6 +187,31 @@ textarea{resize:vertical;line-height:1.55}
 .ops-item.on .ops-body{display:block}
 .ops-body textarea{font-size:13px;min-height:64px;line-height:1.55;resize:vertical}
 .ops-body label{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#aaa;margin-bottom:5px;display:block}
+
+/* ── SECTIONS ───────────────────────────────────────────── */
+.sec-layout{display:block}
+.sec-group{margin-bottom:1rem}
+.sec-group-header{display:flex;align-items:center;justify-content:space-between;padding:6px 10px;background:#f5f5f0;border-radius:4px;margin-bottom:8px}
+.sec-group-title{font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#555}
+.sec-group-title--none{color:#bbb}
+.sec-group-sub{font-size:11px;color:#888;font-weight:600}
+.sec-empty{font-size:12px;color:#ccc;padding:8px 0 4px;text-align:center;border:1px dashed #eee;border-radius:4px}
+.sec-chip{display:inline-flex;align-items:center;gap:5px;background:#f5f5f0;border:1px solid #e0e0dc;border-radius:4px;padding:4px 10px;font-size:12px;color:#444}
+.sec-chip-btn{background:none;border:none;cursor:pointer;color:#bbb;font-size:14px;padding:0 1px;line-height:1;font-family:inherit}
+.sec-chip-btn:hover{color:#111}
+.pcard-sec-sel{width:100%;font-size:11px;padding:3px 5px;border:1px solid #e0e0e0;border-radius:3px;background:#fafaf8;font-family:inherit;color:#555;margin-top:4px;cursor:pointer}
+.pcard-reorder{display:flex;gap:6px;margin-top:4px;justify-content:center}
+.pcard-move-btn{background:none;border:1px solid #e5e5e0;border-radius:3px;color:#ccc;font-size:10px;cursor:pointer;padding:2px 7px;font-family:inherit;line-height:1.4;transition:all .1s}
+.pcard-move-btn:hover{border-color:#111;color:#111}
+/* ── HISTORY STATUS ─────────────────────────────────────── */
+.hist-status{font-size:11px;font-weight:600;letter-spacing:.04em;text-transform:uppercase;padding:3px 10px;border-radius:20px;border:none;cursor:pointer;font-family:inherit;flex-shrink:0;appearance:none;-webkit-appearance:none}
+.hist-status-utkast{background:#f0f0ee;color:#888}
+.hist-status-sendt{background:#e8f0ff;color:#2255cc}
+.hist-status-godkjent{background:#e8faf0;color:#1a7a3a}
+.hist-status-tapt{background:#fff0f0;color:#cc2222}
+/* ── PREV SECTION ROW ───────────────────────────────────── */
+.prev-sec-row td{padding:8px 9px 4px;font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#888;border-top:1px solid #eee;background:#fafaf8}
+.prev-sec-sub td{padding:5px 9px;font-size:11px;color:#888;border-bottom:2px solid #ddd;font-style:italic}
 </style>
 </head>
 <body>
@@ -433,6 +458,16 @@ textarea{resize:vertical;line-height:1.55}
         <div class="sel-grid" id="selProds"></div>
       </div>
 
+      <!-- Sections management -->
+      <div id="sectionsArea" style="margin-top:1rem;padding-top:1rem;border-top:1px solid #f0f0ec">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px">
+          <span style="font-size:11px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#888">Seksjoner / Soner</span>
+          <button onclick="promptAddSection()" style="background:none;border:1px dashed #ccc;border-radius:4px;padding:4px 12px;font-size:11px;color:#888;cursor:pointer;font-family:inherit;letter-spacing:.04em;text-transform:uppercase;transition:all .12s" onmouseover="this.style.borderColor='#888';this.style.color='#555'" onmouseout="this.style.borderColor='#ccc';this.style.color='#888'">+ Legg til seksjon</button>
+        </div>
+        <div id="sectionChips" style="display:flex;flex-wrap:wrap;gap:6px"></div>
+        <p id="sectionsHint" style="font-size:12px;color:#ccc;margin-top:6px">Grupper produkter i rom eller soner — f.eks. «Stue», «Kjøkken», «Soverom».</p>
+      </div>
+
     </div>
   </div>
 <div class="card">
@@ -526,6 +561,7 @@ function saveToStorage() {
         price: r.querySelector('.lp')?.value || ''
       })),
       products: selectedProducts,
+      sections: sections,
       tags: tags,
       opsjoner: {
         opsKjop: isOpsOn('opsKjop'), txtKjop: document.getElementById('txtKjop')?.value,
@@ -585,6 +621,14 @@ function saveToHistory(data) {
 function deleteFromHistory(nr) {
   const hist = getHistory();
   delete hist[nr];
+  localStorage.setItem(LS_HIST_KEY, JSON.stringify(hist));
+  renderHistoryList();
+}
+
+function updateHistoryStatus(nr, status) {
+  const hist = getHistory();
+  if (!hist[nr]) return;
+  hist[nr].status = status;
   localStorage.setItem(LS_HIST_KEY, JSON.stringify(hist));
   renderHistoryList();
 }
@@ -728,12 +772,15 @@ function renderHistoryList(query) {
     return;
   }
 
+  const statusClass = { utkast:'hist-status-utkast', sendt:'hist-status-sendt', godkjent:'hist-status-godkjent', tapt:'hist-status-tapt' };
   listEl.innerHTML = entries.map(([nr, d]) => {
     const dateStr = d.savedAt ? new Date(d.savedAt).toLocaleDateString('nb-NO', {day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}) : '';
-    const kunde = esc(d.kunde || '(uten kunde)');
+    const kunde   = esc(d.kunde || '(uten kunde)');
     const prosjekt = esc(d.prosjekt || '');
-    const nrJs = nr.replace(/\\/g, '\\\\').replace(/'/g, "\\'"); // safe for single-quoted JS string in onclick
-    return `<div class="hist-row" style="display:flex;align-items:center;gap:12px;padding:11px;border:1px solid #eee;border-radius:5px;margin-bottom:6px;cursor:pointer;transition:all .12s"
+    const nrJs   = nr.replace(/\\/g, '\\\\').replace(/'/g, "\\'");
+    const status  = d.status || 'utkast';
+    const sCls    = statusClass[status] || 'hist-status-utkast';
+    return `<div class="hist-row" style="display:flex;align-items:center;gap:10px;padding:11px;border:1px solid #eee;border-radius:5px;margin-bottom:6px;cursor:pointer;transition:all .12s"
       onmouseover="this.style.borderColor='#111';this.style.background='#fafaf8'"
       onmouseout="this.style.borderColor='#eee';this.style.background='#fff'"
       onclick="loadHistoryEntry('${nrJs}')">
@@ -742,6 +789,13 @@ function renderHistoryList(query) {
         <div style="font-size:11px;color:#999;margin-top:2px">${prosjekt ? prosjekt+' · ' : ''}Tilbudsnr. ${esc(nr)}</div>
         <div style="font-size:10px;color:#ccc;margin-top:2px">Lagret ${dateStr}</div>
       </div>
+      <select class="hist-status ${sCls}" onclick="event.stopPropagation()"
+        onchange="updateHistoryStatus('${nrJs}',this.value)">
+        <option value="utkast" ${status==='utkast'?'selected':''}>Utkast</option>
+        <option value="sendt"  ${status==='sendt'?'selected':''}>Sendt</option>
+        <option value="godkjent" ${status==='godkjent'?'selected':''}>Godkjent</option>
+        <option value="tapt"   ${status==='tapt'?'selected':''}>Tapt</option>
+      </select>
       <div style="display:flex;gap:4px;flex-shrink:0">
         <button onclick="event.stopPropagation();duplicateHistoryEntry('${nrJs}')"
           style="background:none;border:1px solid #e5e5e0;border-radius:4px;color:#888;font-size:11px;cursor:pointer;padding:4px 8px;font-family:inherit;letter-spacing:.04em;text-transform:uppercase" title="Dupliser">Dupliser</button>
@@ -771,6 +825,10 @@ function applyStoredData(data) {
   // Products — also recover from older saved shape (genData.fd.products) if needed
   selectedProducts = (data.products && data.products.length) ? data.products
                     : (data.genData?.fd?.products || []);
+
+  // Sections
+  sections = Array.isArray(data.sections) ? data.sections : [];
+  renderSections();
   renderSelectedProducts();
 
   // Tags (merkevarer)
@@ -951,8 +1009,10 @@ function nyttTilbud() {
   // Clear lines
   document.getElementById('linesWrap').innerHTML = '';
   addLine(); addLine(); addLine();
-  // Clear products
+  // Clear products + sections
   selectedProducts = [];
+  sections = [];
+  renderSections();
   renderSelectedProducts();
   // Clear tags
   tags = [];
@@ -980,6 +1040,7 @@ function tog(h){h.classList.toggle("open");h.nextElementSibling.classList.toggle
 let _mvaMode = 'eks'; // 'eks' or 'ink' — must be global
 let genData;
 let selectedProducts = [];
+let sections = []; // [{id, name}] — zone/room groupings
 let tags = []; // merkevare-tags
 
 let manualImgData = null;
@@ -1284,6 +1345,142 @@ function updateProdDisc(id, val, type) {
   if (resEl) { resEl.textContent = dlbl; resEl.style.display = disc.val ? '' : 'none'; }
 }
 
+// ── Sections / Soner ─────────────────────────────────────────────────────
+function renderSections() {
+  const chips   = document.getElementById('sectionChips');
+  const hint    = document.getElementById('sectionsHint');
+  if (!chips) return;
+  chips.innerHTML = '';
+  sections.forEach(sec => {
+    const secJs = sec.id.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    const chip = document.createElement('div');
+    chip.className = 'sec-chip';
+    chip.innerHTML = `<span>${esc(sec.name)}</span>
+      <button class="sec-chip-btn" onclick="renameSectionPrompt('${secJs}')" title="Gi nytt navn">&#9998;</button>
+      <button class="sec-chip-btn" onclick="deleteSection('${secJs}')" title="Slett seksjon">&#215;</button>`;
+    chips.appendChild(chip);
+  });
+  if (hint) hint.style.display = sections.length ? 'none' : '';
+}
+
+function promptAddSection() {
+  const name = prompt('Navn på seksjon (f.eks. «Stue»):');
+  if (!name || !name.trim()) return;
+  sections.push({ id: 'sec' + Date.now(), name: name.trim() });
+  renderSections();
+  renderSelectedProducts();
+  scheduleSave();
+}
+
+function deleteSection(id) {
+  const sec    = sections.find(s => s.id === id);
+  const inUse  = selectedProducts.some(p => p.sectionId === id);
+  if (inUse && !confirm('Slett seksjonen «' + (sec?.name || '') + '»?\nProdukter i seksjonen flyttes til «Ingen seksjon».')) return;
+  sections = sections.filter(s => s.id !== id);
+  selectedProducts.forEach(p => { if (p.sectionId === id) delete p.sectionId; });
+  renderSections();
+  renderSelectedProducts();
+  scheduleSave();
+}
+
+function renameSectionPrompt(id) {
+  const sec = sections.find(s => s.id === id);
+  if (!sec) return;
+  const newName = prompt('Nytt navn på seksjon:', sec.name);
+  if (!newName || !newName.trim()) return;
+  sec.name = newName.trim();
+  renderSections();
+  renderSelectedProducts();
+  scheduleSave();
+}
+
+function setProductSection(productId, sectionId) {
+  const p = selectedProducts.find(p => String(p.id) === String(productId));
+  if (!p) return;
+  if (sectionId) p.sectionId = sectionId;
+  else delete p.sectionId;
+  renderSelectedProducts();
+  scheduleSave();
+}
+
+// ── Product reordering (Feature 6) ───────────────────────────────────────
+function moveProduct(id, dir) {
+  if (sections.length) {
+    // Move within the same section group
+    const p = selectedProducts.find(q => String(q.id) === String(id));
+    if (!p) return;
+    const secId  = p.sectionId || null;
+    const inSec  = selectedProducts.filter(q => (q.sectionId || null) === secId);
+    const li     = inSec.indexOf(p);
+    const ni     = li + dir;
+    if (ni < 0 || ni >= inSec.length) return;
+    const gi  = selectedProducts.indexOf(p);
+    const gni = selectedProducts.indexOf(inSec[ni]);
+    [selectedProducts[gi], selectedProducts[gni]] = [selectedProducts[gni], selectedProducts[gi]];
+  } else {
+    const idx = selectedProducts.findIndex(p => String(p.id) === String(id));
+    if (idx === -1) return;
+    const ni = idx + dir;
+    if (ni < 0 || ni >= selectedProducts.length) return;
+    [selectedProducts[idx], selectedProducts[ni]] = [selectedProducts[ni], selectedProducts[idx]];
+  }
+  renderSelectedProducts();
+  scheduleSave();
+}
+
+// ── Single product card HTML ──────────────────────────────────────────────
+function renderProductCard(p) {
+  const id    = String(p.id);
+  const qty   = p.qty   || 1;
+  const unit  = parseKr(p.price) || 0;
+  const disc  = {val: p.discVal||0, type: p.discType||'pct'};
+  const after = applyDisc(unit, disc);
+  const total = after * qty;
+  const dlbl  = discLabel(disc);
+  const multi = selectedProducts.length > 1;
+
+  const secSel = sections.length ? `<select class="pcard-sec-sel"
+      onchange="setProductSection('${id}',this.value)" onclick="event.stopPropagation()">
+      <option value="">Ingen seksjon</option>
+      ${sections.map(s => `<option value="${esc(s.id)}" ${p.sectionId===s.id?'selected':''}>${esc(s.name)}</option>`).join('')}
+    </select>` : '';
+
+  return `<div class="pcard sel" data-pid="${String(p.id).replace(/"/g,'&quot;')}">
+    ${p.image ? `<img src="${p.image}" loading="lazy" onerror="this.style.display='none'">` : '<div class="pcard-ph">&#128247;</div>'}
+    <div class="pcard-body">
+      <div class="pcard-name">${esc(p.name || '')}</div>
+      ${p.variant ? `<div class="pcard-sub">${esc(p.variant)}</div>`  : ''}
+      ${p.brand   ? `<div class="pcard-brand">${esc(p.brand)}</div>` : ''}
+      ${p.price   ? `<div class="pcard-price">${p.price}</div>` : ''}
+    </div>
+    <div class="pcard-footer">
+      <div class="pcard-qty">
+        <button class="pcard-qty-btn" onclick="changeQty('${id}',-1)">&#8722;</button>
+        <span class="pcard-qty-val">${qty}</span>
+        <button class="pcard-qty-btn" onclick="changeQty('${id}',1)">&#43;</button>
+        <span class="pcard-qty-tot">= ${fmtR(total)}</span>
+      </div>
+      <div class="pcard-disc">
+        <label>Rabatt:</label>
+        <input class="pcard-disc-inp" type="text" value="${disc.val || ''}" placeholder="0"
+          oninput="updateProdDisc('${id}',this.value,this.nextElementSibling.value)">
+        <select class="pcard-disc-sel"
+          onchange="updateProdDisc('${id}',this.previousElementSibling.value,this.value)">
+          <option value="pct" ${disc.type==='pct'?'selected':''}>%</option>
+          <option value="kr"  ${disc.type==='kr' ?'selected':''}>kr</option>
+        </select>
+        <span class="pcard-disc-res" style="${disc.val?'':`display:none`}">${dlbl}</span>
+      </div>
+      ${multi ? `<div class="pcard-reorder">
+        <button class="pcard-move-btn" onclick="moveProduct('${id}',-1)" title="Flytt opp">&#9650; Opp</button>
+        <button class="pcard-move-btn" onclick="moveProduct('${id}',1)" title="Flytt ned">Ned &#9660;</button>
+      </div>` : ''}
+      ${secSel}
+    </div>
+    <button class="pcard-remove" onclick="removeProduct('${id}')" title="Fjern">&#215;</button>
+  </div>`;
+}
+
 // ── Render selected product cards
 function renderSelectedProducts() {
   setTimeout(updateLiveSum, 0);
@@ -1301,47 +1498,44 @@ function renderSelectedProducts() {
   }
   wrapEl.style.display = '';
 
-  gridEl.innerHTML = selectedProducts.map(p => {
-    const id    = String(p.id);
-    const qty   = p.qty   || 1;
-    const unit  = parseKr(p.price) || 0;
-    const disc  = {val: p.discVal||0, type: p.discType||'pct'};
-    const after = applyDisc(unit, disc);
-    const total = after * qty;
-    const dlbl  = discLabel(disc);
+  if (!sections.length) {
+    // Flat grid — original behavior
+    gridEl.className = 'sel-grid';
+    gridEl.innerHTML = selectedProducts.map(renderProductCard).join('');
+    return;
+  }
 
-    return `<div class="pcard sel" data-pid="${String(p.id).replace(/"/g, '&quot;')}">
-      ${p.image
-        ? `<img src="${p.image}" loading="lazy" onerror="this.style.display='none'">`
-        : '<div class="pcard-ph">&#128247;</div>'}
-      <div class="pcard-body">
-        <div class="pcard-name">${esc(p.name || '')}</div>
-        ${p.variant ? `<div class="pcard-sub">${esc(p.variant)}</div>`  : ''}
-        ${p.brand   ? `<div class="pcard-brand">${esc(p.brand)}</div>` : ''}
-        ${p.price   ? `<div class="pcard-price">${p.price}</div>` : ''}
+  // Sectioned layout
+  gridEl.className = 'sec-layout';
+  let html = '';
+  sections.forEach(sec => {
+    const secProds = selectedProducts.filter(p => p.sectionId === sec.id);
+    const secTotal = secProds.reduce((s, p) => s + applyDisc(parseKr(p.price)||0, {val:p.discVal||0,type:p.discType||'pct'}) * (p.qty||1), 0);
+    const secJs    = sec.id.replace(/\\/g,'\\\\').replace(/'/g,"\\'");
+    html += `<div class="sec-group">
+      <div class="sec-group-header">
+        <span class="sec-group-title">${esc(sec.name)}</span>
+        <span class="sec-group-sub">${secProds.length ? fmtR(secTotal) : '–'}</span>
       </div>
-      <div class="pcard-footer">
-        <div class="pcard-qty">
-          <button class="pcard-qty-btn" onclick="changeQty('${id}',-1)">&#8722;</button>
-          <span class="pcard-qty-val">${qty}</span>
-          <button class="pcard-qty-btn" onclick="changeQty('${id}',1)">&#43;</button>
-          <span class="pcard-qty-tot">= ${fmtR(total)}</span>
-        </div>
-        <div class="pcard-disc">
-          <label>Rabatt:</label>
-          <input class="pcard-disc-inp" type="text" value="${disc.val || ''}" placeholder="0"
-            oninput="updateProdDisc('${id}',this.value,this.nextElementSibling.value)">
-          <select class="pcard-disc-sel"
-            onchange="updateProdDisc('${id}',this.previousElementSibling.value,this.value)">
-            <option value="pct" ${disc.type==='pct'?'selected':''}>%</option>
-            <option value="kr"  ${disc.type==='kr' ?'selected':''}>kr</option>
-          </select>
-          <span class="pcard-disc-res" style="${disc.val?'':`display:none`}">${dlbl}</span>
-        </div>
-      </div>
-      <button class="pcard-remove" onclick="removeProduct('${id}')" title="Fjern">&#215;</button>
+      ${secProds.length
+        ? `<div class="sel-grid">${secProds.map(renderProductCard).join('')}</div>`
+        : `<div class="sec-empty">Velg «${esc(sec.name)}» i seksjon-nedtrekkslisten på produktkortet.</div>`
+      }
     </div>`;
-  }).join('');
+  });
+  // Unassigned products
+  const unassigned = selectedProducts.filter(p => !p.sectionId || !sections.find(s => s.id === p.sectionId));
+  if (unassigned.length) {
+    const unTotal = unassigned.reduce((s, p) => s + applyDisc(parseKr(p.price)||0, {val:p.discVal||0,type:p.discType||'pct'}) * (p.qty||1), 0);
+    html += `<div class="sec-group">
+      <div class="sec-group-header">
+        <span class="sec-group-title sec-group-title--none">Ingen seksjon</span>
+        <span class="sec-group-sub">${fmtR(unTotal)}</span>
+      </div>
+      <div class="sel-grid">${unassigned.map(renderProductCard).join('')}</div>
+    </div>`;
+  }
+  gridEl.innerHTML = html;
 }
 // ── END PRODUCTS
 
@@ -1403,6 +1597,7 @@ function getFD(){
     kind: 'service',
     brands:tags,
     products:selectedProducts,
+    sections:sections,
     // PDF visibility (true = hidden in PDF)
     phBeskrivelse: document.getElementById('phBeskrivelse')?.checked||false,
     phTjenester:   document.getElementById('phTjenester')?.checked||false,
@@ -1623,15 +1818,15 @@ function renderPreview(fd,ai){
   let produkterHTML='';
   const hasProds = !ph.produkter && fd.products && fd.products.length;
   if(hasProds){
-    let rows='';
-    fd.products.forEach(p=>{
+    // Helper: render one product as a table row
+    const mkProdRow = p => {
       const qty=p.qty||1, unit=(parseKr(p.price)||0)*_mvaF_prod;
       const disc={val:p.discVal||0,type:p.discType||'pct'};
       const afterD=applyDisc(unit,disc);
       const tot=afterD*qty;
       const discLbl=discLabel(disc);
       prodTotal+=tot;
-      rows+=`<tr>
+      return { tot, html:`<tr>
         <td style="padding:9px;width:52px">
           ${p.image?`<img src="${p.image}" class="prev-prod-img" onerror="this.style.display='none'">`:'<div class="prev-prod-img" style="background:#f5f5f0"></div>'}
         </td>
@@ -1648,8 +1843,29 @@ function renderPreview(fd,ai){
             data-prod-price="${p.id}" class="e prev-editable">${fmtR(tot)}</div>
           ${disc.val?`<div style="font-size:11px;color:#2a7a2a;margin-top:2px">${discLbl} → ${fmtR(afterD*qty)}</div>`:''}
         </td>
-      </tr>`;
-    });
+      </tr>` };
+    };
+
+    let rows='';
+    const hasSections = fd.sections && fd.sections.length;
+    if (hasSections) {
+      fd.sections.forEach(sec => {
+        const secProds = fd.products.filter(p => p.sectionId === sec.id);
+        if (!secProds.length) return;
+        let secTotal = 0;
+        let secRows  = '';
+        secProds.forEach(p => { const r = mkProdRow(p); secTotal += r.tot; secRows += r.html; });
+        rows += `<tr class="prev-sec-row"><td colspan="3">${esc(sec.name)}</td></tr>`;
+        rows += secRows;
+        rows += `<tr class="prev-sec-sub"><td colspan="2">Delsum ${esc(sec.name)}</td><td style="text-align:right">${fmtR(secTotal)}</td></tr>`;
+      });
+      // Unassigned
+      fd.products.filter(p => !p.sectionId || !fd.sections.find(s => s.id === p.sectionId))
+        .forEach(p => { const r = mkProdRow(p); rows += r.html; });
+    } else {
+      fd.products.forEach(p => { const r = mkProdRow(p); rows += r.html; });
+    }
+
     const dProd = fd.discProd && fd.discProd.val;
     const prodAfter = dProd ? applyDisc(prodTotal, fd.discProd) : prodTotal;
     produkterHTML=`
@@ -1940,9 +2156,13 @@ async function doPDF(){
     doc.text("Pris",priceX,y+3,{align:"right"});
     y+=6; HR(y,0.2,[210,210,210]);
 
-    fd.products.forEach(p=>{
+    // Draw one product row — shared by flat and sectioned layouts
+    const drawPdfProduct = p => {
       const imgSz=22;
-      const pQty=p.qty||1, pUnit=(parseKr(p.price)||0)*mvaF_prod, pTotal=pUnit*pQty;
+      const pQty=p.qty||1, pUnit=(parseKr(p.price)||0)*mvaF_prod;
+      const pDisc={val:p.discVal||0,type:p.discType||'pct'};
+      const pAfterDisc=pDisc.val?(pDisc.type==='pct'?pUnit*(1-pDisc.val/100):Math.max(0,pUnit-pDisc.val)):pUnit;
+      const pLineTot=pAfterDisc*pQty;
       const rowH=Math.max(imgSz+8, 32);
       NP(rowH+4);
       doc.setDrawColor(225,225,225);doc.setLineWidth(0.12);
@@ -1955,9 +2175,6 @@ async function doPDF(){
       } else {
         doc.setFillColor(245,245,242);doc.rect(ml,y,imgSz,imgSz,'F');
       }
-      const pDisc={val:p.discVal||0,type:p.discType||'pct'};
-      const pAfterDisc=pDisc.val?(pDisc.type==='pct'?pUnit*(1-pDisc.val/100):Math.max(0,pUnit-pDisc.val)):pUnit;
-      const pLineTot=pAfterDisc*pQty;
       const tx=ml+imgSz+5;
       let lineY=y+5;
       doc.setFontSize(FS);doc.setFont("helvetica","normal");
@@ -1982,7 +2199,33 @@ async function doPDF(){
       }
       y+=rowH;
       HR(y-1,0.1,[230,230,230]);
-    })
+      return pLineTot;
+    };
+
+    const hasPdfSections = fd.sections && fd.sections.length;
+    if (hasPdfSections) {
+      fd.sections.forEach(sec => {
+        const secProds = fd.products.filter(p => p.sectionId === sec.id);
+        if (!secProds.length) return;
+        // Section header bar
+        NP(14);
+        doc.setFillColor(245,245,242); doc.rect(ml,y,cw,7,'F');
+        doc.setFontSize(8); doc.setFont("helvetica","bold"); doc.setTextColor(100);
+        doc.text(sec.name.toUpperCase(), ml+3, y+5);
+        doc.setTextColor(17); y+=9;
+        let secTotal=0;
+        secProds.forEach(p => { secTotal += drawPdfProduct(p); });
+        // Section subtotal
+        T("Delsum "+sec.name, ml, y, 9, "normal", [120,120,120]);
+        TR(fmtR(secTotal), priceX, y, 9, "normal", [120,120,120]);
+        y+=8; HR(y-1, 0.2, [200,200,200]);
+      });
+      // Unassigned
+      fd.products.filter(p => !p.sectionId || !fd.sections.find(s=>s.id===p.sectionId))
+        .forEach(p => drawPdfProduct(p));
+    } else {
+      fd.products.forEach(p => drawPdfProduct(p));
+    }
     y+=5;
     const dProd=fd.discProd&&fd.discProd.val;
     const prodAfterDisc=dProd?applyDisc(prodTotal,fd.discProd):prodTotal;

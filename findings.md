@@ -6,6 +6,46 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 ## 2026-08-13 (latest)
 
+### Feature: Seksjoner / Soner (product grouping by room/zone)
+
+Users can now create named sections (e.g. «Stue», «Kjøkken», «Soverom») to group products within a quote.
+
+- **Management UI**: «+ Legg til seksjon» button at the bottom of the Produkter card. Sections appear as chips with rename (✎) and delete (×) buttons.
+- **Assignment**: Each product card shows a section dropdown (only when sections exist). Changing it immediately reassigns the product.
+- **Grouped display**: When sections exist, the selected products area renders as section groups with subtotals. Products with no section assignment appear in an «Ingen seksjon» group at the bottom.
+- **Preview**: Product table in the generated preview shows section header rows and per-section subtotals.
+- **PDF**: Section header bars (light gray) printed above each section's products, followed by a section subtotal row.
+- **Persistence**: `sections` array saved to localStorage and history. Older saves without `sections` default to `[]` (backward compatible).
+- **Reset**: `nyttTilbud()` clears sections. `applyStoredData()` restores them.
+
+**Files:** `index.html` — CSS (`.sec-group`, `.sec-chip`, etc.), HTML (sectionsArea in products card), JS globals (`let sections = []`), new functions (`renderSections`, `promptAddSection`, `deleteSection`, `renameSectionPrompt`, `setProductSection`), `renderSelectedProducts`, `saveToStorage`, `applyStoredData`, `nyttTilbud`, `getFD`, `renderPreview`, `doPDF`
+
+---
+
+### Feature: Product reordering (↑ Opp / Ned ↓)
+
+Each product card in the selected products area now shows «↑ Opp» and «Ned ↓» buttons (only when more than one product is selected). In sectioned mode, products move within their own section group only.
+
+**File:** `index.html` — `moveProduct()`, `renderProductCard()`
+
+---
+
+### Feature: Quote status tracking in "Mine tilbud"
+
+Each row in "Mine tilbud" now has a status selector: **Utkast** (gray), **Sendt** (blue), **Godkjent** (green), **Tapt** (red). Changing status updates only the history entry without touching the current quote. Status persists in localStorage history.
+
+**File:** `index.html` — `updateHistoryStatus()`, `renderHistoryList()` (status select), CSS (`.hist-status-*`)
+
+---
+
+### Refactor: Extracted `renderProductCard(p)`
+
+The inline product card template in `renderSelectedProducts` was extracted into a standalone `renderProductCard(p)` function. Both the flat-grid and sectioned-grid paths call it, eliminating duplication and making it easy to change the card layout in one place.
+
+---
+
+## 2026-08-13
+
 ### Fix: Full bug audit — 8 bugs fixed (XSS, data loss, data corruption)
 
 **Bug 1 — `addManualProduct` never saved products to history (data loss)**
