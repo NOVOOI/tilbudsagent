@@ -724,7 +724,7 @@ function renderHistoryList(query) {
   }
 
   if (!entries.length) {
-    listEl.innerHTML = `<div style="text-align:center;padding:2rem;color:#aaa;font-size:13px">${q ? 'Ingen treff for «'+query+'».' : 'Ingen lagrede tilbud ennå.'}</div>`;
+    listEl.innerHTML = `<div style="text-align:center;padding:2rem;color:#aaa;font-size:13px">${q ? 'Ingen treff for «'+esc(query)+'».' : 'Ingen lagrede tilbud ennå.'}</div>`;
     return;
   }
 
@@ -898,11 +898,11 @@ function addLine(desc='', qty='1', price='') {
   const row  = document.createElement('div');
   row.className = 'line-svc';
   row.innerHTML = `
-    <input class="ld" type="text" placeholder="Tjenestebeskrivelse" value="${desc}"
+    <input class="ld" type="text" placeholder="Tjenestebeskrivelse" value="${esc(desc)}"
       oninput="updateLineTotal(this);scheduleSave()">
-    <input class="lq" type="text" placeholder="1" value="${qty}" style="width:46px;text-align:center"
+    <input class="lq" type="text" placeholder="1" value="${esc(qty)}" style="width:46px;text-align:center"
       oninput="updateLineTotal(this);updateLiveSum();scheduleSave()">
-    <input class="lp" type="text" placeholder="kr 0" value="${price}"
+    <input class="lp" type="text" placeholder="kr 0" value="${esc(price)}"
       oninput="updateLineTotal(this);updateLiveSum();scheduleSave()">
     <span class="line-tot" style="font-size:12px;color:#666;text-align:right;padding-right:2px;white-space:nowrap">—</span>
     <button class="del-btn" onclick="this.parentNode.remove();updateLiveSum();scheduleSave()" title="Slett">&#215;</button>`;
@@ -1038,6 +1038,7 @@ function addManualProduct() {
   btn.textContent = '✓ Lagt til!'; btn.style.background = '#2a7a2a';
   setTimeout(() => { btn.textContent = '+ Legg til produkt'; btn.style.background = ''; }, 1500);
   renderSelectedProducts();
+  scheduleSave();
 }
 
 // ── WooCommerce search
@@ -1060,7 +1061,7 @@ async function wooSearch() {
     const data = await res.json();
     if (!res.ok) throw new Error(data.error || 'HTTP ' + res.status);
     if (!Array.isArray(data) || !data.length) {
-      resEl.innerHTML = '<div class="woo-empty">Ingen treff for «' + q + '»</div>';
+      resEl.innerHTML = '<div class="woo-empty">Ingen treff for «' + esc(q) + '»</div>';
       status.textContent = 'Ingen treff.';
     } else {
       status.textContent = data.length + ' produkter — klikk for å legge til';
@@ -1085,7 +1086,7 @@ function renderWooResults(products) {
     return `<div class="wrc${added ? ' added' : ''}" onclick="addWooProduct(${i})" data-idx="${i}">
       ${img ? `<img src="${img}" loading="lazy">` : '<div style="width:100%;aspect-ratio:1;background:#f5f5f0"></div>'}
       <div class="wrc-info">
-        <div class="wrc-name">${p.name}</div>
+        <div class="wrc-name">${esc(p.name)}</div>
         ${price ? `<div class="wrc-price">${price}</div>` : ''}
       </div>
     </div>`;
@@ -1179,7 +1180,7 @@ function showVariantPicker(p, variations, img, brand) {
   header.style.cssText = 'display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem';
   header.innerHTML = `
     <div>
-      <div style="font-size:14px;font-weight:700;color:#111">${p.name}</div>
+      <div style="font-size:14px;font-weight:700;color:#111">${esc(p.name)}</div>
       <div style="font-size:11px;color:#aaa;margin-top:3px">Velg variant</div>
     </div>
     <button style="background:none;border:none;font-size:24px;cursor:pointer;color:#aaa;line-height:1;padding:0" onclick="document.getElementById('variantPickerOverlay').remove()">×</button>`;
@@ -1200,8 +1201,8 @@ function showVariantPicker(p, variations, img, brand) {
 
     const info = document.createElement('div');
     info.style.flex = '1';
-    info.innerHTML = `<div style="font-size:13px;font-weight:600;color:#111">${pd._lbl}</div>
-      ${pd._vprice ? `<div style="font-size:12px;color:#666;margin-top:3px">${pd._vprice}</div>` : ''}`;
+    info.innerHTML = `<div style="font-size:13px;font-weight:600;color:#111">${esc(pd._lbl)}</div>
+      ${pd._vprice ? `<div style="font-size:12px;color:#666;margin-top:3px">${esc(pd._vprice)}</div>` : ''}`;
 
     const check = document.createElement('div');
     check.style.cssText = 'width:20px;height:20px;border-radius:50%;border:1.5px solid #ddd;flex-shrink:0';
@@ -1314,9 +1315,9 @@ function renderSelectedProducts() {
         ? `<img src="${p.image}" loading="lazy" onerror="this.style.display='none'">`
         : '<div class="pcard-ph">&#128247;</div>'}
       <div class="pcard-body">
-        <div class="pcard-name">${p.name || ''}</div>
-        ${p.variant ? `<div class="pcard-sub">${p.variant}</div>`  : ''}
-        ${p.brand   ? `<div class="pcard-brand">${p.brand}</div>` : ''}
+        <div class="pcard-name">${esc(p.name || '')}</div>
+        ${p.variant ? `<div class="pcard-sub">${esc(p.variant)}</div>`  : ''}
+        ${p.brand   ? `<div class="pcard-brand">${esc(p.brand)}</div>` : ''}
         ${p.price   ? `<div class="pcard-price">${p.price}</div>` : ''}
       </div>
       <div class="pcard-footer">
@@ -2114,6 +2115,7 @@ function toggleOps(id) {
   if (!el) return;
   el.classList.toggle('on');
   if (genData) {
+    syncEditableFields();
     const keyMap = {
       opsKjop:'cKjop', opsMark:'cMark', opsBet:'cBet',
       opsPilot:'cPilot', opsFors:'cFors', opsDep:'cDep'

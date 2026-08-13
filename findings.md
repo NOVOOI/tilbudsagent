@@ -4,6 +4,40 @@ Running log of changes, bug fixes, and architectural notes. Updated at the end o
 
 ---
 
+## 2026-08-13 (latest)
+
+### Fix: Full bug audit — 8 bugs fixed (XSS, data loss, data corruption)
+
+**Bug 1 — `addManualProduct` never saved products to history (data loss)**
+Manually added products mutated `selectedProducts` and called `renderSelectedProducts()` but never called `scheduleSave()`. If no other input was touched afterward, the manual product was lost on reload. Fixed: added `scheduleSave()` after `renderSelectedProducts()` in `addManualProduct`.
+
+**Bug 2 — `toggleOps` lost preview edits (data loss)**
+Toggling an opsjon while in preview re-rendered with stale `genData`, discarding any `contenteditable` changes made since last generation. `setMva()` correctly called `syncEditableFields()` first; `toggleOps()` did not. Fixed: added `syncEditableFields()` as first line of the `if (genData)` block in `toggleOps`.
+
+**Bug 3 — `addLine` truncated service descriptions containing `"` (data corruption)**
+`value="${desc}"` in `addLine`'s innerHTML: a description like `10" speaker` closes the attribute at the `"`, silently truncating the value on load. Fixed: `value="${esc(desc)}"` (also `qty` and `price`).
+
+**Bug 4 — XSS in history search no-results banner**
+`'Ingen treff for «'+query+'»'` used raw search input in `innerHTML`. Fixed: `esc(query)`.
+
+**Bug 5 — XSS in WooCommerce search no-results banner**
+`'Ingen treff for «'+q+'»'` used raw search input in `innerHTML`. Fixed: `esc(q)`.
+
+**Bug 6 — XSS in `renderWooResults` product name**
+`${p.name}` inserted raw. WooCommerce product names can contain HTML. Fixed: `${esc(p.name)}`.
+
+**Bug 7 — XSS in `renderSelectedProducts` product name/variant/brand**
+`${p.name}`, `${p.variant}`, `${p.brand}` all inserted raw. Manual product names come directly from user text inputs. Fixed: all three wrapped with `esc()`.
+
+**Bug 8 — XSS in `showVariantPicker` product name and variant label**
+`${p.name}` in header innerHTML and `${pd._lbl}` / `${pd._vprice}` in variant row innerHTML. Fixed: all wrapped with `esc()`.
+
+**Pattern to watch:** Every string from user input, localStorage, or external APIs that goes into `innerHTML` must pass through `esc()`. The only safe exceptions are: strings you built yourself from literals, numbers, and already-escaped values.
+
+**Files:** `index.html` — `renderHistoryList` (~727), `addLine` (~901), `addManualProduct` (~1040), `wooSearch` (~1063), `renderWooResults` (~1088), `renderSelectedProducts` (~1317), `showVariantPicker` (~1182, ~1203), `toggleOps` (~2116)
+
+---
+
 ## 2026-07-29 (latest)
 
 ### Fix: "Mine tilbud" — load, delete, and duplicate buttons completely broken
