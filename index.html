@@ -1797,12 +1797,9 @@ function syncEditableFields(){
     const idx = parseInt(el.dataset.svcPrice);
     if(genData.fd.lines[idx]) genData.fd.lines[idx].price = el.innerText.trim();
   });
-  // Product prices + name/variant/brand/sku
-  document.querySelectorAll('[data-prod-price]').forEach(el => {
-    const id = el.dataset.prodPrice;
-    const p = genData.fd.products.find(x=>String(x.id)===id);
-    if(p) p.price = el.innerText.trim();
-  });
+  // Note: [data-prod-price] shows the line TOTAL (unit × qty × discount) — do NOT sync
+  // it back to p.price, which stores the unit price. Doing so causes the price to double
+  // on every save cycle when qty > 1.
   document.querySelectorAll('[data-prod-field]').forEach(el => {
     const parts = el.dataset.prodField.split('_');
     const field = parts.pop();
@@ -1890,8 +1887,8 @@ function renderPreview(fd,ai){
         </td>
         <td style="padding:9px;text-align:right;vertical-align:top">
           <div style="font-size:12px;color:#999">${fmtR(unit)} × ${qty}</div>
-          <div style="font-size:13px;font-weight:600;color:#111;margin-top:2px" contenteditable="true"
-            data-prod-price="${p.id}" class="e prev-editable">${fmtR(tot)}</div>
+          <div style="font-size:13px;font-weight:600;color:#111;margin-top:2px"
+            data-prod-price="${p.id}">${fmtR(tot)}</div>
           ${disc.val?`<div style="font-size:11px;color:#2a7a2a;margin-top:2px">${discLbl} → ${fmtR(afterD*qty)}</div>`:''}
         </td>
       </tr>` };
