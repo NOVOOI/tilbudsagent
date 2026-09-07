@@ -1805,7 +1805,12 @@ function syncEditableFields(){
     const field = parts.pop();
     const id = parts.join('_');
     const p = genData.fd.products.find(x=>String(x.id)===id);
-    if(p) p[field] = el.innerText.trim();
+    if(p) {
+      let val = el.innerText.trim();
+      // The SKU cell renders as "SKU: <value>" — strip the prefix before storing
+      if(field === 'sku') val = val.replace(/^(SKU:\s*)+/i, '');
+      p[field] = val;
+    }
   });
   // Section titles stored in ai
   document.querySelectorAll('[data-sec-title]').forEach(el => {
@@ -2230,7 +2235,7 @@ async function doPDF(){
       T(nls[0]||'',tx,lineY,FS,"normal",[17,17,17]); lineY+=5;
       if(p.variant){ T(p.variant,tx,lineY,9,"normal",[80,80,80]); lineY+=4.5; }
       if(p.brand){ T(p.brand,tx,lineY,9,"normal",[160,160,160]); lineY+=4.5; }
-      if(p.sku){ T(p.sku.startsWith('SKU:')?p.sku:'SKU: '+p.sku,tx,lineY,8.5,"normal",[190,190,190]); lineY+=4; }
+      if(p.sku){ T('SKU: '+p.sku,tx,lineY,8.5,"normal",[190,190,190]); lineY+=4; }
       if(pQty>1){ T("Antall: "+pQty,tx,lineY,9,"normal",[100,100,100]); }
       if(pUnit){
         const discLbl=pDisc.val?(pDisc.type==='pct'?`-${pDisc.val}%`:`-kr ${pDisc.val.toLocaleString('nb-NO')}`):'';
