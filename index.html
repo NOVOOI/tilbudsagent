@@ -1644,7 +1644,8 @@ function getFD(){
     betfrist:document.getElementById("fbetfrist").value,
     rabatt:document.getElementById("frabatt").value,
     merknader:document.getElementById("fmerk").value,
-    typeLabel: document.getElementById('fprosjekt')?.value || 'Tilbud',
+    typeLabel: genData?.fd?.typeLabel || document.getElementById('fprosjekt')?.value || 'Tilbud',
+    fra: genData?.fd?.fra || null,
     kind: 'service',
     brands:tags,
     products:selectedProducts,
@@ -1953,7 +1954,11 @@ function renderPreview(fd,ai){
   // Only show user-entered merknader — never AI-generated ones
   const rawM=fd.merknader?fd.merknader.split("\n").map(s=>s.trim()).filter(Boolean):[];
   const allM=[...rawM];
-  const kontStr=fd.kontakt?`<br><span style="font-weight:400;color:#888;font-size:10px">${fd.kontakt}</span>`:"";
+  // fra: carry over user edits from genData; fall back to NOVOOI default
+  const FRA_DEFAULT = 'NOVOOI AS<br>St. Halvards gate 33c, 0192 Oslo<br>hei@novooi.com';
+  const fraHtml = fd.fra ? fd.fra.replace(/\n/g,'<br>') : FRA_DEFAULT;
+  // typeLabel: once user has edited it in preview, prefer that over re-deriving from prosjekt
+  const titleText = (fd.typeLabel || fd.prosjekt || 'Tilbud').toUpperCase();
 
   document.getElementById("output").innerHTML=`
 <div class="preview-wrap">
@@ -1967,13 +1972,18 @@ function renderPreview(fd,ai){
       <div style="font-size:10px;color:#bbb;letter-spacing:.04em" contenteditable="true" data-fd-field="nr" class="e">Tilbudsnr. ${fd.nr}</div>
     </div>
     <div class="prev-meta">
-      <div><div class="mk">Fra</div><div class="mv e" contenteditable="true" data-fd-field="fra">NOVOOI AS<br>St. Halvards gate 33c, 0192 Oslo<br>hei@novooi.com</div></div>
-      <div><div class="mk">Til</div><div class="mv e" contenteditable="true" data-fd-field="kunde">${fd.kunde}${kontStr}</div></div>
+      <div><div class="mk">Fra</div><div class="mv e" contenteditable="true" data-fd-field="fra">${fraHtml}</div></div>
+      <div><div class="mk">Til</div>
+        <div style="display:flex;flex-direction:column;gap:1px">
+          <div class="mv e" contenteditable="true" data-fd-field="kunde">${fd.kunde}</div>
+          ${fd.kontakt?`<div class="mv e" contenteditable="true" data-fd-field="kontakt" style="font-weight:400;color:#888;font-size:10px">${fd.kontakt}</div>`:''}
+        </div>
+      </div>
       <div><div class="mk">Dato</div><div class="mv e" contenteditable="true" data-fd-field="dato">${fd.dato}</div></div>
       <div><div class="mk">Gyldig til</div><div class="mv e" contenteditable="true" data-fd-field="gyldig">${fd.gyldig}</div></div>
     </div>
     
-    <div class="prev-h1 e" contenteditable="true" data-fd-field="typeLabel">${(fd.prosjekt||fd.typeLabel).toUpperCase()}</div>
+    <div class="prev-h1 e" contenteditable="true" data-fd-field="typeLabel">${titleText}</div>
     <!-- ingress removed -->
     ${!ph.beskrivelse ? `
     ${(fd.brief||ai.beskrivelse) ? `<div class="prev-sec">Beskrivelse</div>
@@ -2114,7 +2124,7 @@ async function doPDF(){
   y+=14;  // space after meta header
 
   // ── Tittel + ingress
-  T((fd.prosjekt ? fd.prosjekt : fd.typeLabel).toUpperCase(),ml,y,19,"bold"); y+=8;
+  T((fd.typeLabel || fd.prosjekt || 'Tilbud').toUpperCase(),ml,y,19,"bold"); y+=8;
   // ingress removed
 
   // ── Visibility flags
