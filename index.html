@@ -606,7 +606,19 @@ function saveToStorage() {
     localStorage.setItem(LS_KEY, JSON.stringify(data));
     saveToHistory(data);
     showSaveIndicator();
-  } catch(err) { console.warn('localStorage save failed:', err); }
+  } catch(err) {
+    console.warn('localStorage save failed:', err);
+    // QuotaExceededError — storage full, typically from large product images
+    if(err.name === 'QuotaExceededError' || err.name === 'NS_ERROR_DOM_QUOTA_REACHED'){
+      const ind = document.getElementById('saveIndicator');
+      if(ind){
+        ind.textContent = '⚠ Lagring feilet — nettleseren er full';
+        ind.style.color = '#cc3333';
+        ind.style.opacity = '1';
+        setTimeout(() => { ind.style.opacity = '0'; ind.style.color = '#aaa'; ind.textContent = '✓ Lagret'; }, 6000);
+      }
+    }
+  }
 }
 
 // ── TILBUDSHISTORIKK ────────────────────────────────────────────────────
@@ -1103,13 +1115,35 @@ function switchProdTab(tab, el) {
   el.classList.add('on');
 }
 
+// Convert any image src (data URI or URL) to a JPEG data URI via canvas.
+// Caps size at maxPx × maxPx to keep localStorage footprint manageable.
+function imageToJpeg(src, maxPx = 800, quality = 0.82) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.onload = () => {
+      try {
+        const scale = Math.min(1, maxPx / Math.max(img.naturalWidth, img.naturalHeight, 1));
+        const w = Math.round(img.naturalWidth  * scale);
+        const h = Math.round(img.naturalHeight * scale);
+        const c = document.createElement('canvas');
+        c.width = w; c.height = h;
+        c.getContext('2d').drawImage(img, 0, 0, w, h);
+        resolve(c.toDataURL('image/jpeg', quality));
+      } catch(e) { resolve(null); }
+    };
+    img.onerror = () => resolve(null);
+    img.src = src;
+  });
+}
+
 // ── Manual image preview
 function previewManualImg(e) {
   const file = e.target.files[0];
   if (!file) return;
   const reader = new FileReader();
-  reader.onload = ev => {
-    manualImgData = ev.target.result;
+  reader.onload = async ev => {
+    const jpeg = await imageToJpeg(ev.target.result, 800, 0.82);
+    manualImgData = jpeg || ev.target.result;
     const prev = document.getElementById('manualImgPrev');
     prev.src = manualImgData;
     prev.style.display = 'block';
@@ -2036,20 +2070,26 @@ async function doPDF(){
   syncEditableFields();
   const {fd,ai}=genData;
 
-  // Pre-fetch product images as base64 via Worker (bypasses CORS)
+  // Pre-fetch product images as base64 via Worker (bypasses CORS),
+  // then convert everything to JPEG via canvas (handles WebP and other formats jsPDF doesn't support).
   const btn = document.getElementById('pdfBtn');
   const origText = btn.textContent;
   if(fd.products && fd.products.length){
     btn.textContent = '⏳ Laster bilder…'; btn.disabled = true;
     await Promise.all(fd.products.map(async p=>{
-      if(!p.image || p.image.startsWith('data:')) return; // already base64 or empty
-      try{
-        const res = await fetch(WORKER_URL + '/img?url=' + encodeURIComponent(p.image));
-        if(res.ok){
-          const d = await res.json();
-          if(d.data) p.image = d.data; // replace URL with base64 data URI
-        }
-      }catch(e){ /* keep original, will fail silently in PDF */ }
+      if(!p.image) return;
+      // Fetch from worker if still a URL
+      if(!p.image.startsWith('data:')){
+        try{
+          const res = await fetch(WORKER_URL + '/img?url=' + encodeURIComponent(p.image));
+          if(res.ok){ const d = await res.json(); if(d.data) p.image = d.data; }
+        }catch(e){}
+      }
+      // Convert to JPEG — handles WebP, AVIF, HEIC-decoded, etc.
+      if(p.image && !p.image.startsWith('data:image/jpeg')){
+        const jpg = await imageToJpeg(p.image, 1200, 0.88);
+        if(jpg) p.image = jpg;
+      }
     }));
     btn.disabled = false;
   }
@@ -2232,8 +2272,8 @@ async function doPDF(){
       doc.rect(ml,y,imgSz,imgSz);
       if(p.image){
         try{
-          const fmt=p.image.startsWith('data:image/png')||p.image.includes('.png')?'PNG':'JPEG';
-          doc.addImage(p.image,fmt,ml,y,imgSz,imgSz,'','FAST');
+          const fmt = p.image.startsWith('data:image/png') ? 'PNG' : 'JPEG';
+          doc.addImage(p.image, fmt, ml, y, imgSz, imgSz, '', 'MEDIUM');
         }catch(e){doc.setFillColor(245,245,242);doc.rect(ml,y,imgSz,imgSz,'F');}
       } else {
         doc.setFillColor(245,245,242);doc.rect(ml,y,imgSz,imgSz,'F');
